@@ -1,1 +1,1 @@
-/usr/local/src/python/cmdline.py
+/usr/local/src/python/cmdline/cmdline.py

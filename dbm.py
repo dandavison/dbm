@@ -607,8 +607,11 @@ class Root(Node):
             if i % 10 == 0 or i == nok: 
                 log('Last.fm similar artists playlists: \t%d / %d' % (i, nok))
             tracks = artist.lastfm_similar_artists_playlist()
-            write_playlist(tracks,
-                           os.path.join(direc, artist.clean_name() + '.m3u'))
+            try:
+                write_playlist(tracks,
+                               os.path.join(direc, artist.clean_name() + '.m3u'))
+            except:
+                elog('Failed to create last.fm similar playlist for artist %s' % artist.name)
             i += 1
 
     def write_musicspace_similar_artists_playlists(self, direc):
@@ -662,8 +665,11 @@ class Root(Node):
             if i % 10 == 0 or i == nok: 
                 log('Last.fm similar artists link files: \t%d / %d' % (i, nok))
             artist_nodes = artist.lastfm_similar_artists_nodes()
-            write_linkfile(artist_nodes,
-                           os.path.join(direc, artist.clean_name() + '.link'))
+            try:
+                write_linkfile(artist_nodes,
+                               os.path.join(direc, artist.clean_name() + '.link'))
+            except:
+                elog('Failed to create last.fm similar link file for artist %s' % artist.name)
             i += 1
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
