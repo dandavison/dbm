@@ -25,12 +25,12 @@
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
 #    (at your option) any later version.
- 
+
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
- 
+
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, a copy is available at
 #    http://www.gnu.org/licenses/gpl.txt
@@ -56,7 +56,7 @@ def elog(msg):
     except:
         settings.logfile.write('ERROR: Failed to write elog message\n')
 #        print('ERROR: Failed to write elog message\n')
-        
+
 class Settings(object):
     various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'
     lastfm = dict(api_key = 'a271d46d61c8e0960c50bec237c9941d',
@@ -75,7 +75,7 @@ class Settings(object):
             attributes = [a for a in dir(options) if a[0] != '_']
             for attr in attributes:
                 setattr(self, attr, getattr(options, attr))
-                
+
     def show(self):
         public = filter(lambda(x): x[0] != '_', dir(self))
         noshow = ['read_file', 'read_module', 'show', 'ensure_value', 'mbid_regexp']
@@ -85,10 +85,10 @@ class Settings(object):
             print('%s %s %s' % (repr(attr_name), type(attr), attr))
 
 class Dbm(CommandLineApp):
-    
+
     def __init__(self):
         CommandLineApp.__init__(self)
-        
+
         op = self.option_parser
         usage = 'usage: [options] %s -i %s -o %s' % (
             __progname__,
@@ -96,7 +96,7 @@ class Dbm(CommandLineApp):
             os.path.sep.join(['folder','to','receive','output']))
         op.set_usage(usage)
 
-        op.add_option('-i', '--library', dest='libdir', type='string', default=None, 
+        op.add_option('-i', '--library', dest='libdir', type='string', default=None,
                       help='Location of root of music library')
 
         op.add_option('-o', '--outdir', dest='outdir', type='string', default='.',
@@ -154,11 +154,11 @@ class Dbm(CommandLineApp):
                           "to create playlists and links for use on the local machine.")
 
         # self.log.setLevel(logging.DEBUG)
-        
+
     def check_settings(self):
         if not settings.savefile and not settings.libdir:
             raise DbmError('Either -f LIBFILE, or -i LIBDIR, or both, must be given' % settings.libdir)
-            
+
         if settings.libdir:
             if not (os.path.isdir(settings.libdir) or os.path.islink(settings.libdir)):
                 raise DbmError('library folder %s is not a valid folder' % settings.libdir)
@@ -265,14 +265,14 @@ class Dbm(CommandLineApp):
         if settings.create_files:
             log('Saving library to %s' % settings.savefile)
             pickle_object(root, settings.savefile)
-            
+
             log('Creating playlists and rockbox database')
 
             links_dir = os.path.join(settings.outdir, 'Links')
             lastfm_similar_links_dir = os.path.join(links_dir, 'Last.fm_Similar')
             musicspace_similar_links_dir = os.path.join(links_dir, 'Musicspace_Similar')
             az_links_dir = os.path.join(links_dir, 'A-Z')
- 
+
             playlists_dir = os.path.join(settings.outdir, 'Playlists')
             single_artists_playlists_dir = os.path.join(playlists_dir, 'Single_Artists')
             all_artists_playlists_dir = os.path.join(playlists_dir, 'All_Artists')
@@ -280,10 +280,10 @@ class Dbm(CommandLineApp):
             musicspace_similar_playlists_dir = os.path.join(playlists_dir, 'Musicspace_Similar')
 
             rec_dir = os.path.join(settings.outdir, 'Recommended')
-           
-            for d in [links_dir, rec_dir, playlists_dir, 
+
+            for d in [links_dir, rec_dir, playlists_dir,
                       az_links_dir, lastfm_similar_links_dir, musicspace_similar_links_dir,
-                      single_artists_playlists_dir, all_artists_playlists_dir, 
+                      single_artists_playlists_dir, all_artists_playlists_dir,
                       lastfm_similar_playlists_dir, musicspace_similar_playlists_dir]:
                 if not os.path.exists(d):
                     os.mkdir(d)
@@ -306,12 +306,12 @@ class Dbm(CommandLineApp):
     def usage(self):
         print('dbm version %s' % __version__)
         print('Use -i and -o options to specify location of music library and output folder. E.g.\n')
-        
+
         if os.name == 'posix':
             print('./dbm.py -i /media/ipod/music -o ~/music/ipod-dbm-output')
         else:
             print('python dbm.py -i E:\Music -o dbm-output')
-    
+
         print('If you want to re-use saved database files in an existing output')
         print('directory rather than scanning your music library again, use -u.')
         print('To see information on available options, use -h.')
@@ -320,7 +320,7 @@ class Dbm(CommandLineApp):
     def exit(self, code):
         settings.logfile.close()
         sys.exit(code)
-        
+
 class Node(object):
     """A tree representation of a music library."""
     def __init__(self, path, parent):
@@ -354,7 +354,7 @@ class Node(object):
 
     def is_pure_subtree(self):
         return len(self.dbm_artistids) == 1
-        
+
     def show(self):
         print('%s %d %s' % (self.path.ljust(75), len(self.dbm_artistids), self.dbm_artistids))
         if settings.show_tracks:
@@ -381,7 +381,7 @@ class Node(object):
 
         for subtree in self.subtrees:
             subtree.create_artist_name_to_mbid_mapping()
-            
+
     def set_dbm_artistids(self):
         """Each node has a dict node.dbm_artistids containing the counts of
         tracks by each artist in that subtree. This function traverses the
@@ -404,7 +404,7 @@ class Node(object):
                         root.artistnames[dbm_aid] = []
                     if aname:
                         root.artistnames[dbm_aid].append(aname)
-            
+
         # Determine if we are in a pure directory
         # FIXME this is strange
         dbm_aids = unique(filter(None, [t.dbm_artistid for t in self.tracks]))
@@ -429,7 +429,7 @@ class Node(object):
             if not track.artistname or not track.releasename:
                 return False
             aaid = track.dbm_albumartistid
-            if aaid: 
+            if aaid:
                 if aaid != track.dbm_artistid:
                     return False
                 if aaid == settings.various_artists_mbid:
@@ -466,7 +466,7 @@ class Node(object):
                     msg = 'Error downloading album art from %s' % url
                     elog(msg)
             log("%s: %s %s" % (ar[0], ar[1], '' if gotit else '     Failed'))
-                
+
         for subtree in self.subtrees:
             subtree.download_albumart()
 
@@ -505,7 +505,7 @@ class Node(object):
                 setattr(self, attr_name, None)
         for subtree in self.subtrees:
             subtree.delete_attributes(attr_names)
-        
+
     def __cmp__(self, other):
         return cmp(self.path, other.path)
 
@@ -522,6 +522,7 @@ class Root(Node):
         self.artists = {}
         self.simartists = {}
         self.subtree_tracks = []
+        self.tag_artists = {}
 
     def make_dbm_artistid(self, mbid, name):
         """Construct the dbm artist id for this (mbid, name) pair. If
@@ -592,11 +593,19 @@ class Root(Node):
         for dbm_aid in bad:
             # Deleting artist but not subtree here may be a bug
             self.artists.pop(dbm_aid)
-            
+
     def set_lastfm_similar_artists(self):
         for artist in sorted(self.artists.values()):
             if artist.subtrees:
                 artist.set_lastfm_similar_artists()
+
+    def tabulate_tags(self):
+        for artist in self.artists.values():
+            tags = artist.tags[0:4]
+            for tag in [t.name for t in tags]:
+                if not root.tag_artists.has_key(tag):
+                    root.tag_artists[tag] = []
+                root.tag_artists[tag].append(artist)
 
     def write_lastfm_similar_artists_playlists(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
@@ -604,7 +613,7 @@ class Root(Node):
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists playlists: \t%d / %d' % (i, nok))
             tracks = artist.lastfm_similar_artists_playlist()
             try:
@@ -622,7 +631,7 @@ class Root(Node):
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Musicspace similar artists playlists \t%d / %d' % (i, nok))
             tracks = artist.musicspace_similar_artists_playlist()
             if tracks:
@@ -635,7 +644,7 @@ class Root(Node):
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Single artist playlists: \t%d / %d' % (i, nok))
             tracks = random.sample(artist.tracks, len(artist.tracks))
             write_playlist(tracks, os.path.join(direc, artist.clean_name() + '.m3u'))
@@ -662,7 +671,7 @@ class Root(Node):
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists link files: \t%d / %d' % (i, nok))
             artist_nodes = artist.lastfm_similar_artists_nodes()
             try:
@@ -670,6 +679,20 @@ class Root(Node):
                                os.path.join(direc, artist.clean_name() + '.link'))
             except:
                 elog('Failed to create last.fm similar link file for artist %s' % artist.name)
+            i += 1
+
+    def write_lastfm_tag_linkfiles(self, direc):
+        n = length(self.tags)
+        i = 1
+        for tag in self.tag_artists:
+            if i % 10 == 0 or i == n:
+                log('Last.fm tag link files: \t%d / %d' % (i, n))
+            artist_nodes = flatten(a.subtrees for a in self.tag_artists[tag])
+            try:
+                write_linkfile(artist_nodes,
+                               os.path.join(direc, tag + '.link'))
+            except:
+                elog('Failed to create link file for tag %s' % tag)
             i += 1
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
@@ -680,20 +703,20 @@ class Root(Node):
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Musicspace similar artists link files: \t%d / %d' % (i, nok))
             artist_nodes = artist.musicspace_similar_artists_nodes()
             write_linkfile(artist_nodes,
                            os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
-            
+
     def write_lastfm_recommended_linkfiles(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
         for artist in artists:
-            if i % 10 == 0 or i == nok: 
+            if i % 10 == 0 or i == nok:
                 log('Recommended artists files: \t%d / %d' % (i, nok))
             recommended = artist.lastfm_recommended()
             path = os.path.join(direc, artist.clean_name() + '.link')
@@ -785,8 +808,8 @@ class Root(Node):
             elif len(node) > 1:
                 raise DbmError('More than one subtree with path %s' % p)
         subtree.parent = node[0]
-        
-        
+
+
 class ArtistNode(object):
     """A node may be associated with an artist for a variety of
     reasons. E.g.
@@ -824,7 +847,7 @@ class ArtistNode(object):
 
 
     def show(self):
-        print('ArtistNode: %s, %s, %s' % 
+        print('ArtistNode: %s, %s, %s' %
               ('no node!' if not self.node else self.node.path, self.artist.name, self.albumartist.name))
 
     def __cmp__(self, other):
@@ -851,6 +874,7 @@ class Artist(object):
         self.tracks_as_albumartist = []
         self.lastfm_name = ''
         self.musicspace_location = []
+        self.tags = []
 
     def set_lastfm_similar_artists(self):
         if root.simartists.has_key(self.id):
@@ -863,11 +887,17 @@ class Artist(object):
         i = 0
         while waiting and i < settings.numtries:
             try:
+                if not self.lastfm_name:
+                    self.set_lastfm_name()
                 self.simartists = self.query_lastfm_similar()
                 root.simartists[self.id] = self.simartists
+
+                self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
+                self.tags = self.pylast.get_top_tags()
+
                 waiting = False
                 name = self.lastfm_name or self.name
-                log('%s last.fm query: %s name %s (%s) got %d artists' % 
+                log('%s last.fm query: %s name %s (%s) got %d artists' %
                     (timenow(),
                      'validated' if self.lastfm_name else 'unvalidated',
                      name,
@@ -877,9 +907,9 @@ class Artist(object):
             except:
                 name = self.lastfm_name or self.name
                 if not isinstance(name, basestring):
-                    elog('self.lastfm_name = %s, self.name = %s' % 
+                    elog('self.lastfm_name = %s, self.name = %s' %
                          (repr(dir(self.lastfm_name)), repr(dir(self.name))))
-                log('%s last.fm query: %s name %s (%s) FAILED' % 
+                log('%s last.fm query: %s name %s (%s) FAILED' %
                     (timenow(),
                      'validated' if self.lastfm_name else 'unvalidated',
                      name,
@@ -887,30 +917,28 @@ class Artist(object):
                 i = i+1
                 time.sleep(.1)
 
+    def set_lastfm_name(self):
+        if settings.mbid_regexp.match(self.id):
+            try:
+                self.lastfm_name = \
+                    pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
+            except pylast.ServiceException:
+                elog('pylast.ServiceException occurred with artist %s' % self.id)
+        else:
+            self.lastfm_name = self.name
+
     def query_lastfm_similar(self):
         """Return list of similar artist (id, name) tuples. Since
         pylast doesn't currently include mbids in Artist objects, it's a
         bit convoluted to do this with pylast."""
 
-        if self.lastfm_name:
-            lastfm_name = self.lastfm_name
-        elif settings.mbid_regexp.match(self.id):
-            try:
-                lastfm_name = self.lastfm_name = \
-                    pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
-            except pylast.ServiceException:
-                elog('pylast.ServiceException occurred with artist %s' % self.id)
-                lastfm_name = self.name
-        else:
-            lastfm_name = self.name
-
-        params = {'artist': lastfm_name}
+        params = {'artist': self.lastfm_name or self.name}
         doc = pylast._Request("artist.getSimilar", params, **settings.lastfm).execute(True)
         simids = pylast._extract_all(doc, 'mbid')
         simnames = pylast._extract_all(doc, 'name')
-        retval = zip(simids, simnames) 
+        retval = zip(simids, simnames)
         return [(x[0] or None, x[1]) for x in retval]
-                 
+
     def musicspace_similar_artists_playlist(self, n=1000):
         artists = sample(n, self.artists_weights)
 # TMP while pickling problems, otherwise I would use artist instance
@@ -930,7 +958,7 @@ class Artist(object):
 # references seemed to fuck up on pickling somehow.
         artists = [root.artists[x[0]] for x in self.artists_weights]
         return flatten([sorted(list(artist.subtrees)) for artist in artists])
-        
+
     def lastfm_similar_artists_playlist(self, n=1000):
         # FIXME: code seems a bit ugly in this function; why using
         # dbm_aids instead of artist references?
@@ -946,7 +974,7 @@ class Artist(object):
                    if artist and artist.tracks]
         artists = [self] + artists
         return flatten([sorted(list(artist.subtrees)) for artist in artists])
-        
+
     def lastfm_recommended(self):
         return [x[1] for x in self.simartists \
                     if not root.lookup_dbm_artistid(x)]
@@ -978,7 +1006,7 @@ class Artist(object):
                 self.subtrees = set(anodes)
 
     def show(self):
-        print('%s %s %d tracks %d albumartist tracks' % 
+        print('%s %s %d tracks %d albumartist tracks' %
               (self.id.ljust(25), self.name,
                len(self.tracks), len(self.tracks_as_albumartist)))
 
@@ -1002,7 +1030,7 @@ class Artist(object):
         fileobj.write(
             ','.join(map(str, self.musicspace_location)) + \
                 ',' * (settings.musicspace_dimension - len(self.musicspace_location)) + '\n')
-        
+
 
     def clean_name(self):
         name = self.name
@@ -1027,12 +1055,12 @@ class LastFmUser(pylast.User):
         """A modified version of
         pylast.User.get_weekly_artist_charts. Changed to include mbids
         in return data."""
-		
+
         params = self._get_params()
         if from_date and to_date:
             params["from"] = from_date
             params["to"] = to_date
-		
+
             doc = self._request("user.getWeeklyArtistChart", True, params)
 
             mbids = []
@@ -1043,7 +1071,7 @@ class LastFmUser(pylast.User):
                 names.append(pylast._extract(node, "name"))
                 counts.append(int(pylast._extract(node, "playcount")))
             return dict(zip(zip(mbids, names), counts))
-		
+
     def get_artist_counts(self):
         dates = self.get_weekly_chart_dates()
         log('Collecting listening data from %d weekly charts' % len(dates))
@@ -1110,7 +1138,7 @@ def write_linkfile(anodes, filepath):
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
 #        lfile.write('#Display last path segments=1\n')
         lfile.write('\n'.join([v.make_rockbox_link() for v in anodes]) + '\n')
-    
+
 def make_rockbox_path(path):
     """Form path to music on rockboxed player from path on computer.
 
@@ -1148,7 +1176,7 @@ def make_rockbox_path(path):
             path = os.path.sep + path
         path = path.replace('\\', '/') ## rockbox uses linux-style path separators
         return path
-        
+
 #     path = path.replace(settings.libdir, '')
 #     path = path.replace('\\', '/') ## rockbox uses linux style path separators
 #     return '/' + os.path.split(settings.libdir)[1] + path
@@ -1182,7 +1210,7 @@ def recommend_new_artists(scrobble_archive='', q=.8):
     usimartnames = unique(simartnames)
     simartcounts = dict.fromkeys(usimartnames, 0)
     for name in simartnames:
-        simartcounts[name] = simartcounts[name] + 1 
+        simartcounts[name] = simartcounts[name] + 1
     counts = simartcounts.values()
     counts.sort()
     cutoff = counts[int(round(q * len(usimartnames)))]
@@ -1207,7 +1235,6 @@ def recommend_new_artists(scrobble_archive='', q=.8):
 
 def read_scrobble_archive(f):
     f = open(f, 'r')
-    entries = ('artistname', 'releasename', 'trackname', 'something', 
+    entries = ('artistname', 'releasename', 'trackname', 'something',
                'length', 'listened', 'playtime')
     return [dict(entries, l.split('\t')) for l in f.readlines()]
-

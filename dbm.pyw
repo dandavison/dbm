@@ -25,12 +25,12 @@
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
 #    (at your option) any later version.
- 
+
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
- 
+
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, a copy is available at
 #    http://www.gnu.org/licenses/gpl.txt
@@ -59,7 +59,7 @@
 
 # Important variables
 
-# dbm.root                the root of the data structure representing the library 
+# dbm.root                the root of the data structure representing the library
 # dbm.root.path           the path to the root of the library on disk
 # settings.savefile       the file in which the scanned library is saved
 
@@ -127,12 +127,12 @@ class MainWindow(QMainWindow):
         #                                   Qt.BottomDockWidgetArea)
         #     logDockWidget.setWidget(self.listWidget)
         #     self.addDockWidget(Qt.BottomDockWidgetArea, logDockWidget)
-            
+
         # else:
         #     self.setCentralWidget(self.listWidget)
 
         # new configuration
-        
+
         self.listWidget = QListWidget()
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
             "Download album art", self.albumArtDownload,
             None, "None",
             "Download all album art")
-        
+
 # Actions -- settings
 #         setPathToRockboxAction = self.createAction("Set path to &Rockbox player",
 #                 self.setPathToRockbox,
@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
 
 # Menus -- file
         self.fileMenu = self.menuBar().addMenu("&File")
-        self.fileMenuActions = (libraryScanAction, libraryOpenAction, 
+        self.fileMenuActions = (libraryScanAction, libraryOpenAction,
                                 librarySaveAction, librarySaveAsAction,
                                 None,
                                 libraryAddAction, libraryRefreshAction,
@@ -255,7 +255,7 @@ class MainWindow(QMainWindow):
 
 # Menus -- view
         viewMenu = self.menuBar().addMenu("&View")
-        self.addActions(viewMenu, 
+        self.addActions(viewMenu,
                         (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
                          None,
                          artistsTreeWidgetAction))
@@ -267,7 +267,7 @@ class MainWindow(QMainWindow):
                          createLinksAction, generatePlaylistsAction, None,
                          albumArtDownloadAction, None,
                          setSettingsAction))
-        
+
 # # Menus -- settings
 #         self.settingsMenu = self.menuBar().addMenu("&Settings")
 #         self.addActions(self.settingsMenu,
@@ -279,7 +279,7 @@ class MainWindow(QMainWindow):
 
         fileToolbar = self.addToolBar("File")
         fileToolbar.setObjectName("FileToolBar")
-        self.addActions(fileToolbar, (libraryScanAction, libraryOpenAction, librarySaveAsAction, 
+        self.addActions(fileToolbar, (libraryScanAction, libraryOpenAction, librarySaveAsAction,
                                       libraryAddAction, setSettingsAction,
                                       setSimilarArtistsAction, createLinksAction, generatePlaylistsAction))
 
@@ -294,7 +294,7 @@ class MainWindow(QMainWindow):
         self.move(position)
         self.restoreState(
             qSettings.value("MainWindow/State").toByteArray())
-        
+
         self.setWindowTitle("%s" % __progname__)
         self.updateFileMenu()
         # QTimer.singleShot(0, self.loadInitialFile)
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
             ('libraryLoader', LibraryLoader, self.finishedLoadingLibrary),
             ('librarySaver', LibrarySaver, self.finishedSavingLibrary),
             ('libraryGrafter', LibraryGrafter, self.finishedGraftingLibrary),
-            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter, 
+            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
              self.finishedSettingLastfmSimilarArtists),
             ('linksCreator', LinksCreator, self.finishedCreatingLinks),
             ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
@@ -376,7 +376,7 @@ class MainWindow(QMainWindow):
         self.log(message)
         if dbm.root is not None:
             if settings.savefile is not None:
-                self.setWindowTitle("%s - %s[*]" % 
+                self.setWindowTitle("%s - %s[*]" %
                                     (__progname__, os.path.basename(settings.savefile)))
             else:
                 self.setWindowTitle("%s - %s[*]" % (__progname__, dbm.root.path))
@@ -400,7 +400,7 @@ class MainWindow(QMainWindow):
 
     def logi(self, message, colour=None):
         self.log(message, colour, inplace=True)
-        
+
     def okToContinue(self):
         if self.libraryScanner.isRunning() or \
                 self.lastfmSimilarArtistSetter.isRunning() or \
@@ -641,7 +641,7 @@ class MainWindow(QMainWindow):
                                     "Please load a saved library or initiate a new scan.")
             return True
         return False
-                                
+
 
     def alertIfDirNotEmpty(self, path, title='Directory not empty'):
         if os.listdir(path):
@@ -695,10 +695,12 @@ class MainWindow(QMainWindow):
             return
 
         self.log('Creating rockbox library navigation links...')
-        dirs = dict(lastfm_similar='Last.fm_Similar',
-                    musicspace_similar='Musicspace_Similar',
-                    AtoZ='A-Z')
-        dirs = dict(zip(dirs.keys(), [os.path.join(settings.nav_links_path, d) for d in dirs.values()]))
+        dirs = dict(lastfm_similar='Last.fm Similar',
+                    musicspace_similar='Musicspace Similar',
+                    AtoZ='A-Z',
+                    tags='Artist Tags')
+        dirs = dict(zip(dirs.keys(),
+                        [os.path.join(settings.nav_links_path, d) for d in dirs.values()]))
         for d in dirs.values():
             if not os.path.exists(d): os.mkdir(d)
 
@@ -834,7 +836,7 @@ class MainWindow(QMainWindow):
             self.finishedNewThread(False)
 #         else:
 #             self.accept()
-            
+
     def abortThread(self):
         for attr_name, constructor, finisher in self.threads:
             thread = getattr(self, attr_name)
@@ -887,7 +889,7 @@ class MainWindow(QMainWindow):
                 target.addSeparator()
             else:
                 target.addAction(action)
-                
+
 
 class DiskTreeWidget(QTreeWidget):
     def toggleExpansion(self):
@@ -897,8 +899,8 @@ class DiskTreeWidget(QTreeWidget):
             self.is_expanded = False
         else:
             self.expandAll()
-            self.is_expanded = True            
- 
+            self.is_expanded = True
+
     def node_attributes(self, item):
         attr_names = ['', 'Artist', 'Album', 'Album artist']
         att = dict(zip(attr_names, [''] * len(attr_names)))
@@ -921,7 +923,7 @@ class DiskTreeWidget(QTreeWidget):
                 att['Album artist'] = '?'
 
         return [(name, att[name]) for name in attr_names]
-        
+
     def addNode(self, node, parent):
         # parent =  node.parent.diskTreeWidgetItem \
         #     if node.parent else self
@@ -940,11 +942,11 @@ class DiskTreeWidget(QTreeWidget):
                                    Qt.darkGreen if track.releaseid else Qt.red)
             trackItem.setTextColor(column['Album artist'],
                                    Qt.darkGreen if track.albumartistid else Qt.red)
-            
+
         for subtree in sorted(node.subtrees):
             self.addNode(subtree, node.diskTreeWidgetItem)
-            
-            
+
+
     def populate(self, root, selectedNode = None):
         # descended from populateTree() in rgpwpyqt/chap14/ships-dict.pyw
         selected = None # not maintaining selectedness at the moment
@@ -961,7 +963,7 @@ class DiskTreeWidget(QTreeWidget):
         if selected is not None:
             selected.setSelected(True)
             self.setCurrentItem(selected)
-            
+
 class ArtistsTreeWidget(DiskTreeWidget):
     def artist_attributes(self, artist):
         attr_names = ['', 'Similar Artists']
@@ -1068,7 +1070,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
                 settings.nav_links_path = os.path.sep.join((settings.path_to_rockbox, 'Links'))
             if settings.playlists_path is None:
                 settings.playlists_path = os.path.sep.join((settings.path_to_rockbox, 'Playlists'))
-        
+
         self.musicspaceDropoffSpinBox.setValue(settings.musicspace_dropoff_param)
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
         self.navFolderChangeButton.setText(settings.nav_links_path or 'None')
@@ -1162,7 +1164,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         settings.playlists_path = path
         self.update()
         self.parent.log('Set output folder for playlists to %s' % settings.playlists_path)
-        
+
     def setLastfmUsers(self):
         text = unicode(self.lastfmUsersLineEdit.text())
         names = [s.strip() for s in text.split(',')]
@@ -1222,7 +1224,7 @@ class NewThread(QThread):
             print('Exception in NewThread.stop()')
         finally:
             self.mutex.unlock()
-            
+
     def finishUp(self):
         self.completed = True
         self.stop()
@@ -1248,7 +1250,7 @@ class NewThread(QThread):
             self.emit(SIGNAL('logi(QString)'), message)
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
-            
+
 class LibraryScanner(NewThread):
     def initialize(self, path, simartists={}):
         NewThread.initialize(self)
@@ -1351,14 +1353,19 @@ class LinksCreator(NewThread):
         NewThread.initialize(self)
         self.dirs = dirs
         dbm.log = self.logi
-    def run(self):    
+    def run(self):
         if settings.musicspace_ready:
             self.log('Creating links to musicspace similar artists...')
             self.dbm.root.write_musicspace_similar_artists_linkfiles(self.dirs['musicspace_similar'])
         self.log('Creating links to lastfm similar artists...')
         self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
+
         self.log('Creating alphabetical index...')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
+
+        self.log('Creating last.fm tag links')
+        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
+
         self.log('Creating last.fm user links')
         self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
@@ -1403,7 +1410,7 @@ if __name__ == '__main__':
 #    app.setOrganizationDomain('')
     app.setApplicationName(__progname__)
     app.setWindowIcon(QIcon(":/Python_reticulatus.png"))
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == '-e':
         __log_to_file__ = False
 
