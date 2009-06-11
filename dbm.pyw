@@ -664,8 +664,7 @@ class MainWindow(QMainWindow):
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
               "%s - Set location of Rockbox player." % __progname__,
-              "Please set the location of your Rockbox music player.")
-            # if not self.setPathToRockbox(): return
+              "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
         prev_val = settings.nav_links_path
@@ -713,8 +712,7 @@ class MainWindow(QMainWindow):
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
               "%s - Set location of Rockbox player." % __progname__,
-              "Please set the location of your Rockbox music player.")
-            # self.setPathToRockbox()
+              "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
         prev_val = settings.playlists_path
