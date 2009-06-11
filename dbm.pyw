@@ -1042,40 +1042,45 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.update()
         
         connections = [
-            ('targetComboBox', 'currentIndexChanged(int)', 'setTarget'),
-            ('targetDevHelpButton', '', 'targetDevHelp'),
+            ('targetComboBox', SIGNAL("currentIndexChanged(int)"), 'setTarget'),
+            ('targetDevHelpButton', SIGNAL("clicked()"), 'targetDevHelp'),
 
-            ('setPathToRockbox', '','rockboxPathChangeButton'),
-            ('rockboxPathHelp', '', 'rockboxPathHelpButton'),
+            ('rockboxPathChangeButton', SIGNAL("clicked()"), 'setPathToRockbox'),
+            ('rockboxPathHelpButton', SIGNAL("clicked()"), 'rockboxPathHelp'),
 
-            ('navFolderChangeButton', '', 'setPathToNavFolder'),
-            ('navFolderHelpButton', '', 'navFolderHelp'),
+            ('navFolderChangeButton', SIGNAL("clicked()"), 'setPathToNavFolder'),
+            ('navFolderHelpButton', SIGNAL("clicked()"), 'navFolderHelp'),
 
-            ('plFolderChangeButton', '', 'setPathToPlFolder'),
-            ('plFolderHelpButton', '', 'plFolderHelp'),
+            ('plFolderChangeButton', SIGNAL("clicked()"), 'setPathToPlFolder'),
+            ('plFolderHelpButton', SIGNAL("clicked()"), 'plFolderHelp'),
 
-            ('musicspaceFileChangeButton', '', 'setMusicspaceFile'),
-            ('musicspaceFileHelpButton', '', 'musicspaceFileHelp'),
+            ('musicspaceFileChangeButton', SIGNAL("clicked()"), 'setMusicspaceFile'),
+            ('musicspaceFileHelpButton', SIGNAL("clicked()"), 'musicspaceFileHelp'),
 
-            ('minArtistTracksComboBox', 'currentIndexChanged(int)', 'setMinArtistTracks'),
-            ('minArtistTracksHelpButton', '', 'minArtistTracksHelp'),
+            ('minArtistTracksComboBox', SIGNAL('currentIndexChanged(int)'), 'setMinArtistTracks'),
+            ('minArtistTracksHelpButton', SIGNAL("clicked()"), 'minArtistTracksHelp'),
 
-            ('minTagArtistsComboBox', 'currentIndexChanged(int)', 'setMinTagArtists'),
-            ('minTagArtistsHelpButton', '', 'minTagArtistsHelp'),
+            ('minTagArtistsComboBox', SIGNAL('currentIndexChanged(int)'), 'setMinTagArtists'),
+            ('minTagArtistsHelpButton', SIGNAL("clicked()"), 'minTagArtistsHelp'),
 
-            ('lastfmUsersLineEdit', 'editingFinished()', 'setLastfmUsers'),
-            ('lastfmUsersHelpButton', '', 'lastfmUsersHelp'),
+            ('lastfmUsersLineEdit', SIGNAL('editingFinished()'), 'setLastfmUsers'),
+            ('lastfmUsersHelpButton', SIGNAL("clicked()"), 'lastfmUsersHelp'),
 
-            ('lastfmQueriesComboBox', 'currentIndexChanged(int)', 'setLastfmNumTries'),
-            ('lastfmQueriesHelpButton', '', 'lastfmQueriesHelp'),
+            ('lastfmQueriesComboBox', SIGNAL('currentIndexChanged(int)'), 'setLastfmNumTries'),
+            ('lastfmQueriesHelpButton', SIGNAL("clicked()"), 'lastfmQueriesHelp'),
 
-            ('musicspaceDropoffSpinBox', 'valueChanged(double)', 'setMusicspaceDropoff'),
-            ('musicspaceDropoffHelpButton', '', 'musicspaceDropoffHelp')]
+            ('musicspaceDropoffSpinBox', SIGNAL('valueChanged(double)'), 'setMusicspaceDropoff'),
+            ('musicspaceDropoffHelpButton', SIGNAL("clicked()"), 'musicspaceDropoffHelp')]
         
         for ui_element, signal, action in connections:
-            self.connect(getattr(self, ui_element),
-                         SIGNAL(signal or 'clicked()'),
-                         getattr(self, action))
+            try:
+                self.connect(getattr(self, ui_element),
+                             signal,
+                             # SIGNAL(signal or 'clicked()'),
+                             getattr(self, action))
+            except:
+                print('%s %s %s\n' % (ui_element, signal, action))
+                raise
 
     def update(self):
         if settings.target != 'rockbox':
@@ -1160,6 +1165,16 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         settings.numtries = int(self.lastfmQueriesComboBox.currentText())
         self.parent.log('Set maximum number of last.fm queries to %d' % settings.numtries)
 
+    def setMinArtistTracks(self):
+        settings.minArtistTracks = int(self.minArtistTracksComboBox.currentText())
+        self.parent.log('Set minimum tracks for artist to get links/lists to %d' \
+                            % settings.minArtistTracks)
+
+    def setMinTagArtists(self):
+        settings.minTagArtists = int(self.minTagArtistsComboBox.currentText())
+        self.parent.log('Set minimum artists for tag to get links/lists to %d' \
+                            % settings.minTagArtists)
+
     def setMusicspaceDropoff(self):
         settings.musicspace_dropoff_param = float(self.musicspaceDropoffSpinBox.value())
 
@@ -1193,7 +1208,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
             "%s - help" % __progname__,
             "How many tracks does an artist have to have in your collection in order for similar music links and playlists to be created for that artist? This option might be used to avoid making similar artist links and playlists for obscure artists that you've never actually heard of.")
 
-    def minTagArtistHelp(self):
+    def minTagArtistsHelp(self):
         QMessageBox.information(
             self,
             "%s - help" % __progname__,
