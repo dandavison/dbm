@@ -709,8 +709,8 @@ class Root(Node):
         n = len(tags)
         i = 1
         for tag in tags:
-            if i % 10 == 0 or i == nok:
-                log('Last.fm tag playlists: \t%d / %d' % (i, nok))
+            if i % 10 == 0 or i == n:
+                log('Last.fm tag playlists: \t%d / %d' % (i, n))
             try:
                 write_playlist(tag.playlist(),
                                os.path.join(direc, tag.name + '.m3u'))
