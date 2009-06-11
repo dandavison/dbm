@@ -741,7 +741,9 @@ class MainWindow(QMainWindow):
         dirs = dict(lastfm_similar='Last.fm_Similar',
                     musicspace_similar='Musicspace_Similar',
                     single_artists='Single_Artists',
-                    all_artists='All_Artists')
+                    all_artists='All_Artists',
+                    tags = 'Artist Tags')
+        
         dirs = dict(zip(dirs.keys(), [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
         for d in dirs.values():
             if not os.path.exists(d): os.mkdir(d)
@@ -1391,6 +1393,8 @@ class PlaylistGenerator(NewThread):
             self.dbm.root.write_musicspace_similar_artists_playlists(self.dirs['musicspace_similar'])
         self.log('Generating Last.fm similar artists playlists...')
         self.dbm.root.write_lastfm_similar_artists_playlists(self.dirs['lastfm_similar'])
+        self.log('Generating Last.fm tag playlists...')
+        self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
         self.log('Generating single artist random playlists...')
         self.dbm.root.write_single_artists_playlists(self.dirs['single_artists'])
         self.log('Generating whole-library random playlists...')
