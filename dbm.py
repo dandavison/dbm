@@ -601,6 +601,7 @@ class Root(Node):
         self.tabulate_tags()
         
     def tabulate_tags(self):
+        self.tags = {}
         if self.tags:
             elog('root.tags should have been empty')
             self.tags = {}
