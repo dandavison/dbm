@@ -1406,6 +1406,9 @@ class LinksCreator(NewThread):
         self.dirs = dirs
         dbm.log = self.logi
     def run(self):
+        self.log('Creating last.fm tag links')
+        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
+
         if settings.musicspace_ready:
             self.log('Creating links to musicspace similar artists...')
             self.dbm.root.write_musicspace_similar_artists_linkfiles(self.dirs['musicspace_similar'])
@@ -1414,9 +1417,6 @@ class LinksCreator(NewThread):
 
         self.log('Creating alphabetical index...')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
-
-        self.log('Creating last.fm tag links')
-        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
 
         self.log('Creating last.fm user links')
         self.dbm.root.lastfm_users = {}

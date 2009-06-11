@@ -698,15 +698,15 @@ class Root(Node):
             artist_nodes = flatten(list(a.subtrees) for a in tag.artists)
             try:
                 write_linkfile(artist_nodes,
-                               os.path.join(direc, tag + '.link'))
+                               os.path.join(direc, tag.name + '.link'))
             except:
-                elog('Failed to create link file for tag %s' % tag)
+                elog('Failed to create link file for tag %s' % tag.name)
             i += 1
 
     def write_lastfm_tag_playlists(self, direc):
-        if not self.tags: self.tabulate_tags()
+        self.tabulate_tags()
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
-        tags = filter(ok, self.tags)
+        tags = filter(ok, self.tags.values())
         n = len(tags)
         i = 1
         for tag in tags:
