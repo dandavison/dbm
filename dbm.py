@@ -686,14 +686,14 @@ class Root(Node):
             i += 1
 
     def write_lastfm_tag_linkfiles(self, direc):
-        ok = lambda(tag): len(self.tag_artists[tag]) >= settings.minTagArtists
-        tags = filter(ok, self.tag_artists.keys()) 
+        ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
+        tags = filter(ok, self.tags)
         n = len(tags)
         i = 1
         for tag in tags:
             if i % 10 == 0 or i == n:
                 log('Last.fm tag link files: \t%d / %d' % (i, n))
-            artist_nodes = flatten(list(a.subtrees) for a in self.tag_artists[tag])
+            artist_nodes = flatten(list(a.subtrees) for a in tag.artists)
             try:
                 write_linkfile(artist_nodes,
                                os.path.join(direc, tag + '.link'))
