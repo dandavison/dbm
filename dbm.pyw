@@ -1009,6 +1009,9 @@ class Settings(dbm.Settings):
         self.artist_min_tracks_for_output = 1
         self.lastfm_user_names = []
         self.numtries = 5
+        self.minTagArtists = 1 # min artists per tag for tag to get links and lists
+        self.minArtistTracks = 1 # min tracks per artist for artist to get links and lists
+
         self.target = 'rockbox'
         self.quiet = False
         self.albumartdir = None
@@ -1031,36 +1034,48 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.setWindowTitle("%s - Settings" % __progname__)
 
         for text in ['rockbox']: self.targetComboBox.addItem(text)
+
         self.lastfmQueriesComboBox.addItems(map(str, range(1, 11)))
-        self.lastfmQueriesComboBox.setCurrentIndex(settings.numtries - 1)
+        self.minArtistTracksComboBox.addItems(map(str, range(1, 11)))
+        self.minTagArtistsComboBox.addItems(map(str, range(1, 20)))
 
         self.update()
-#        self.connect(self.libraryLocationHelpButton, SIGNAL("clicked()"), self.libraryLocationHelp)
+        
+        connections = [
+            (targetComboBox, "currentIndexChanged(int)", setTarget),
+            (targetDevHelpButton, '', targetDevHelp),
 
-        self.connect(self.targetComboBox, SIGNAL("currentIndexChanged(int)"), self.setTarget)
-        self.connect(self.targetDevHelpButton, SIGNAL("clicked()"), self.targetDevHelp)
+            (setPathToRockbox, '',rockboxPathChangeButton),
+            (rockboxPathHelp, '', rockboxPathHelpButton),
 
-        self.connect(self.rockboxPathChangeButton, SIGNAL("clicked()"), self.setPathToRockbox)
-        self.connect(self.rockboxPathHelpButton, SIGNAL("clicked()"), self.rockboxPathHelp)
+            (navFolderChangeButton, '', setPathToNavFolder),
+            (navFolderHelpButton, '', navFolderHelp),
 
-        self.connect(self.navFolderChangeButton, SIGNAL("clicked()"), self.setPathToNavFolder)
-        self.connect(self.navFolderHelpButton, SIGNAL("clicked()"), self.navFolderHelp)
+            (plFolderChangeButton, '', setPathToPlFolder),
+            (plFolderHelpButton, '', plFolderHelp),
 
-        self.connect(self.plFolderChangeButton, SIGNAL("clicked()"), self.setPathToPlFolder)
-        self.connect(self.plFolderHelpButton, SIGNAL("clicked()"), self.plFolderHelp)
+            (musicspaceFileChangeButton, '', setMusicspaceFile),
+            (musicspaceFileHelpButton, '', musicspaceFileHelp),
 
-        self.connect(self.musicspaceFileChangeButton, SIGNAL("clicked()"), self.setMusicspaceFile)
-        self.connect(self.musicspaceFileHelpButton, SIGNAL("clicked()"), self.musicspaceFileHelp)
+            (minArtistTracksComboBox, "currentIndexChanged(int)", setMinArtistTracks),
+            (minArtistTracksHelpButton, '', minArtistTracksHelp),
 
-        self.connect(self.musicspaceDropoffSpinBox, SIGNAL("valueChanged(double)"),
-                     self.setMusicspaceDropoff)
-        self.connect(self.musicspaceDropoffHelpButton, SIGNAL("clicked()"), self.musicspaceDropoffHelp)
+            (minTagArtistsComboBox, "currentIndexChanged(int)", setMinTagArtists),
+            (minTagArtistsHelpButton, '', minTagArtistsHelp),
 
-        self.connect(self.lastfmQueriesComboBox, SIGNAL("currentIndexChanged(int)"), self.setLastfmNumTries)
-        self.connect(self.lastfmQueriesHelpButton, SIGNAL("clicked()"), self.lastfmQueriesHelp)
+            (lastfmUsersLineEdit, "editingFinished()", setLastfmUsers),
+            (lastfmUsersHelpButton, '', lastfmUsersHelp),
 
-        self.connect(self.lastfmUsersLineEdit, SIGNAL("editingFinished()"), self.setLastfmUsers)
-        self.connect(self.lastfmUsersHelpButton, SIGNAL("clicked()"), self.lastfmUsersHelp)
+            (lastfmQueriesComboBox, "currentIndexChanged(int)", setLastfmNumTries),
+            (lastfmQueriesHelpButton, '', lastfmQueriesHelp),
+
+            (musicspaceDropoffSpinBox, "valueChanged(double)", setMusicspaceDropoff),
+            (musicspaceDropoffHelpButton, '', musicspaceDropoffHelp)]
+        
+        for ui_element, signal, action in connections:
+            self.connect(getattr(self, ui_element),
+                         SIGNAL(signal or 'clicked()'),
+                         getattr(self, action))
 
     def update(self):
         if settings.target != 'rockbox':
@@ -1071,59 +1086,17 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
             if settings.playlists_path is None:
                 settings.playlists_path = os.path.sep.join((settings.path_to_rockbox, 'Playlists'))
 
-        self.musicspaceDropoffSpinBox.setValue(settings.musicspace_dropoff_param)
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
         self.navFolderChangeButton.setText(settings.nav_links_path or 'None')
         self.plFolderChangeButton.setText(settings.playlists_path or 'None')
-        self.musicspaceFileChangeButton.setText(settings.musicspace_file or 'None')
+
         self.lastfmUsersLineEdit.setText(', '.join(settings.lastfm_user_names))
+        self.musicspaceFileChangeButton.setText(settings.musicspace_file or 'None')
+        self.musicspaceDropoffSpinBox.setValue(settings.musicspace_dropoff_param)
 
-#     def libraryLocationHelp(self):
-#         QMessageBox.information(self,
-#                                 "%s - help" % __progname__,
-#                                 "This is the root folder of your music library. If you haven't loaded a saved library, and haven't scanned a new library, then this will be None.")
-
-    def targetDevHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "If you want to create links and playlists that will work on a music player running rockbox, then select 'rockbox'. The alternative would be to create links and playlists that will work on your computer, although that's not available yet (let me know if you want it).")
-
-    def rockboxPathHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "If you have selected rockbox as your target, then use this button to indicate the location of your rockbox device. So, on Windows that might be something like E:, and on linux it might be something like /media/disk")
-
-    def navFolderHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "This is the folder in which you want the rockbox navigation links to be created. It would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Navigation on Windows, or /media/disk/Navigation on linux.")
-
-    def plFolderHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "This is the folder in which you want the various different playlists to be created. If you're going to use them on your rockbox player, then it would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Playlists on Windows, or /media/disk/Playlists on linux.")
-
-    def musicspaceFileHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "A musicspace file allows you to create playlists and links based on your personal notions of music similarity, rather than using similarity data from e.g. last.fm. If you have created a musicspace file, then select it here.\n\nA musicspace file is a .csv spreadsheet file: i.e. it's a plain text file with one row per artist, and with columns separated by commas. The first two columns contain the artist name and the artist MusicBrainz ID. You can leave the MusicBrainz ID empty, and %s will do its best to work out what artist you are referring to. The subsequent columns are where you define the position of artists relative to each other. There can be an arbitrary number of these columns, each corresponding to some axis in a multi-dimensional music space. The axes can be anything you like. One possibility is associating each axis with a musical genre. Or perhaps each axis should be defined by what lies at its opposite ends. However you define your dimensions, each artist must have a numeric entry in each of the columns, indicating that artist's position in music space." % __progname__)
-
-    def musicspaceDropoffHelp(self):
-        QMessageBox.information(self,
-                                "%s - help" % __progname__,
-                                "The drop-off parameter controls musicspace playlist generation (it has no effect on Last.fm playlists). Let's say you're creating a musicspace playlist for artist X. If you set the drop-off parameter to zero, then the tracks in the playlist will come from all artists in musicspace, without regard to their proximity to artist X. And if you set it to a large enough number, then the tracks in the playlist will only come from artists that occupy exactly the same position in musicspace as artist X. So, you want something in between. To start off with, try a value somewhere between 2.5 and 4.0. If you want to know the details, read on.\n\nA track in the playlist for artist X is chosen by picking an artist, and then picking a track at random from that artist's tracks (so there's no bias towards artists with many tracks). Artist Y is chosen to contribute a track to artist X's playlist with probability proportional to (1+Dxy)^(-a), where Dxy is the Euclidean distance between artists X and Y, and a is the dropoff parameter.")
-
-    def lastfmQueriesHelp(self):
-        QMessageBox.information(
-            self,
-            "%s - help" % __progname__,
-            "How many times do you want %s to attempt to download an artist's data" + \
-                "from last.fm before giving up?" % __progname__)
-
-    def lastfmUsersHelp(self):
-        QMessageBox.information(
-            self, "%s - help" % __progname__,
-            """Enter the names of last.fm users for whom you want to create links and playlists, separated by commas. Two types of links are created: 'listened' contains locally available music that has been listened to recently by the user in question; 'unlistened' is locally available music that has not been listened to recently by the user in question. The first might be of more interest when the user is not you (explore someone else's music), whereas the opposite is true of the second (explore music you own but have not been listening to).""")
+        self.lastfmQueriesComboBox.setCurrentIndex(settings.numtries - 1)
+        self.minArtistTracksComboBox.setCurrentIndex(settings.minArtistTracks - 1)
+        self.minTagArtistsComboBox.setCurrentIndex(settings.minTagArtists - 1)
 
     def setTarget(self):
         settings.target = unicode(self.targetComboBox.currentText(), 'utf-8')
@@ -1189,6 +1162,67 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
     def setMusicspaceDropoff(self):
         settings.musicspace_dropoff_param = float(self.musicspaceDropoffSpinBox.value())
+
+    def targetDevHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "If you want to create links and playlists that will work on a music player running rockbox, then select 'rockbox'. The alternative would be to create links and playlists that will work on your computer, although that's not available yet (let me know if you want it).")
+
+    def rockboxPathHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "If you have selected rockbox as your target, then use this button to indicate the location of your rockbox device. So, on Windows that might be something like E:, and on linux it might be something like /media/disk")
+
+    def navFolderHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "This is the folder in which you want the rockbox navigation links to be created. It would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Navigation on Windows, or /media/disk/Navigation on linux.")
+
+    def plFolderHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "This is the folder in which you want the various different playlists to be created. If you're going to use them on your rockbox player, then it would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Playlists on Windows, or /media/disk/Playlists on linux.")
+
+    def minArtistTracksHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "How many tracks does an artist have to have in your collection in order for similar music links and playlists to be created for that artist? This option might be used to avoid making similar artist links and playlists for obscure artists that you've never actually heard of."
+
+    def minTagArtistHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "How many artists must have been tagged with tag X in order for links and playlists to be created for tag X? A tag might only have been given to one artist in your collection, or it might group together many artists in your collection. This option allows you to cut down the number of tags for which links and playlists are created.")
+
+    def lastfmQueriesHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "How many times do you want %s to attempt to download an artist's data from last.fm before giving up?" % __progname__)
+
+    def lastfmUsersHelp(self):
+        QMessageBox.information(
+            self, "%s - help" % __progname__,
+            """Enter the names of last.fm users for whom you want to create links and playlists, separated by commas. Two types of links are created: 'listened' contains locally available music that has been listened to recently by the user in question; 'unlistened' is locally available music that has not been listened to recently by the user in question. The first might be of more interest when the user is not you (explore someone else's music), whereas the opposite is true of the second (explore music you own but have not been listening to).""")
+
+    def musicspaceFileHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "A musicspace file allows you to create playlists and links based on your personal notions of music similarity, rather than using similarity data from e.g. last.fm. If you have created a musicspace file, then select it here.\n\nA musicspace file is a .csv spreadsheet file: i.e. it's a plain text file with one row per artist, and with columns separated by commas. The first two columns contain the artist name and the artist MusicBrainz ID. You can leave the MusicBrainz ID empty, and %s will do its best to work out what artist you are referring to. The subsequent columns are where you define the position of artists relative to each other. There can be an arbitrary number of these columns, each corresponding to some axis in a multi-dimensional music space. The axes can be anything you like. One possibility is associating each axis with a musical genre. Or perhaps each axis should be defined by what lies at its opposite ends. However you define your dimensions, each artist must have a numeric entry in each of the columns, indicating that artist's position in music space." % __progname__)
+
+    def musicspaceDropoffHelp(self):
+        QMessageBox.information(self,
+                                "%s - help" % __progname__,
+                                "The drop-off parameter controls musicspace playlist generation (it has no effect on Last.fm playlists). Let's say you're creating a musicspace playlist for artist X. If you set the drop-off parameter to zero, then the tracks in the playlist will come from all artists in musicspace, without regard to their proximity to artist X. And if you set it to a large enough number, then the tracks in the playlist will only come from artists that occupy exactly the same position in musicspace as artist X. So, you want something in between. To start off with, try a value somewhere between 2.5 and 4.0. If you want to know the details, read on.\n\nA track in the playlist for artist X is chosen by picking an artist, and then picking a track at random from that artist's tracks (so there's no bias towards artists with many tracks). Artist Y is chosen to contribute a track to artist X's playlist with probability proportional to (1+Dxy)^(-a), where Dxy is the Euclidean distance between artists X and Y, and a is the dropoff parameter.")
+
+
+
 
 class NewThread(QThread):
     """class code descended from class Walker
