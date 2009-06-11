@@ -111,7 +111,7 @@ class Dbm(CommandLineApp):
         op.add_option('-r', '--rockbox', dest='path_to_rockbox', type='string', default=None,
                       help='Location of rockbox digital audio player.')
 
-        op.add_option('', '--mintracks', dest='artist_min_tracks_for_output', default=0, type='int',
+        op.add_option('', '--mintracks', dest='minArtistTracks', default=0, type='int',
                       help='Playlists and linkfiles will only be generated for artists with' + \
                           ' more than this number of tracks in the library.')
 
@@ -608,7 +608,7 @@ class Root(Node):
                 root.tag_artists[tag].append(artist)
 
     def write_lastfm_similar_artists_playlists(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
@@ -626,7 +626,7 @@ class Root(Node):
     def write_musicspace_similar_artists_playlists(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
-                len(a.tracks) >= settings.artist_min_tracks_for_output
+                len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
@@ -639,7 +639,7 @@ class Root(Node):
             i += 1
 
     def write_single_artists_playlists(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
@@ -666,7 +666,7 @@ class Root(Node):
             plist += 1
 
     def write_lastfm_similar_artists_linkfiles(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
@@ -699,7 +699,7 @@ class Root(Node):
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
-                len(a.tracks) >= settings.artist_min_tracks_for_output
+                len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
@@ -712,7 +712,7 @@ class Root(Node):
             i += 1
 
     def write_lastfm_recommended_linkfiles(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.artist_min_tracks_for_output
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
         i = 1
