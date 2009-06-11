@@ -1006,9 +1006,9 @@ class Settings(dbm.Settings):
         else:
             self.logfile = sys.stderr
         self.query_lastfm = True
-        self.artist_min_tracks_for_output = 1
         self.lastfm_user_names = []
         self.numtries = 5
+
         self.minTagArtists = 1 # min artists per tag for tag to get links and lists
         self.minArtistTracks = 1 # min tracks per artist for artist to get links and lists
 
@@ -1021,7 +1021,7 @@ class Settings(dbm.Settings):
              ('playlists_path', lambda(qv): unicode(qv.toString(), 'utf-8')),
              ('musicspace_file', lambda(qv): unicode(qv.toString(), 'utf-8')),
              ('musicspace_dropoff_param', lambda(qv): qv.toDouble()[0]),
-             ('artist_min_tracks_for_output', lambda(qv): qv.toInt()[0]),
+             ('minArtistTracks', lambda(qv): qv.toInt()[0]),
              ('numtries', lambda(qv): qv.toInt()[0]),
              ('target', lambda(qv): unicode(qv.toString(), 'utf-8'))]
 
@@ -1191,7 +1191,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         QMessageBox.information(
             self,
             "%s - help" % __progname__,
-            "How many tracks does an artist have to have in your collection in order for similar music links and playlists to be created for that artist? This option might be used to avoid making similar artist links and playlists for obscure artists that you've never actually heard of."
+            "How many tracks does an artist have to have in your collection in order for similar music links and playlists to be created for that artist? This option might be used to avoid making similar artist links and playlists for obscure artists that you've never actually heard of.")
 
     def minTagArtistHelp(self):
         QMessageBox.information(
