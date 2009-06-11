@@ -149,11 +149,6 @@ class Track:
     # tracknumber                         [u'2']
     # musicbrainz_trackid                 [u'47cb7f4e-f93b-4716-913d-f1c5c6a6dc5d']
 
-    def __cmp__(self, other):
-        # Needs some thought for a good solution
-        f1 = os.path.basename(self.path)
-        f2 = os.path.basename(other.path)
-        return cmp(f1, f2)
 
     def parse_mutagen_tags_ogg_flac(self, tags):
         mkeys = tags.keys()
