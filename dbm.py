@@ -598,6 +598,7 @@ class Root(Node):
         for artist in sorted(self.artists.values()):
             if artist.subtrees:
                 artist.set_lastfm_similar_artists()
+        self.tabulate_tags()
 
     def tabulate_tags(self):
         for artist in self.artists.values():
@@ -683,7 +684,6 @@ class Root(Node):
 
     def write_lastfm_tag_linkfiles(self, direc):
         ok = lambda(tag): len(self.tag_artists[tag]) >= settings.minTagArtists
-        self.tabulate_tags()
         tags = filter(ok, self.tag_artists.keys()) 
         n = len(tags)
         i = 1
