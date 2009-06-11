@@ -686,6 +686,7 @@ class Root(Node):
             i += 1
 
     def write_lastfm_tag_linkfiles(self, direc):
+        if not self.tags: self.tabulate_tags()
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
         tags = filter(ok, self.tags)
         n = len(tags)
@@ -702,6 +703,7 @@ class Root(Node):
             i += 1
 
     def write_lastfm_tag_playlists(self, direc):
+        if not self.tags: self.tabulate_tags()
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
         tags = filter(ok, self.tags)
         n = len(tags)
