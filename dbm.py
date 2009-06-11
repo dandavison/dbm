@@ -522,7 +522,7 @@ class Root(Node):
         self.artists = {}
         self.simartists = {}
         self.subtree_tracks = []
-        self.tag_artists = {}
+        self.tags = {}
 
     def make_dbm_artistid(self, mbid, name):
         """Construct the dbm artist id for this (mbid, name) pair. If
@@ -599,14 +599,17 @@ class Root(Node):
             if artist.subtrees:
                 artist.set_lastfm_similar_artists()
         self.tabulate_tags()
-
+        
     def tabulate_tags(self):
+        if self.tags:
+            elog('root.tags should have been empty')
+            self.tags = {}
         for artist in self.artists.values():
             tags = artist.tags[0:4]
-            for tag in [t.name for t in tags]:
-                if not root.tag_artists.has_key(tag):
-                    root.tag_artists[tag] = []
-                root.tag_artists[tag].append(artist)
+            for tagname in [t.name for t in tags]:
+                if not root.tags.has_key(tagname.lower()):
+                    root.tags[tagname.lower()] = Tag(tagname)
+                root.tags[tagname.lower()].artists.append(artist)
 
     def write_lastfm_similar_artists_playlists(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
@@ -697,6 +700,22 @@ class Root(Node):
             except:
                 elog('Failed to create link file for tag %s' % tag)
             i += 1
+
+    def write_lastfm_tag_playlists(self, direc):
+        ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
+        tags = filter(ok, self.tags)
+        n = len(tags)
+        i = 1
+        for tag in tags:
+            if i % 10 == 0 or i == nok:
+                log('Last.fm tag playlists: \t%d / %d' % (i, nok))
+            try:
+                write_playlist(tag.playlist(),
+                               os.path.join(direc, tag.name + '.m3u'))
+            except:
+                elog('Failed to create tag playlist for tag %s' % tag.name)
+            i += 1
+
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -1049,6 +1068,19 @@ class Artist(object):
 
 
 
+class Tag(object):
+    def __init__(self, name):
+        self.name = name
+        self.artists = []
+    def playlist(self, n=1000):
+        # Draw sample of artists with replacement
+        artists = [random.sample(self.artists, 1)[0] for i in range(n)]
+        # Pick one track from each
+        tracks = [random.sample(artist.tracks, 1)[0] for artist in artists]
+        return unique(tracks)
+        
+    def __cmp__(self, other):
+        return cmp(self.name, other.name)
 class LastFmUser(pylast.User):
     def __init__(self, name, lastfm_auth_info):
         pylast.User.__init__(self, name, **lastfm_auth_info)
