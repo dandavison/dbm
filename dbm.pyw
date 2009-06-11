@@ -1042,41 +1042,40 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.update()
         
         connections = [
-            ('targetComboBox', SIGNAL("currentIndexChanged(int)"), 'setTarget'),
-            ('targetDevHelpButton', SIGNAL("clicked()"), 'targetDevHelp'),
+            ('targetComboBox', "currentIndexChanged(int)", 'setTarget'),
+            ('targetDevHelpButton', '', 'targetDevHelp'),
 
-            ('rockboxPathChangeButton', SIGNAL("clicked()"), 'setPathToRockbox'),
-            ('rockboxPathHelpButton', SIGNAL("clicked()"), 'rockboxPathHelp'),
+            ('rockboxPathChangeButton', '', 'setPathToRockbox'),
+            ('rockboxPathHelpButton', '', 'rockboxPathHelp'),
 
-            ('navFolderChangeButton', SIGNAL("clicked()"), 'setPathToNavFolder'),
-            ('navFolderHelpButton', SIGNAL("clicked()"), 'navFolderHelp'),
+            ('navFolderChangeButton', '', 'setPathToNavFolder'),
+            ('navFolderHelpButton', '', 'navFolderHelp'),
 
-            ('plFolderChangeButton', SIGNAL("clicked()"), 'setPathToPlFolder'),
-            ('plFolderHelpButton', SIGNAL("clicked()"), 'plFolderHelp'),
+            ('plFolderChangeButton', '', 'setPathToPlFolder'),
+            ('plFolderHelpButton', '', 'plFolderHelp'),
 
-            ('musicspaceFileChangeButton', SIGNAL("clicked()"), 'setMusicspaceFile'),
-            ('musicspaceFileHelpButton', SIGNAL("clicked()"), 'musicspaceFileHelp'),
+            ('musicspaceFileChangeButton', '', 'setMusicspaceFile'),
+            ('musicspaceFileHelpButton', '', 'musicspaceFileHelp'),
 
-            ('minArtistTracksComboBox', SIGNAL('currentIndexChanged(int)'), 'setMinArtistTracks'),
-            ('minArtistTracksHelpButton', SIGNAL("clicked()"), 'minArtistTracksHelp'),
+            ('minArtistTracksComboBox', 'currentIndexChanged(int)', 'setMinArtistTracks'),
+            ('minArtistTracksHelpButton', '', 'minArtistTracksHelp'),
 
-            ('minTagArtistsComboBox', SIGNAL('currentIndexChanged(int)'), 'setMinTagArtists'),
-            ('minTagArtistsHelpButton', SIGNAL("clicked()"), 'minTagArtistsHelp'),
+            ('minTagArtistsComboBox', 'currentIndexChanged(int)', 'setMinTagArtists'),
+            ('minTagArtistsHelpButton', '', 'minTagArtistsHelp'),
 
-            ('lastfmUsersLineEdit', SIGNAL('editingFinished()'), 'setLastfmUsers'),
-            ('lastfmUsersHelpButton', SIGNAL("clicked()"), 'lastfmUsersHelp'),
+            ('lastfmUsersLineEdit', 'editingFinished()', 'setLastfmUsers'),
+            ('lastfmUsersHelpButton', '', 'lastfmUsersHelp'),
 
-            ('lastfmQueriesComboBox', SIGNAL('currentIndexChanged(int)'), 'setLastfmNumTries'),
-            ('lastfmQueriesHelpButton', SIGNAL("clicked()"), 'lastfmQueriesHelp'),
+            ('lastfmQueriesComboBox', 'currentIndexChanged(int)', 'setLastfmNumTries'),
+            ('lastfmQueriesHelpButton', '', 'lastfmQueriesHelp'),
 
-            ('musicspaceDropoffSpinBox', SIGNAL('valueChanged(double)'), 'setMusicspaceDropoff'),
-            ('musicspaceDropoffHelpButton', SIGNAL("clicked()"), 'musicspaceDropoffHelp')]
+            ('musicspaceDropoffSpinBox', 'valueChanged(double)', 'setMusicspaceDropoff'),
+            ('musicspaceDropoffHelpButton', '', 'musicspaceDropoffHelp')]
         
         for ui_element, signal, action in connections:
             try:
                 self.connect(getattr(self, ui_element),
-                             signal,
-                             # SIGNAL(signal or 'clicked()'),
+                             SIGNAL(signal or 'clicked()'),
                              getattr(self, action))
             except:
                 print('%s %s %s\n' % (ui_element, signal, action))
