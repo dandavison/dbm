@@ -682,10 +682,12 @@ class Root(Node):
             i += 1
 
     def write_lastfm_tag_linkfiles(self, direc):
+        ok = lambda(tag): len(self.tag_artists[tag]) >= settings.minTagArtists
         self.tabulate_tags()
-        n = len(self.tag_artists)
+        tags = filter(ok, self.tag_artists.keys()) 
+        n = len(tags)
         i = 1
-        for tag in self.tag_artists:
+        for tag in tags:
             if i % 10 == 0 or i == n:
                 log('Last.fm tag link files: \t%d / %d' % (i, n))
             artist_nodes = flatten(list(a.subtrees) for a in self.tag_artists[tag])
