@@ -1386,13 +1386,14 @@ class PlaylistGenerator(NewThread):
         dbm.log = self.logi
 
     def run(self):
+        self.log('Generating Last.fm tag playlists...')
+        self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
+
         if self.settings.musicspace_ready:
             self.log('Generating musicspace similar artists playlists...')
             self.dbm.root.write_musicspace_similar_artists_playlists(self.dirs['musicspace_similar'])
         self.log('Generating Last.fm similar artists playlists...')
         self.dbm.root.write_lastfm_similar_artists_playlists(self.dirs['lastfm_similar'])
-        self.log('Generating Last.fm tag playlists...')
-        self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
         self.log('Generating single artist random playlists...')
         self.dbm.root.write_single_artists_playlists(self.dirs['single_artists'])
         self.log('Generating whole-library random playlists...')
