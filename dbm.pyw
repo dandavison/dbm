@@ -1042,35 +1042,35 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.update()
         
         connections = [
-            (targetComboBox, "currentIndexChanged(int)", setTarget),
-            (targetDevHelpButton, '', targetDevHelp),
+            ('targetComboBox', 'currentIndexChanged(int)', 'setTarget'),
+            ('targetDevHelpButton', '', 'targetDevHelp'),
 
-            (setPathToRockbox, '',rockboxPathChangeButton),
-            (rockboxPathHelp, '', rockboxPathHelpButton),
+            ('setPathToRockbox', '','rockboxPathChangeButton'),
+            ('rockboxPathHelp', '', 'rockboxPathHelpButton'),
 
-            (navFolderChangeButton, '', setPathToNavFolder),
-            (navFolderHelpButton, '', navFolderHelp),
+            ('navFolderChangeButton', '', 'setPathToNavFolder'),
+            ('navFolderHelpButton', '', 'navFolderHelp'),
 
-            (plFolderChangeButton, '', setPathToPlFolder),
-            (plFolderHelpButton, '', plFolderHelp),
+            ('plFolderChangeButton', '', 'setPathToPlFolder'),
+            ('plFolderHelpButton', '', 'plFolderHelp'),
 
-            (musicspaceFileChangeButton, '', setMusicspaceFile),
-            (musicspaceFileHelpButton, '', musicspaceFileHelp),
+            ('musicspaceFileChangeButton', '', 'setMusicspaceFile'),
+            ('musicspaceFileHelpButton', '', 'musicspaceFileHelp'),
 
-            (minArtistTracksComboBox, "currentIndexChanged(int)", setMinArtistTracks),
-            (minArtistTracksHelpButton, '', minArtistTracksHelp),
+            ('minArtistTracksComboBox', 'currentIndexChanged(int)', 'setMinArtistTracks'),
+            ('minArtistTracksHelpButton', '', 'minArtistTracksHelp'),
 
-            (minTagArtistsComboBox, "currentIndexChanged(int)", setMinTagArtists),
-            (minTagArtistsHelpButton, '', minTagArtistsHelp),
+            ('minTagArtistsComboBox', 'currentIndexChanged(int)', 'setMinTagArtists'),
+            ('minTagArtistsHelpButton', '', 'minTagArtistsHelp'),
 
-            (lastfmUsersLineEdit, "editingFinished()", setLastfmUsers),
-            (lastfmUsersHelpButton, '', lastfmUsersHelp),
+            ('lastfmUsersLineEdit', 'editingFinished()', 'setLastfmUsers'),
+            ('lastfmUsersHelpButton', '', 'lastfmUsersHelp'),
 
-            (lastfmQueriesComboBox, "currentIndexChanged(int)", setLastfmNumTries),
-            (lastfmQueriesHelpButton, '', lastfmQueriesHelp),
+            ('lastfmQueriesComboBox', 'currentIndexChanged(int)', 'setLastfmNumTries'),
+            ('lastfmQueriesHelpButton', '', 'lastfmQueriesHelp'),
 
-            (musicspaceDropoffSpinBox, "valueChanged(double)", setMusicspaceDropoff),
-            (musicspaceDropoffHelpButton, '', musicspaceDropoffHelp)]
+            ('musicspaceDropoffSpinBox', 'valueChanged(double)', 'setMusicspaceDropoff'),
+            ('musicspaceDropoffHelpButton', '', 'musicspaceDropoffHelp')]
         
         for ui_element, signal, action in connections:
             self.connect(getattr(self, ui_element),
