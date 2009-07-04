@@ -716,7 +716,14 @@ class Root(Node):
             except:
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
-
+    def write_lastfm_artist_biographies(self, direc):
+        for artist in self.artists.values():
+            path = os.path.join(direc, artist.clean_name())
+            try:
+                with codecs.open(path, 'w', 'utf-8') as lfile:
+                    lfile.write(artist.bio_contents)
+            except:
+                elog('Error writing bio for artist %s' % artist.name)
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -898,6 +905,7 @@ class Artist(object):
         self.lastfm_name = ''
         self.musicspace_location = []
         self.tags = []
+        self.bio_content = ''
 
     def download_lastfm_data(self):
         if root.simartists.has_key(self.id):
@@ -917,6 +925,7 @@ class Artist(object):
 
                 self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
                 self.tags = self.pylast.get_top_tags()
+                self.bio_content = self.pylast.get_bio_content()
 
                 waiting = False
                 name = self.lastfm_name or self.name

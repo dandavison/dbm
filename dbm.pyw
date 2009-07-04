@@ -697,7 +697,8 @@ class MainWindow(QMainWindow):
         dirs = dict(lastfm_similar='Last.fm Similar',
                     musicspace_similar='Musicspace Similar',
                     AtoZ='A-Z',
-                    tags='Artist Tags')
+                    tags='Artist Tags',
+                    bios='Biographies')
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.nav_links_path, d) for d in dirs.values()]))
         for d in dirs.values():
@@ -1410,13 +1411,17 @@ class LinksCreator(NewThread):
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
 
         if settings.musicspace_ready:
-            self.log('Creating links to musicspace similar artists...')
-            self.dbm.root.write_musicspace_similar_artists_linkfiles(self.dirs['musicspace_similar'])
-        self.log('Creating links to lastfm similar artists...')
+            self.log('Creating links to musicspace similar artists')
+            self.dbm.root.write_musicspace_similar_artists_linkfiles(
+                self.dirs['musicspace_similar'])
+        self.log('Creating links to lastfm similar artists')
         self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
 
-        self.log('Creating alphabetical index...')
+        self.log('Creating alphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
+
+        self.log('Writing artist biographies')
+        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         self.log('Creating last.fm user links')
         self.dbm.root.lastfm_users = {}
