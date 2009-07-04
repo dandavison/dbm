@@ -718,10 +718,10 @@ class Root(Node):
             i += 1
     def write_lastfm_artist_biographies(self, direc):
         for artist in self.artists.values():
-            path = os.path.join(direc, artist.clean_name())
+            path = os.path.join(direc, artist.clean_name() + '.txt')
             try:
                 with codecs.open(path, 'w', 'utf-8') as lfile:
-                    lfile.write(artist.bio_contents)
+                    lfile.write(artist.bio_content)
             except:
                 elog('Error writing bio for artist %s' % artist.name)
 
