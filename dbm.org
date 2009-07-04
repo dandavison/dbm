@@ -1,0 +1,338 @@
+* names
+  music audio
+library
+navigation traversal
+
+ - rblink rblinkz rblinks
+ - rblast
+ - rblist
+ - rocklike
+ - lastbox
+ - 
+* x set_lastfm_similar_artists is a mess
+  How should the various try...excepts be handled?
+* x Is Lua scripting going to be useful for dbm?
+* x Add Folder To Library bug
+  Adding Decks, EFX & 909 resulted in (a) an entry for All under
+  Richie Hawtin in Artist View (All contained entries for Artists View
+  entrie for all the artists), and (b) in File View there was an entry
+  for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
+  level.
+* x (ogg?) mbid parsing going wrong
+artistname "The Carter Family" associated with multiple artist IDs: "http://musicbrainz.org/artist/29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1" "29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1"
+
+artistname "Buell Kazee" associated with multiple artist IDs: "http://musicbrainz.org/artist/7b472532-06dd-428e-8049-3bf73b119c5e" "7b472532-06dd-428e-8049-3bf73b119c5e"
+
+artistname "Clarence Ashley" associated with multiple artist IDs: "http://musicbrainz.org/artist/47c6e951-67f5-45a8-9644-2e7ca375d084" "47c6e951-67f5-45a8-9644-2e7ca375d084"
+
+artistname "Mississippi John Hurt" associated with multiple artist IDs: "http://musicbrainz.org/artist/802484e0-90de-4611-9fa4-f5ef0c7727b6" "802484e0-90de-4611-9fa4-f5ef0c7727b6"
+
+artistname "Bascom Lamar Lunsford" associated with multiple artist IDs: "a20db0dc-70a3-447c-a984-69b0f70bac0b" "http://musicbrainz.org/artist/a20db0dc-70a3-447c-a984-69b0f70bac0b"
+
+uniting 3 subtrees for Jarboe
+[...]
+uniting 3 subtrees for Einojuhani Rautavaara
+Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
+* x understand process_path stuff
+* x graft_tree error
+dbm.py: ERROR: Caught exception
+Traceback (most recent call last):
+  File "/home/dan/src/dbm/cmdline.py", line 163, in run
+    exit_code = self.main(*main_args)
+  File "./dbm.py", line 209, in main
+    root.graft_subtree(new_subtree)
+  File "./dbm.py", line 694, in graft_subtree
+    subtree.parent = node[0]
+UnboundLocalError: local variable 'node' referenced before assignment
+* x how to deselect musicspace, nav, pl, etc
+* x unite_spurious...() should use os.path.commonprefix()
+* x catch HTTP exceptions correctly (see Amr's reply)
+* o why not loading library msg appearing?
+* o why dropoff param not persistent?
+* o feedback during link / playlist creation!
+* o deal with overwriting non-empty directory contents
+* o make sure all error output from dbm.py goes to stderr
+* o make sure stderr is logged somewhere sensible from dmgw
+* s set nav_links_path to dirname(dbm.root) by default when root exists, etc
+* o load library could do with separate thread
+* x advertising
+    - rockbox-dev
+    - rockbox-users
+    - contact those involved in thread
+    - last.fm group
+*** x get +ve feedback on gui
+    - [x] Sheamus
+    - [ ] Fred
+    - [ ] Humberto
+* o download album art
+* o clean up code in create_similar_artists_playlist
+* o refactor create_similar_artists_linkfile
+* o generate skeleton music space
+* paths
+  - in dbmg there is settings.savefile, which needs to always be kept
+    up-to-date, and consistent with dbm.root
+  - set during loadLibrary
+  - but not by finishedScanningLibrary()
+* x colour!
+* x alignment!
+* o add folder to library
+* x opt.libdir = os.path.splitdrive(opt.libdir)[1] ?
+* s sort out log, logging, sys.stderr.write, print, ...
+* x correcting missing tags & reporting on library tag status
+*** 
+* x close settings.logfile on exit
+  What is correct way to clean up?
+* o stop loading library on startup but keep recent files
+* o need to stop people running multiple simultaneous scans etc!
+* on windows create links choose dir defaults to root.path rather than parent (should be path_to_rockbox)
+* x paths
+*** x should settings.libdir = os.path.splitdrive(settings.libdir)[1] be in make_rockbox_path()?
+*** x fix double // etc in dbmg
+* o albumartist key error
+    File "dbm.py", line 273, in set_track_artists
+      t.albumartist = root.artists[t.dbm_albumartistid]
+  KeyError: '4dbf5678-7a31-406a-abbe-232f8ac2cd63'
+  - t.dbm_albumartistid is not in root.artists keys during
+    root.set_track_artists() which visits all track objects
+  - root.artists keys are set just before from root.artistnames keys
+  - => t.dbm_albumartistid is not in root.artistnames keys
+  - root.artistnames keys are set by root.set_dbm_artistids()
+  - => root.make_dbm_artistid(aid, aname) must evaluate to False
+  - but that is not true, as evidenced by the KeyError being caused by
+    a valid MBID
+  - => there is an error in the above.
+* o The problem is tracks with an artist mbid but no artist name. These need to be dealt with
+
+* x how come albumartist is present in all the links of the in ... by ... form?
+* o deal with various artists id, don't print out 'assoc with multiple artists'
+* o on requesting last.fm look up with gui2.dbm (attached)	     :ATTACH:
+    :PROPERTIES:
+    :Attachments: gui2.dbm
+    :ID:       0d930400-a782-4dfc-9ca9-ce398ceab10c
+    :END:
+    This is not a bug; I had  temporarily removed the try..except construct.
+    Traceback (most recent call last):
+  File "/home/dan/bin/gdbm", line 588, in run
+    self.dbm.root.set_similar_artists()
+  File "/home/dan/src/dbm/gui/dbm.py", line 433, in set_similar_artists
+    artist.set_lastfm_similar_artists()
+  File "/home/dan/src/dbm/gui/dbm.py", line 583, in set_lastfm_similar_artists
+    self.simartists = self.query_lastfm_similar()
+  File "/home/dan/src/dbm/gui/dbm.py", line 621, in query_lastfm_similar
+    settings.lastfm['session_key']).execute(True)
+  File "/home/dan/src/dbm/gui/pylast.py", line 237, in execute
+    response = self._download_response()
+  File "/home/dan/src/dbm/gui/pylast.py", line 228, in _download_response
+    self._check_response_for_errors(response)
+  File "/home/dan/src/dbm/gui/pylast.py", line 251, in _check_response_for_errors
+    raise ServiceException(status, details)
+pylast.ServiceException: No artist found
+* x playlists: recently added, running
+* o pyqt: what is the filenew argument to createAction?
+  icon
+* n if we are only saving the tree then make artists etc attributes of dbm, not root
+* n allow libdir to be script arg in addition to -i option
+* o link to single artist all tracks
+* x clean up distinction between (static) class variables and instance variables
+* design
+*** pure subtrees
+    A (maximal) pure subtree is a subtree that satisfies the following:
+    -- It contains at least one pure directory
+    -- There is only one pure directory artist in the subtree
+    -- Its parent node is not a pure subtree
+
+    Thus a pure subtree may contain mixed directories.
+
+    At each node we maintain a count of the artists with pure subtrees
+    in that subtree.
+* x mixed dirs hack:
+  This if condition is going to miss non-terminal folders with tracks
+  floating around that aren't in albums, but without it you get the
+  e.g. the whole library as a mixed dir...
+
+* o heuristic / hack:
+  if artist has multiple subtrees, and the penultimate component of
+  the paths is the same for all of them, then use that in the links.
+* x get rid of Artist.paths attribute
+  It can be constructed on the fly from Artist.subtrees or Artist.mixeddirs
+* x what do we do with subtrees that contain no music?
+    
+* x printing unicode names
+  .encode('utf-8') ?? find time when this doesn't seem too difficult/boring to look into
+* x should we allow non-ascii characters in dbm_artistids?
+* s create Table class
+* s use set() rather than checking for membership manually?
+* x report on artist directory name mismatches
+* version 0
+*** x seed artist not at top of similar list
+*** x how to add new artist/album incrementally?
+*** x -n check that libdir is consistent with paths stored in .dbm files
+*** x "Weird Al" Yankovic .m3u file name
+*** x dbm: last.fm queries failing for Bj?ork, Arvo P?art etc
+*** x what is going to be done with album_artist vs. artist?
+*** x don't parse more info than necessary from tracks
+*** x report mismatch between track numbers in tags and initial digits in file names
+*** n use similarity when guessing which part of path is artist directory
+    use similarity between path components and
+    artist['names']. difflib.get_close_matches should do it?
+*** x from Humberto
+  Hi Dan
+
+I’ve seen more people are using your program, and they are liking i!
+Great!! By the way, I really like your Recommended feature, I’ve
+discovered new artists through it.
+
+Here are some more in detail comments about the results from your
+program, for ideas.
+
+***** x Make compilations appear in Similar list
+      My music library has an important percentage stored in the
+      “Compilations” folder (mostly electronic music compilations). So it’s
+      very frequent to find in “Similar” the line “Music/Compilations/”
+      which of course doesn’t tell much, since there are also many
+      alternative, rock, etc compilations stored. I guess this happens
+      because you assume the Music/Artist/Album structure (true for most of
+      the tracks). I was thinking if it would be possible to put in the
+      Similar results the albums, because that would tell so much more in
+      the cases I described. I think assuming that tracks are within a
+      folder of similar music is ok.
+
+      As a little example, I have an artist called !Deladap. Similar
+      generates only “Music/Compilations/” and “Music/!Deladap/”, because
+      the similar music is stored only in compilations. So if I would have
+      links to the albums that have at least one similar artist/track there,
+      it would tell so much more.
+
+      And in order to keep the “add everything from an artist” possibility
+      using the links in Rockbox, the idea would be to generate the album
+      links additionally to what you generate now, so that the similar music
+      could be linked through artist, or through it’s albums.
+
+      In the case described, the results would be something like:
+
+      Music/Compilations/
+      Music/Compilations/Album with similar artist 1/
+      Music/Compilations/Album with similar artist 2/…
+      Music/!Deladap/
+
+      For most of the other cases, it would look like:
+      Music/Similar artist 1/
+      Music/Similar artist 1/Album 1a
+      Music/Similar artist 1/Album 1b…
+      Music/Similar artist 2/
+      Music/Similar artist 2/Album 2a
+      Music/Similar artist 2/Album 2b…
+
+
+***** x respond to points raised in this 'Random' section
+
+      It seems to happen in an important number of playlists, that they
+      contain a very big percentage of 2 or 3 similar artists, even though
+      there are other similar artists not included (for “similar”, I checked
+      the last.fm page for those artists). As an example, my Pixies.m3u
+      playlist has really a lot of The Smiths tracks (shows VERY HIGH
+      similarity http://www.last.fm/music/Pixies/+similar?page=2 ), but has
+      no The Cure tracks whatsoever
+      (http://www.last.fm/music/Pixies/+similar?page=13 ). The Cure is the
+      artists I have more tracks from in my library.
+
+      A commercial playlist generating program (MusicIP Mixer) had a
+      parameter that would specify the “minimum tracks before allowing a
+      repeated artist”, and that seemed to help for variety; something close
+      to 5 seemed to work fine without shortening the playlists too much…
+      just a thought.  By the way and just to know, when does your program
+      stop adding tracks for an Artist.m3u in Random?
+
+***** x add numtries option and improve report 
+      - I have 2909 muiscbrainz-tagged tracks, that identify 1404 different
+	artists. Random (also Similar and Recommended) generated results for
+	316 artists. A number of artists failed during the “last.fm similar
+	artist query” process, but I couldn’t count them (could that be
+	reported somehow after the process?).
+
+	From the 1404 artists I have, only 358 have more than one track in
+	the library, so my guess is, results are only generated for artists
+	with more than one track?  That would mean that the process failed
+	for about 12% of the artists (42). I still have to check that in the
+	last.fm page, because all the artists seem to exist there (will
+	check the last.fm <> musicbrainz correspondence), I will report
+	later what I find. Note: It happened one time, that I run the
+	process having the internet connection very busy, and much more
+	artists failed during the process.
+
+      - About 16% of the playlists have under 25 tracks. About 6% of the
+	playlists have under 15 tracks (= below about one hour playing
+	time).
+
+      - The longest list has 241 tracks, the shortest has 2, the average is 101.
+
+      - From the 2909 tagged tracks I have, 2312 (~80%) appear at least once
+	in the Random m3us.
+
+      - The most repeated track in Random, appears 94 times. The average
+	appearances per track is 13.5 times.
+
+	Humberto
+*** x dbm: add support for
+******* o m4a
+******* o ogg
+******* x flac
+******* x mpc
+*** o create similar artist link files
+*** o create recommended lists
+*** o dbm: write tutorial.org
+*** o dbm: make last fm playlists relative to library root, not root of while filesystem
+*** o dbm: create last fm similar playlists only for artists with > i tracks.
+*** o dbm: write lists of similar artists as text files
+    Done much better than that; now have shortcuts to artist directories
+*** o implement artist_path properly
+*** n make job control file
+*** n make playlists based on BPM
+* x version 1
+  - Each node in the tree is associated with list of artists under that
+    node, and their track counts.
+  - Each artist
+*** requirements
+***** Correct artist paths
+      These will be paths to pure subtrees
+***** Compilations to appear in similar subtrees
+      Similar subtree list is constructed as follows:
+      1. Query similar artists --> 
+      2. List subtrees for similar artists
+      So compilations (impure directories) must be listed for each artist.
+***** Incremental updates
+      1. Insert subtree into tree
+      2. Update tree
+      3. Update playlists and links
+***** Do as well as possible in absence of MBIDs
+      Artists to be identified by a string -- either MBID or name,
+      with MBID taking precedence.
+*** data structures
+    artist IDS are either MBIDs (if available) or artist names
+***** tree
+      Each node has
+      - pnode: parent node
+      - dnodes: list of daughter nodes
+      - music: list of parsed tag dicts
+      - artists: dict of artist track counts in subtree keyed by artist IDs
+      - path: path to node, starting at root
+***** nodes
+      A dict of pointers to tree nodes, keyed by path
+***** artists
+      A dict keyed by artist IDs. Each value is a dict with
+      - subtrees: list of pointers to pure subtrees in the tree
+      - mixed_dirs: list of pointers to mixed dirs containing music by artist
+      - simartids: list of similar artist IDs
+*** program
+    1. Create tree
+    2. Resolve artist ID synonymy
+    3. Inspect subtree purity and create artists dict
+*** o last.fm simartids -- using MBIDs / names?
+*** x artist names in artist dict -- e.g. for index links
+*** o separate out name / id stuff from grow_tree
+*** o make pure subtree requirement fuzzy
+*** o A-Z links should be sorted by artist name not path
+*** x A-Z links should be to pure subtrees only?
+*** x what about artist sort name tags?
+*** x need to remove simartists to artists no longer in library
+*** o set_lastfm_similar_artists needs re-aligning remove redundant else:
