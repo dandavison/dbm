@@ -1314,7 +1314,7 @@ class LibraryScanner(NewThread):
         self.dbm.root.set_dbm_artistids()
         self.dbm.root.create_artists()
         self.dbm.root.simartists = self.simartists
-        self.dbm.root.set_lastfm_similar_artists()
+        self.dbm.root.download_lastfm_data()
         self.finishUp()
 
 class LibraryLoader(NewThread):
@@ -1370,13 +1370,13 @@ class LibraryGrafter(NewThread):
         self.dbm.root.create_artist_name_to_mbid_mapping()
         self.dbm.root.set_dbm_artistids()
         self.dbm.root.create_artists()
-        self.dbm.root.set_lastfm_similar_artists()
+        self.dbm.root.download_lastfm_data()
         self.finishUp()
 
 class LastfmSimilarArtistSetter(NewThread):
     def run(self):
         self.log('Retrieving similar artist lists from last.fm')
-        self.dbm.root.set_lastfm_similar_artists()
+        self.dbm.root.download_lastfm_data()
         self.finishUp()
 
 class PlaylistGenerator(NewThread):

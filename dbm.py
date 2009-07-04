@@ -260,7 +260,7 @@ class Dbm(CommandLineApp):
 
         if settings.query_lastfm:
             log('Retrieving similar artist lists from last.fm')
-        root.set_lastfm_similar_artists() # Call this even if not making web queries
+        root.download_lastfm_data() # Call this even if not making web queries
 
         if settings.create_files:
             log('Saving library to %s' % settings.savefile)
@@ -594,10 +594,10 @@ class Root(Node):
             # Deleting artist but not subtree here may be a bug
             self.artists.pop(dbm_aid)
 
-    def set_lastfm_similar_artists(self):
+    def download_lastfm_data(self):
         for artist in sorted(self.artists.values()):
             if artist.subtrees:
-                artist.set_lastfm_similar_artists()
+                artist.download_lastfm_data()
         self.tabulate_tags()
         
     def tabulate_tags(self):
@@ -899,7 +899,7 @@ class Artist(object):
         self.musicspace_location = []
         self.tags = []
 
-    def set_lastfm_similar_artists(self):
+    def download_lastfm_data(self):
         if root.simartists.has_key(self.id):
             self.simartists = root.simartists[self.id]
             return
