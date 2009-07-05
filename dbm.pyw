@@ -675,9 +675,10 @@ class MainWindow(QMainWindow):
                 "You are about to select an output folder for the library navigation links. " +
                 "These are designed for Rockbox, so a sensible choice is a folder within " +
                 "the root folder of your Rockbox player.")
-            path = QFileDialog.getExistingDirectory(self,
-                        "%s - Choose an output folder for the library navigation links." % __progname__,
-                                                      settings.path_to_rockbox)
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "%s - Choose an output folder for the library navigation links." % __progname__,
+                settings.path_to_rockbox)
             if path.isEmpty(): return
             settings.nav_links_path = processPath(path)
 
@@ -697,8 +698,7 @@ class MainWindow(QMainWindow):
         dirs = dict(lastfm_similar='Last.fm Similar',
                     musicspace_similar='Musicspace Similar',
                     AtoZ='A-Z',
-                    tags='Artist Tags',
-                    bios='Biographies')
+                    tags='Artist Tags')
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.nav_links_path, d) for d in dirs.values()]))
         for d in dirs.values():
@@ -1406,6 +1406,7 @@ class LinksCreator(NewThread):
         NewThread.initialize(self)
         self.dirs = dirs
         dbm.log = self.logi
+
     def run(self):
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
@@ -1421,7 +1422,9 @@ class LinksCreator(NewThread):
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('Writing artist biographies')
-        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
+        d = os.path.join(os.path.dirname(settings.nav_links_path), 'Biographies')
+        util.mkdirp(d)
+        self.dbm.root.write_lastfm_artist_biographies(d)
 
         self.log('Creating last.fm user links')
         self.dbm.root.lastfm_users = {}

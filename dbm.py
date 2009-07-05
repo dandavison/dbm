@@ -717,11 +717,12 @@ class Root(Node):
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
     def write_lastfm_artist_biographies(self, direc):
-        for artist in self.artists.values():
+        artists = (a for a in self.artists.values() if a.bio_content)
+        for artist in artists:
             path = os.path.join(direc, artist.clean_name() + '.txt')
             try:
                 with codecs.open(path, 'w', 'utf-8') as lfile:
-                    lfile.write(artist.bio_content)
+                    lfile.write(strip_html_tags(artist.bio_content))
             except:
                 elog('Error writing bio for artist %s' % artist.name)
 
