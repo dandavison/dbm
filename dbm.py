@@ -260,7 +260,7 @@ class Dbm(CommandLineApp):
 
         if settings.query_lastfm:
             log('Retrieving similar artist lists from last.fm')
-        root.set_lastfm_similar_artists() # Call this even if not making web queries
+        root.download_lastfm_data() # Call this even if not making web queries
 
         if settings.create_files:
             log('Saving library to %s' % settings.savefile)
@@ -594,10 +594,10 @@ class Root(Node):
             # Deleting artist but not subtree here may be a bug
             self.artists.pop(dbm_aid)
 
-    def set_lastfm_similar_artists(self):
+    def download_lastfm_data(self):
         for artist in sorted(self.artists.values()):
             if artist.subtrees:
-                artist.set_lastfm_similar_artists()
+                artist.download_lastfm_data()
         self.tabulate_tags()
         
     def tabulate_tags(self):
@@ -716,7 +716,15 @@ class Root(Node):
             except:
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
-
+    def write_lastfm_artist_biographies(self, direc):
+        artists = (a for a in self.artists.values() if a.bio_content)
+        for artist in artists:
+            path = os.path.join(direc, artist.clean_name() + '.txt')
+            try:
+                with codecs.open(path, 'w', 'utf-8') as lfile:
+                    lfile.write(strip_html_tags(artist.bio_content))
+            except:
+                elog('Error writing bio for artist %s' % artist.name)
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -898,8 +906,9 @@ class Artist(object):
         self.lastfm_name = ''
         self.musicspace_location = []
         self.tags = []
+        self.bio_content = ''
 
-    def set_lastfm_similar_artists(self):
+    def download_lastfm_data(self):
         if root.simartists.has_key(self.id):
             self.simartists = root.simartists[self.id]
             return
@@ -917,6 +926,7 @@ class Artist(object):
 
                 self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
                 self.tags = self.pylast.get_top_tags()
+                self.bio_content = self.pylast.get_bio_content()
 
                 waiting = False
                 name = self.lastfm_name or self.name
