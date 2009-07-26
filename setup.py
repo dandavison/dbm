@@ -18,7 +18,7 @@ setup(
 #       scripts=["bin/dbm"],
 #       windows=[{"script": "bin/dbm"}],
 #    data_files = [('..\Python26\DLLs',['MSVCP90.dll'])],
-    data_files = [('.',['MSVCP90.dll'])],
+#    data_files = [('.',['MSVCP90.dll'])],
     windows=[{"script": "dbm.pyw"}],
     options={"py2exe": {"bundle_files": 1, "includes": ["sip"]}},
     zipfile=None)
