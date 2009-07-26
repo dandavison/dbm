@@ -1,3 +1,18 @@
+* Building windows executable
+  1. commit-dbm
+  2. termserv ddavison@princeton
+  3. net use h: \\files\ddavison
+  4. h:
+  5. cd lib\dbm
+  6. ..\Python\python.exe setup.py py2exe
+  7. cd dist
+  8. zip dbm.exe.zip dbm.exe
+  9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
+     
+* x [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
+  SCHEDULED: <2009-07-18 Sat>
+* x update windows executable
+  SCHEDULED: <2009-07-05 Sun>
 * names
   music audio
 library
