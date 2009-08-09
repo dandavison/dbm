@@ -1,38 +1,27 @@
-* Building windows executable
-  1. commit-dbm
-  2. termserv ddavison@princeton
-  3. net use h: \\files\ddavison
-  4. h:
-  5. cd lib\dbm
-  6. ..\Python\python.exe setup.py py2exe
-  7. cd dist
-  8. zip dbm.exe.zip dbm.exe
-  9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
-     
-* x [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
+* x artist tags playlists
+* x Last.fm user window restricted to recent weeks
+* x single output directory
+* x refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
   SCHEDULED: <2009-07-18 Sat>
-* x update windows executable
-  SCHEDULED: <2009-07-05 Sun>
-* names
-  music audio
-library
-navigation traversal
-
- - rblink rblinkz rblinks
- - rblast
- - rblist
- - rocklike
- - lastbox
- - 
-* x set_lastfm_similar_artists is a mess
-  How should the various try...excepts be handled?
-* x Is Lua scripting going to be useful for dbm?
 * x Add Folder To Library bug
   Adding Decks, EFX & 909 resulted in (a) an entry for All under
   Richie Hawtin in Artist View (All contained entries for Artists View
   entrie for all the artists), and (b) in File View there was an entry
   for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
   level.
+* x graft_tree error
+dbm.py: ERROR: Caught exception
+Traceback (most recent call last):
+  File "/home/dan/src/dbm/cmdline.py", line 163, in run
+    exit_code = self.main(*main_args)
+  File "./dbm.py", line 209, in main
+    root.graft_subtree(new_subtree)
+  File "./dbm.py", line 694, in graft_subtree
+    subtree.parent = node[0]
+UnboundLocalError: local variable 'node' referenced before assignment
+* x set_lastfm_similar_artists is a mess
+  How should the various try...excepts be handled?
+* x Is Lua scripting going to be useful for dbm?
 * x (ogg?) mbid parsing going wrong
 artistname "The Carter Family" associated with multiple artist IDs: "http://musicbrainz.org/artist/29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1" "29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1"
 
@@ -49,27 +38,9 @@ uniting 3 subtrees for Jarboe
 uniting 3 subtrees for Einojuhani Rautavaara
 Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
 * x understand process_path stuff
-* x graft_tree error
-dbm.py: ERROR: Caught exception
-Traceback (most recent call last):
-  File "/home/dan/src/dbm/cmdline.py", line 163, in run
-    exit_code = self.main(*main_args)
-  File "./dbm.py", line 209, in main
-    root.graft_subtree(new_subtree)
-  File "./dbm.py", line 694, in graft_subtree
-    subtree.parent = node[0]
-UnboundLocalError: local variable 'node' referenced before assignment
 * x how to deselect musicspace, nav, pl, etc
 * x unite_spurious...() should use os.path.commonprefix()
 * x catch HTTP exceptions correctly (see Amr's reply)
-* o why not loading library msg appearing?
-* o why dropoff param not persistent?
-* o feedback during link / playlist creation!
-* o deal with overwriting non-empty directory contents
-* o make sure all error output from dbm.py goes to stderr
-* o make sure stderr is logged somewhere sensible from dmgw
-* s set nav_links_path to dirname(dbm.root) by default when root exists, etc
-* o load library could do with separate thread
 * x advertising
     - rockbox-dev
     - rockbox-users
@@ -79,30 +50,100 @@ UnboundLocalError: local variable 'node' referenced before assignment
     - [x] Sheamus
     - [ ] Fred
     - [ ] Humberto
-* o download album art
-* o clean up code in create_similar_artists_playlist
-* o refactor create_similar_artists_linkfile
-* o generate skeleton music space
-* paths
-  - in dbmg there is settings.savefile, which needs to always be kept
-    up-to-date, and consistent with dbm.root
-  - set during loadLibrary
-  - but not by finishedScanningLibrary()
-* x colour!
-* x alignment!
-* o add folder to library
+* o colour!
+* o alignment!
 * x opt.libdir = os.path.splitdrive(opt.libdir)[1] ?
-* s sort out log, logging, sys.stderr.write, print, ...
 * x correcting missing tags & reporting on library tag status
 *** 
 * x close settings.logfile on exit
   What is correct way to clean up?
-* o stop loading library on startup but keep recent files
-* o need to stop people running multiple simultaneous scans etc!
-* on windows create links choose dir defaults to root.path rather than parent (should be path_to_rockbox)
 * x paths
 *** x should settings.libdir = os.path.splitdrive(settings.libdir)[1] be in make_rockbox_path()?
 *** x fix double // etc in dbmg
+* x how come albumartist is present in all the links of the in ... by ... form?
+* x playlists: recently added, running
+* x clean up distinction between (static) class variables and instance variables
+* x mixed dirs hack:
+  This if condition is going to miss non-terminal folders with tracks
+  floating around that aren't in albums, but without it you get the
+  e.g. the whole library as a mixed dir...
+
+* x get rid of Artist.paths attribute
+  It can be constructed on the fly from Artist.subtrees or Artist.mixeddirs
+* x what do we do with subtrees that contain no music?
+    
+* x printing unicode names
+  .encode('utf-8') ?? find time when this doesn't seem too difficult/boring to look into
+* x should we allow non-ascii characters in dbm_artistids?
+* x report on artist directory name mismatches
+* x version 1
+  - Each node in the tree is associated with list of artists under that
+    node, and their track counts.
+  - Each artist
+*** requirements
+***** Correct artist paths
+      These will be paths to pure subtrees
+***** Compilations to appear in similar subtrees
+      Similar subtree list is constructed as follows:
+      1. Query similar artists --> 
+      2. List subtrees for similar artists
+      So compilations (impure directories) must be listed for each artist.
+***** Incremental updates
+      1. Insert subtree into tree
+      2. Update tree
+      3. Update playlists and links
+***** Do as well as possible in absence of MBIDs
+      Artists to be identified by a string -- either MBID or name,
+      with MBID taking precedence.
+*** data structures
+    artist IDS are either MBIDs (if available) or artist names
+***** tree
+      Each node has
+      - pnode: parent node
+      - dnodes: list of daughter nodes
+      - music: list of parsed tag dicts
+      - artists: dict of artist track counts in subtree keyed by artist IDs
+      - path: path to node, starting at root
+***** nodes
+      A dict of pointers to tree nodes, keyed by path
+***** artists
+      A dict keyed by artist IDs. Each value is a dict with
+      - subtrees: list of pointers to pure subtrees in the tree
+      - mixed_dirs: list of pointers to mixed dirs containing music by artist
+      - simartids: list of similar artist IDs
+*** program
+    1. Create tree
+    2. Resolve artist ID synonymy
+    3. Inspect subtree purity and create artists dict
+*** o last.fm simartids -- using MBIDs / names?
+*** x artist names in artist dict -- e.g. for index links
+*** o separate out name / id stuff from grow_tree
+*** o make pure subtree requirement fuzzy
+*** o A-Z links should be sorted by artist name not path
+*** x A-Z links should be to pure subtrees only?
+*** x what about artist sort name tags?
+*** x need to remove simartists to artists no longer in library
+*** o set_lastfm_similar_artists needs re-aligning remove redundant else:
+* s set nav_links_path to dirname(dbm.root) by default when root exists, etc
+* s sort out log, logging, sys.stderr.write, print, ...
+* s create Table class
+* s use set() rather than checking for membership manually?
+* o update windows executable
+  SCHEDULED: <2009-07-05 Sun>
+* o why not loading library msg appearing?
+* o why dropoff param not persistent?
+* o feedback during link / playlist creation!
+* o deal with overwriting non-empty directory contents
+* o make sure all error output from dbm.py goes to stderr
+* o make sure stderr is logged somewhere sensible from dmgw
+* o load library could do with separate thread
+* o download album art
+* o clean up code in create_similar_artists_playlist
+* o refactor create_similar_artists_linkfile
+* o generate skeleton music space
+* o add folder to library
+* o stop loading library on startup but keep recent files
+* o need to stop people running multiple simultaneous scans etc!
 * o albumartist key error
     File "dbm.py", line 273, in set_track_artists
       t.albumartist = root.artists[t.dbm_albumartistid]
@@ -118,7 +159,6 @@ UnboundLocalError: local variable 'node' referenced before assignment
   - => there is an error in the above.
 * o The problem is tracks with an artist mbid but no artist name. These need to be dealt with
 
-* x how come albumartist is present in all the links of the in ... by ... form?
 * o deal with various artists id, don't print out 'assoc with multiple artists'
 * o on requesting last.fm look up with gui2.dbm (attached)	     :ATTACH:
     :PROPERTIES:
@@ -142,13 +182,43 @@ UnboundLocalError: local variable 'node' referenced before assignment
   File "/home/dan/src/dbm/gui/pylast.py", line 251, in _check_response_for_errors
     raise ServiceException(status, details)
 pylast.ServiceException: No artist found
-* x playlists: recently added, running
 * o pyqt: what is the filenew argument to createAction?
   icon
+* o link to single artist all tracks
+* o heuristic / hack:
+  if artist has multiple subtrees, and the penultimate component of
+  the paths is the same for all of them, then use that in the links.
 * n if we are only saving the tree then make artists etc attributes of dbm, not root
 * n allow libdir to be script arg in addition to -i option
-* o link to single artist all tracks
-* x clean up distinction between (static) class variables and instance variables
+* Building windows executable
+  1. commit-dbm
+  2. termserv ddavison@princeton
+  3. net use h: \\files\ddavison
+  4. h:
+  5. cd lib\dbm
+  6. ..\Python\python.exe setup.py py2exe
+  7. cd dist
+  8. zip dbm.exe.zip dbm.exe
+  9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
+     
+* names
+  music audio
+library
+navigation traversal
+
+ - rblink rblinkz rblinks
+ - rblast
+ - rblist
+ - rocklike
+ - lastbox
+ - rbiter, rbitr8, rbitrate, rbitrary, arbiter
+ - rboreal, rboriole
+* paths
+  - in dbmg there is settings.savefile, which needs to always be kept
+    up-to-date, and consistent with dbm.root
+  - set during loadLibrary
+  - but not by finishedScanningLibrary()
+* on windows create links choose dir defaults to root.path rather than parent (should be path_to_rockbox)
 * design
 *** pure subtrees
     A (maximal) pure subtree is a subtree that satisfies the following:
@@ -160,24 +230,6 @@ pylast.ServiceException: No artist found
 
     At each node we maintain a count of the artists with pure subtrees
     in that subtree.
-* x mixed dirs hack:
-  This if condition is going to miss non-terminal folders with tracks
-  floating around that aren't in albums, but without it you get the
-  e.g. the whole library as a mixed dir...
-
-* o heuristic / hack:
-  if artist has multiple subtrees, and the penultimate component of
-  the paths is the same for all of them, then use that in the links.
-* x get rid of Artist.paths attribute
-  It can be constructed on the fly from Artist.subtrees or Artist.mixeddirs
-* x what do we do with subtrees that contain no music?
-    
-* x printing unicode names
-  .encode('utf-8') ?? find time when this doesn't seem too difficult/boring to look into
-* x should we allow non-ascii characters in dbm_artistids?
-* s create Table class
-* s use set() rather than checking for membership manually?
-* x report on artist directory name mismatches
 * version 0
 *** x seed artist not at top of similar list
 *** x how to add new artist/album incrementally?
@@ -303,51 +355,3 @@ program, for ideas.
 *** o implement artist_path properly
 *** n make job control file
 *** n make playlists based on BPM
-* x version 1
-  - Each node in the tree is associated with list of artists under that
-    node, and their track counts.
-  - Each artist
-*** requirements
-***** Correct artist paths
-      These will be paths to pure subtrees
-***** Compilations to appear in similar subtrees
-      Similar subtree list is constructed as follows:
-      1. Query similar artists --> 
-      2. List subtrees for similar artists
-      So compilations (impure directories) must be listed for each artist.
-***** Incremental updates
-      1. Insert subtree into tree
-      2. Update tree
-      3. Update playlists and links
-***** Do as well as possible in absence of MBIDs
-      Artists to be identified by a string -- either MBID or name,
-      with MBID taking precedence.
-*** data structures
-    artist IDS are either MBIDs (if available) or artist names
-***** tree
-      Each node has
-      - pnode: parent node
-      - dnodes: list of daughter nodes
-      - music: list of parsed tag dicts
-      - artists: dict of artist track counts in subtree keyed by artist IDs
-      - path: path to node, starting at root
-***** nodes
-      A dict of pointers to tree nodes, keyed by path
-***** artists
-      A dict keyed by artist IDs. Each value is a dict with
-      - subtrees: list of pointers to pure subtrees in the tree
-      - mixed_dirs: list of pointers to mixed dirs containing music by artist
-      - simartids: list of similar artist IDs
-*** program
-    1. Create tree
-    2. Resolve artist ID synonymy
-    3. Inspect subtree purity and create artists dict
-*** o last.fm simartids -- using MBIDs / names?
-*** x artist names in artist dict -- e.g. for index links
-*** o separate out name / id stuff from grow_tree
-*** o make pure subtree requirement fuzzy
-*** o A-Z links should be sorted by artist name not path
-*** x A-Z links should be to pure subtrees only?
-*** x what about artist sort name tags?
-*** x need to remove simartists to artists no longer in library
-*** o set_lastfm_similar_artists needs re-aligning remove redundant else:

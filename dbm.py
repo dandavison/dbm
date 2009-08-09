@@ -44,7 +44,7 @@ from cmdline import CommandLineApp
 import pylast
 import track
 from util import *
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __progname__ = 'dbm'
 
 def elog(msg):
