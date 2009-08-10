@@ -1428,13 +1428,16 @@ class LinksCreator(NewThread):
         self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         self.log('Creating last.fm user links')
+        ## A hack to deal with saved Root objects that predate this attribute
+        if not hasattr(self.dbm.root, 'lastfm_users'):
+            self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
+            self.log(name)
+
             if not self.dbm.root.lastfm_users.has_key(name):
                 if not self.dbm.root.create_lastfm_user(name):
                     continue
             user = self.dbm.root.lastfm_users[name]
-
-            self.log(name)
 
             user_dir = os.path.join(settings.links_path, name)
             util.mkdirp(user_dir)
