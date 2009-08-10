@@ -1019,6 +1019,9 @@ class Settings(dbm.Settings):
         self.target = 'rockbox'
         self.quiet = False
         self.albumartdir = None
+
+        ## This is fairly obscure.
+        ## See the code [[for%20setting%20in%20settings%20persistent_settings][here]]
         self.persistent_settings = \
             [('path_to_rockbox', lambda(qv): unicode(qv.toString(), 'utf-8')),
              ('output_dir', lambda(qv): unicode(qv.toString(), 'utf-8')),
@@ -1027,6 +1030,7 @@ class Settings(dbm.Settings):
              ('minArtistTracks', lambda(qv): qv.toInt()[0]),
              ('minTagArtists', lambda(qv): qv.toInt()[0]),
              ('numtries', lambda(qv): qv.toInt()[0]),
+             ('lastfm_user_names', lambda(qv): map(str, qv.toStringList())),
              ('target', lambda(qv): unicode(qv.toString(), 'utf-8'))]
 
 class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
