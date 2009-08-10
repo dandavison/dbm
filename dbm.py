@@ -597,9 +597,12 @@ class Root(Node):
             # Deleting artist but not subtree here may be a bug
             self.artists.pop(dbm_aid)
 
-    def download_lastfm_data(self):
-        for artist in sorted(self.artists.values()):
-            if artist.subtrees:
+    def analyse_library(self):
+        artists = [a for a in self.artists.values() if artist.subtrees]
+        for artist in sorted(artists):
+            if root.simartists.has_key(artist.id):
+                self.simartists = root.simartists[artist.id]
+            else:
                 artist.download_lastfm_data()
         self.tabulate_tags()
         
@@ -611,12 +614,9 @@ class Root(Node):
         user.get_artist_counts()
         self.lastfm_users[name] = user
         return True
-           
+    
     def tabulate_tags(self):
         self.tags = {}
-        if self.tags:
-            elog('root.tags should have been empty')
-            self.tags = {}
         for artist in self.artists.values():
             tags = artist.tags[0:4]
             for tagname in [t.name for t in tags]:
@@ -922,11 +922,7 @@ class Artist(object):
         self.bio_content = ''
 
     def download_lastfm_data(self):
-        if root.simartists.has_key(self.id):
-            self.simartists = root.simartists[self.id]
-            return
-        if not settings.query_lastfm:
-            return
+        if not settings.query_lastfm: return
 
         waiting = True
         i = 0
