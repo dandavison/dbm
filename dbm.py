@@ -525,6 +525,7 @@ class Root(Node):
         self.simartists = {}
         self.subtree_tracks = []
         self.tags = {}
+        self.lastfm_users = {}
 
     def make_dbm_artistid(self, mbid, name):
         """Construct the dbm artist id for this (mbid, name) pair. If

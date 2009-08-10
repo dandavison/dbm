@@ -1410,15 +1410,17 @@ class LinksCreator(NewThread):
         self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         self.log('Creating last.fm user links')
-        self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
-            user = dbm.LastFmUser(name, settings.lastfm)
-            self.dbm.root.lastfm_users[name] = user
-            if user is None:
-                self.log('Failed to find last.fm user %s' % name)
-                continue
+            if not self.dbm.root.lastfm_users.has_key(name):
+                user = self.dbm.root.lastfm_users[name] = dbm.LastFmUser(name, settings.lastfm)
+                if user is None:
+                    self.log('ERROR: Failed to find last.fm user %s' % name)
+                    continue
+                user.get_artist_counts()
+            else:
+                user = self.dbm.root.lastfm_users[name]
+
             self.log(name)
-            user.get_artist_counts()
 
             user_dir = os.path.join(settings.links_path, name)
             util.mkdirp(user_dir)
