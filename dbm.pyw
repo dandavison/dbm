@@ -997,8 +997,7 @@ class Settings(dbm.Settings):
         self.disk_tree_view = True
         self.savefile = None
         self.path_to_rockbox = None
-        self.nav_links_path = None
-        self.playlists_path = None
+        self.outdir = None
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
@@ -1051,11 +1050,8 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
             ('rockboxPathChangeButton', '', 'setPathToRockbox'),
             ('rockboxPathHelpButton', '', 'rockboxPathHelp'),
 
-            ('navFolderChangeButton', '', 'setPathToNavFolder'),
-            ('navFolderHelpButton', '', 'navFolderHelp'),
-
-            ('plFolderChangeButton', '', 'setPathToPlFolder'),
-            ('plFolderHelpButton', '', 'plFolderHelp'),
+            ('outputFolderChangeButton', '', 'setPathToOutputFolder'),
+            ('outputFolderHelpButton', '', 'outputFolderHelp'),
 
             ('musicspaceFileChangeButton', '', 'setMusicspaceFile'),
             ('musicspaceFileHelpButton', '', 'musicspaceFileHelp'),
@@ -1087,15 +1083,15 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
     def update(self):
         if settings.target != 'rockbox':
             settings.path_to_rockbox = None
-        elif settings.path_to_rockbox is not None:
-            if settings.nav_links_path is None:
-                settings.nav_links_path = os.path.sep.join((settings.path_to_rockbox, 'Links'))
-            if settings.playlists_path is None:
-                settings.playlists_path = os.path.sep.join((settings.path_to_rockbox, 'Playlists'))
+        elif settings.outdir is None:
+            settings.outdir = settings.path_to_rockbox
+
+        if settings.outdir is not None:
+            settings.nav_links_path = os.path.join(settings.outdir, 'Links')
+            settings.playlists_path = os.path.join(settings.outdir, 'Playlists')
 
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
-        self.navFolderChangeButton.setText(settings.nav_links_path or 'None')
-        self.plFolderChangeButton.setText(settings.playlists_path or 'None')
+        self.outputFolderChangeButton.setText(settings.outdir or 'None')
 
         self.lastfmUsersLineEdit.setText(', '.join(settings.lastfm_user_names))
         self.musicspaceFileChangeButton.setText(settings.musicspace_file or 'None')
