@@ -652,15 +652,29 @@ class MainWindow(QMainWindow):
             return True
         return False
 
+    def ensure_outdir_exists(self):
+        if settings.outdir is None:
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "Choose a location for %s to save folders containing" % __progname__ +
+                "links, playlists, biographies etc.",
+                settings.path_to_rockbox)
+            if path.isEmpty(): return False
+            settings.outdir = processPath(path)
+        return True
+
     def setLastfmSimilarArtists(self):
         if not self.okToContinue(): return
         if self.alertIfNoLibrary(): return
         self.lastfmSimilarArtistSetter.initialize()
         self.lastfmSimilarArtistSetter.start()
 
+
     def createLinks(self):
         if self.alertIfNoLibrary(): return
+        if not self.ensure_outdir_exists(): return
         if not self.okToContinue(): return
+        
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
               "%s - Set location of Rockbox player." % __progname__,
@@ -668,19 +682,7 @@ class MainWindow(QMainWindow):
             return
 
         prev_val = settings.nav_links_path
-        if settings.nav_links_path is None:
-            QMessageBox.information(
-                self,
-                "%s - Choose output folder" % __progname__,
-                "You are about to select an output folder for the library navigation links. " +
-                "These are designed for Rockbox, so a sensible choice is a folder within " +
-                "the root folder of your Rockbox player.")
-            path = QFileDialog.getExistingDirectory(
-                self,
-                "%s - Choose an output folder for the library navigation links." % __progname__,
-                settings.path_to_rockbox)
-            if path.isEmpty(): return
-            settings.nav_links_path = processPath(path)
+        settings.nav_links_path = os.path.join(settings.outdir, 'Links')
 
         if not os.path.exists(settings.nav_links_path):
             try:
@@ -706,9 +708,10 @@ class MainWindow(QMainWindow):
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
-
+        
     def generatePlaylists(self):
         if self.alertIfNoLibrary(): return
+        if not self.ensure_outdir_exists(): return
         if not self.okToContinue(): return
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
@@ -717,13 +720,7 @@ class MainWindow(QMainWindow):
             return
 
         prev_val = settings.playlists_path
-        if settings.playlists_path is None:
-            path = QFileDialog.getExistingDirectory(self,
-              "%s - Choose an output folder for the playlists." % __progname__,
-                                                 settings.path_to_rockbox)
-            if path.isEmpty(): return
-            settings.playlists_path = processPath(path)
-
+        settings.playlists_path = os.path.join(settings.outdir, 'Playlists')        
         if not os.path.exists(settings.playlists_path):
             try:
                 os.mkdir(settings.playlists_path)
