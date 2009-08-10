@@ -306,8 +306,11 @@ class MainWindow(QMainWindow):
         dbm.elog('Loading previous settings')
         for setting in settings.persistent_settings:
             if qSettings.contains(setting[0]):
-                dbm.elog('%s %s' % (setting[0].ljust(35),
-                                    repr(setting[1](qSettings.value(setting[0])) or None)))
+                try:
+                    val = str(setting[1](qSettings.value(setting[0])))
+                except:
+                    val = 'Unprintable value'
+                dbm.elog('%s:  %s' % (setting[0], val))
                 setattr(settings,
                         setting[0],
                         setting[1](qSettings.value(setting[0])) or None)
