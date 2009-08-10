@@ -1190,7 +1190,7 @@ def generate_playlist(artists, n=1000):
     artists = [random.sample(artists, 1)[0] for i in range(n)]
     # sample one track for each artist in the playlist
     tracks = [random.sample(a.tracks, 1)[0] for a in artists]    
-    return tracks
+    return unique(tracks)
 
 def write_playlist(tracks, filepath):
     paths = unique([t.path for t in tracks])
