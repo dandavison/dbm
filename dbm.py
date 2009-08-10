@@ -1172,6 +1172,13 @@ def canonicalise_name(name):
     r2 = re.compile(' +')
     return r2.sub('_', r1.sub('', name.lower()))
 
+def generate_playlist(artists, n=1000):
+    # draw sample of artists with replacement (sample size larger than population)    
+    artists = [random.sample(artists, 1)[0] for i in range(n)]
+    # sample one track for each artist in the playlist
+    tracks = [random.sample(a.tracks, 1)[0] for a in artists]    
+    return tracks
+
 def write_playlist(tracks, filepath):
     paths = unique([t.path for t in tracks])
     if settings.target == 'rockbox':
