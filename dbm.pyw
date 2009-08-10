@@ -657,15 +657,15 @@ class MainWindow(QMainWindow):
             return True
         return False
 
-    def ensure_outdir_exists(self):
-        if settings.outdir is None:
+    def ensure_output_dir_exists(self):
+        if settings.output_dir is None:
             path = QFileDialog.getExistingDirectory(
                 self,
                 "Choose a location for %s to save folders containing" % __progname__ +
                 "links, playlists, biographies etc.",
                 settings.path_to_rockbox)
             if path.isEmpty(): return False
-            settings.outdir = processPath(path)
+            settings.output_dir = processPath(path)
         return True
 
     def setLastfmSimilarArtists(self):
@@ -677,7 +677,7 @@ class MainWindow(QMainWindow):
 
     def createLinks(self):
         if self.alertIfNoLibrary(): return
-        if not self.ensure_outdir_exists(): return
+        if not self.ensure_output_dir_exists(): return
         if not self.okToContinue(): return
         
         if settings.path_to_rockbox is None:
@@ -686,19 +686,19 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
-        prev_val = settings.nav_links_path
-        settings.nav_links_path = os.path.join(settings.outdir, 'Links')
+        prev_val = settings.links_path
+        settings.links_path = os.path.join(settings.output_dir, 'Links')
 
-        if not os.path.exists(settings.nav_links_path):
+        if not os.path.exists(settings.links_path):
             try:
-                os.mkdir(settings.nav_links_path)
+                os.mkdir(settings.links_path)
             except:
-                msg = 'Failed to make new directory %s' % settings.nav_links_path
+                msg = 'Failed to make new directory %s' % settings.links_path
                 self.log(msg)
                 dbm.elog(msg)
                 return
-        elif self.alertIfDirNotEmpty(settings.nav_links_path, 'Navigation links folder not empty'):
-            settings.nav_links_path = prev_val
+        elif self.alertIfDirNotEmpty(settings.links_path, 'Navigation links folder not empty'):
+            settings.links_path = prev_val
             return
 
         self.log('Creating rockbox library navigation links...')
@@ -707,7 +707,7 @@ class MainWindow(QMainWindow):
                     AtoZ='A-Z',
                     tags='Artist Tags')
         dirs = dict(zip(dirs.keys(),
-                        [os.path.join(settings.nav_links_path, d) for d in dirs.values()]))
+                        [os.path.join(settings.links_path, d) for d in dirs.values()]))
         for d in dirs.values():
             if not os.path.exists(d): os.mkdir(d)
 
@@ -716,7 +716,7 @@ class MainWindow(QMainWindow):
         
     def generatePlaylists(self):
         if self.alertIfNoLibrary(): return
-        if not self.ensure_outdir_exists(): return
+        if not self.ensure_output_dir_exists(): return
         if not self.okToContinue(): return
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
@@ -725,7 +725,7 @@ class MainWindow(QMainWindow):
             return
 
         prev_val = settings.playlists_path
-        settings.playlists_path = os.path.join(settings.outdir, 'Playlists')        
+        settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')        
         if not os.path.exists(settings.playlists_path):
             try:
                 os.mkdir(settings.playlists_path)
@@ -1000,7 +1000,7 @@ class Settings(dbm.Settings):
         self.disk_tree_view = True
         self.savefile = None
         self.path_to_rockbox = None
-        self.outdir = None
+        self.output_dir = None
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
@@ -1086,15 +1086,15 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
     def update(self):
         if settings.target != 'rockbox':
             settings.path_to_rockbox = None
-        elif settings.outdir is None:
-            settings.outdir = settings.path_to_rockbox
+        elif settings.output_dir is None:
+            settings.output_dir = settings.path_to_rockbox
 
-        if settings.outdir is not None:
-            settings.nav_links_path = os.path.join(settings.outdir, 'Links')
-            settings.playlists_path = os.path.join(settings.outdir, 'Playlists')
+        if settings.output_dir is not None:
+            settings.links_path = os.path.join(settings.output_dir, 'Links')
+            settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')
 
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
-        self.outputFolderChangeButton.setText(settings.outdir or 'None')
+        self.outputFolderChangeButton.setText(settings.output_dir or 'None')
 
         self.lastfmUsersLineEdit.setText(', '.join(settings.lastfm_user_names))
         self.musicspaceFileChangeButton.setText(settings.musicspace_file or 'None')
@@ -1128,9 +1128,9 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         path = processPath(path)
         # if self.parent.alertIfDirNotEmpty(path, 'Selected output folder not empty'):
         #     return
-        settings.outdir = path
+        settings.output_dir = path
         self.update()
-        self.parent.log('Set output folder to %s' % settings.outdir)
+        self.parent.log('Set output folder to %s' % settings.output_dir)
 
     def setLastfmUsers(self):
         text = unicode(self.lastfmUsersLineEdit.text())
@@ -1405,8 +1405,9 @@ class LinksCreator(NewThread):
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('Writing artist biographies')
-        d = os.path.join(os.path.dirname(settings.outdir), 'Biographies')
-        util.mkdirp(d)
+        d = os.path.join(os.path.dirname(settings.output_dir), 'Biographies')
+        if not util.mkdirp(d):
+            self.elog('Failed to create Biographies output directory')
         self.dbm.root.write_lastfm_artist_biographies(d)
 
         self.log('Creating last.fm user links')
@@ -1420,7 +1421,7 @@ class LinksCreator(NewThread):
             self.log(name)
             user.get_artist_counts()
 
-            user_dir = os.path.join(settings.nav_links_path, name)
+            user_dir = os.path.join(settings.links_path, name)
             util.mkdirp(user_dir)
 
             self.log('%s listened music' % name)
