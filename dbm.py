@@ -1139,27 +1139,37 @@ class LastFmUser(pylast.User):
                     self.artist_counts[artist] = 0
                 self.artist_counts[artist] += chart[key]
 
+    def listened_artists(self):
+        return filter(lambda(a): isinstance(a, Artist), self.artist_counts.keys())
+
+    def unlistened_artists(self):
+        return list(set(root.artists.values()).difference(self.listened_artists()))
+
+    def absent_artists(self):
+        return filter(lambda(a): not isinstance(a, Artist), self.artist_counts.keys())
+
     def write_unlistened_artists_linkfile(self, direc):
-        listened_artists = filter(lambda(a): isinstance(a, Artist),
-                                  self.artist_counts.keys())
-        unlistened_artists = list(set(root.artists.values()).difference(listened_artists))
-        for artist in unlistened_artists:
+        for artist in self.unlistened_artists():
             write_linkfile(sorted(list(artist.subtrees)),
                            os.path.join(direc, artist.clean_name() + '.link'))
 
     def write_listened_artists_linkfile(self, direc):
-        listened_artists = filter(lambda(a): isinstance(a, Artist),
-                                  self.artist_counts.keys())
-        for artist in listened_artists:
+        for artist in self.listened_artists():
             write_linkfile(sorted(list(artist.subtrees)),
                            os.path.join(direc, artist.clean_name() + '.link'))
 
     def write_absent_artists_linkfile(self, path):
-        absent_artists = filter(lambda(a): not isinstance(a, Artist),
-                                self.artist_counts.keys())
-        absent_artist_names = [a[1] for a in absent_artists]
+        absent_artist_names = [a[1] for a in self.absent_artists()]
         with codecs.open(path, 'w', 'utf-8') as lfile:
             lfile.write('\n'.join(absent_artist_names))
+
+    def listened_playlist(self, n=1000):
+        listened_artists = filter(lambda(a): isinstance(a, Artist),
+                                  self.artist_counts.keys())
+        return generate_playlist(listened_artists)
+
+    def unlistened_playlist(self, n=1000):
+        return generate_playlist(self.listened_artists())
 
 class DbmError(Exception):
     def __init__(self, value):
