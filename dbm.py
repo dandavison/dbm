@@ -603,6 +603,14 @@ class Root(Node):
                 artist.download_lastfm_data()
         self.tabulate_tags()
         
+    def create_lastfm_user(self, name):
+        user = dbm.LastFmUser(name, settings.lastfm)
+        if user is None:
+            elog('ERROR: Failed to find last.fm user %s' % name)
+            continue
+        user.get_artist_counts()
+        self.lastfm_users[name] = user
+           
     def tabulate_tags(self):
         self.tags = {}
         if self.tags:

@@ -1379,6 +1379,16 @@ class PlaylistGenerator(NewThread):
         dbm.log = self.logi
 
     def run(self):
+        self.log('Generating last.fm user playlists')
+        for name in settings.lastfm_user_names:
+            if not self.dbm.root.lastfm_users.has_key(name):
+                self.dbm.root.create_lastfm_user(name)
+            user = self.dbm.root.lastfm_users[name]
+            self.dbm.write_playlist(user.listened_playlist(),
+                                    self.playlists_path + name + '-listened')
+            self.dbm.write_playlist(user.unlistened_playlist(),
+                                    self.playlists_path + name + '-unlistened')
+
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
 
@@ -1412,13 +1422,8 @@ class LinksCreator(NewThread):
         self.log('Creating last.fm user links')
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name):
-                user = self.dbm.root.lastfm_users[name] = dbm.LastFmUser(name, settings.lastfm)
-                if user is None:
-                    self.log('ERROR: Failed to find last.fm user %s' % name)
-                    continue
-                user.get_artist_counts()
-            else:
-                user = self.dbm.root.lastfm_users[name]
+                self.dbm.root.create_lastfm_user(name)
+            user = self.dbm.root.lastfm_users[name]
 
             self.log(name)
 
