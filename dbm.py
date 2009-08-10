@@ -526,7 +526,7 @@ class Root(Node):
         self.subtree_tracks = []
         self.tags = {}
         self.lastfm_users = {}
-
+        
     def make_dbm_artistid(self, mbid, name):
         """Construct the dbm artist id for this (mbid, name) pair. If
         the mbid is present, then it is used as the dbm id. Otherwise,
@@ -604,12 +604,13 @@ class Root(Node):
         self.tabulate_tags()
         
     def create_lastfm_user(self, name):
-        user = dbm.LastFmUser(name, settings.lastfm)
+        user = LastFmUser(name, settings.lastfm)
         if user is None:
             elog('ERROR: Failed to find last.fm user %s' % name)
-            continue
+            return False
         user.get_artist_counts()
         self.lastfm_users[name] = user
+        return True
            
     def tabulate_tags(self):
         self.tags = {}

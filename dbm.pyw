@@ -743,11 +743,12 @@ class MainWindow(QMainWindow):
             return
 
         self.log('Generating playlists...')
-        dirs = dict(lastfm_similar='Last.fm_Similar',
-                    musicspace_similar='Musicspace_Similar',
-                    single_artists='Single_Artists',
-                    all_artists='All_Artists',
-                    tags = 'Artist Tags')
+        dirs = dict(lastfm_similar='Last.fm Similar',
+                    musicspace_similar='Musicspace Similar',
+                    single_artists='Single Artists',
+                    all_artists='All Artists',
+                    tags = 'Artist Tags',
+                    lastfm_users = 'Last.fm Users')
         
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
@@ -1380,14 +1381,19 @@ class PlaylistGenerator(NewThread):
 
     def run(self):
         self.log('Generating last.fm user playlists')
+        ## A hack to deal with saved Root objects that predate this attribute
+        if not hasattr(self.dbm.root, 'lastfm_users'):
+            self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name):
-                self.dbm.root.create_lastfm_user(name)
+                if not self.dbm.root.create_lastfm_user(name):
+                    continue
+            self.log(name)
             user = self.dbm.root.lastfm_users[name]
             self.dbm.write_playlist(user.listened_playlist(),
-                                    self.playlists_path + name + '-listened')
+                                    os.path.join(self.dirs['lastfm_users'], name + '-listened'))
             self.dbm.write_playlist(user.unlistened_playlist(),
-                                    self.playlists_path + name + '-unlistened')
+                                    os.path.join(self.dirs['lastfm_users'], name + '-unlistened'))
 
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
@@ -1422,7 +1428,8 @@ class LinksCreator(NewThread):
         self.log('Creating last.fm user links')
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name):
-                self.dbm.root.create_lastfm_user(name)
+                if not self.dbm.root.create_lastfm_user(name):
+                    continue
             user = self.dbm.root.lastfm_users[name]
 
             self.log(name)
