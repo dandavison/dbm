@@ -1001,6 +1001,8 @@ class Settings(dbm.Settings):
         self.savefile = None
         self.path_to_rockbox = None
         self.output_dir = None
+        self.links_path = None
+        self.playlists_path = None
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
