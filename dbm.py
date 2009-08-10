@@ -1120,10 +1120,11 @@ class LastFmUser(pylast.User):
 
     def get_artist_counts(self):
         dates = self.get_weekly_chart_dates()
+        dates = dates[-settings.lastfm_user_history_nweeks:]
         log('Collecting listening data from %d weekly charts' % len(dates))
         progress = ''
-        for i in range(len(dates)):
-            log("%d/%d" % (i, len(dates)))
+        for i in range(settings.lastfm_user_history_nweeks):
+            log("%d/%d" % (i, settings.lastfm_user_history_nweeks))
             try:
                 chart = self.get_weekly_artist_charts_as_dict(*dates[i])
             except:

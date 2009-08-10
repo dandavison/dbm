@@ -1008,6 +1008,7 @@ class Settings(dbm.Settings):
             self.logfile = sys.stderr
         self.query_lastfm = True
         self.lastfm_user_names = []
+        self.lastfm_user_history_nweeks = 4
         self.numtries = 5
 
         self.minTagArtists = 1 # min artists per tag for tag to get links and lists
