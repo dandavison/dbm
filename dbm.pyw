@@ -1459,4 +1459,8 @@ if __name__ == '__main__':
 
     mainWindow = MainWindow()
     mainWindow.show()
-    app.exec_()
+    try:
+        app.exec_()
+    except Exception, e:
+        print 'Caught exception in app.exec()'
+        mainWindow.log(e)
