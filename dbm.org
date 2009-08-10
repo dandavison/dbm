@@ -37,166 +37,26 @@ uniting 3 subtrees for Jarboe
 [...]
 uniting 3 subtrees for Einojuhani Rautavaara
 Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
-* x understand process_path stuff
-* x how to deselect musicspace, nav, pl, etc
-* x unite_spurious...() should use os.path.commonprefix()
-* x catch HTTP exceptions correctly (see Amr's reply)
-* x advertising
-    - rockbox-dev
-    - rockbox-users
-    - contact those involved in thread
-    - last.fm group
-*** x get +ve feedback on gui
-    - [x] Sheamus
-    - [ ] Fred
-    - [ ] Humberto
-* o colour!
-* o alignment!
-* x opt.libdir = os.path.splitdrive(opt.libdir)[1] ?
 * x correcting missing tags & reporting on library tag status
-*** 
-* x close settings.logfile on exit
-  What is correct way to clean up?
-* x paths
-*** x should settings.libdir = os.path.splitdrive(settings.libdir)[1] be in make_rockbox_path()?
-*** x fix double // etc in dbmg
-* x how come albumartist is present in all the links of the in ... by ... form?
-* x playlists: recently added, running
-* x clean up distinction between (static) class variables and instance variables
-* x mixed dirs hack:
-  This if condition is going to miss non-terminal folders with tracks
-  floating around that aren't in albums, but without it you get the
-  e.g. the whole library as a mixed dir...
-
-* x get rid of Artist.paths attribute
-  It can be constructed on the fly from Artist.subtrees or Artist.mixeddirs
-* x what do we do with subtrees that contain no music?
-    
-* x printing unicode names
-  .encode('utf-8') ?? find time when this doesn't seem too difficult/boring to look into
-* x should we allow non-ascii characters in dbm_artistids?
-* x report on artist directory name mismatches
-* x version 1
-  - Each node in the tree is associated with list of artists under that
-    node, and their track counts.
-  - Each artist
-*** requirements
-***** Correct artist paths
-      These will be paths to pure subtrees
-***** Compilations to appear in similar subtrees
-      Similar subtree list is constructed as follows:
-      1. Query similar artists --> 
-      2. List subtrees for similar artists
-      So compilations (impure directories) must be listed for each artist.
-***** Incremental updates
-      1. Insert subtree into tree
-      2. Update tree
-      3. Update playlists and links
-***** Do as well as possible in absence of MBIDs
-      Artists to be identified by a string -- either MBID or name,
-      with MBID taking precedence.
-*** data structures
-    artist IDS are either MBIDs (if available) or artist names
-***** tree
-      Each node has
-      - pnode: parent node
-      - dnodes: list of daughter nodes
-      - music: list of parsed tag dicts
-      - artists: dict of artist track counts in subtree keyed by artist IDs
-      - path: path to node, starting at root
-***** nodes
-      A dict of pointers to tree nodes, keyed by path
-***** artists
-      A dict keyed by artist IDs. Each value is a dict with
-      - subtrees: list of pointers to pure subtrees in the tree
-      - mixed_dirs: list of pointers to mixed dirs containing music by artist
-      - simartids: list of similar artist IDs
-*** program
-    1. Create tree
-    2. Resolve artist ID synonymy
-    3. Inspect subtree purity and create artists dict
-*** o last.fm simartids -- using MBIDs / names?
-*** x artist names in artist dict -- e.g. for index links
-*** o separate out name / id stuff from grow_tree
-*** o make pure subtree requirement fuzzy
-*** o A-Z links should be sorted by artist name not path
-*** x A-Z links should be to pure subtrees only?
-*** x what about artist sort name tags?
-*** x need to remove simartists to artists no longer in library
-*** o set_lastfm_similar_artists needs re-aligning remove redundant else:
-* s set nav_links_path to dirname(dbm.root) by default when root exists, etc
-* s sort out log, logging, sys.stderr.write, print, ...
-* s create Table class
-* s use set() rather than checking for membership manually?
-* o update windows executable
-  SCHEDULED: <2009-07-05 Sun>
-* o why not loading library msg appearing?
-* o why dropoff param not persistent?
-* o feedback during link / playlist creation!
-* o deal with overwriting non-empty directory contents
-* o make sure all error output from dbm.py goes to stderr
-* o make sure stderr is logged somewhere sensible from dmgw
-* o load library could do with separate thread
+* x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
+* x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
+* o Last.fm user playlists
+* o Last.fm user window restricted to recent weeks
+* o single output directory
+* x alignment!
 * o download album art
 * o clean up code in create_similar_artists_playlist
 * o refactor create_similar_artists_linkfile
-* o generate skeleton music space
-* o add folder to library
-* o stop loading library on startup but keep recent files
-* o need to stop people running multiple simultaneous scans etc!
-* o albumartist key error
-    File "dbm.py", line 273, in set_track_artists
-      t.albumartist = root.artists[t.dbm_albumartistid]
-  KeyError: '4dbf5678-7a31-406a-abbe-232f8ac2cd63'
-  - t.dbm_albumartistid is not in root.artists keys during
-    root.set_track_artists() which visits all track objects
-  - root.artists keys are set just before from root.artistnames keys
-  - => t.dbm_albumartistid is not in root.artistnames keys
-  - root.artistnames keys are set by root.set_dbm_artistids()
-  - => root.make_dbm_artistid(aid, aname) must evaluate to False
-  - but that is not true, as evidenced by the KeyError being caused by
-    a valid MBID
-  - => there is an error in the above.
-* o The problem is tracks with an artist mbid but no artist name. These need to be dealt with
-
-* o deal with various artists id, don't print out 'assoc with multiple artists'
-* o on requesting last.fm look up with gui2.dbm (attached)	     :ATTACH:
-    :PROPERTIES:
-    :Attachments: gui2.dbm
-    :ID:       0d930400-a782-4dfc-9ca9-ce398ceab10c
-    :END:
-    This is not a bug; I had  temporarily removed the try..except construct.
-    Traceback (most recent call last):
-  File "/home/dan/bin/gdbm", line 588, in run
-    self.dbm.root.set_similar_artists()
-  File "/home/dan/src/dbm/gui/dbm.py", line 433, in set_similar_artists
-    artist.set_lastfm_similar_artists()
-  File "/home/dan/src/dbm/gui/dbm.py", line 583, in set_lastfm_similar_artists
-    self.simartists = self.query_lastfm_similar()
-  File "/home/dan/src/dbm/gui/dbm.py", line 621, in query_lastfm_similar
-    settings.lastfm['session_key']).execute(True)
-  File "/home/dan/src/dbm/gui/pylast.py", line 237, in execute
-    response = self._download_response()
-  File "/home/dan/src/dbm/gui/pylast.py", line 228, in _download_response
-    self._check_response_for_errors(response)
-  File "/home/dan/src/dbm/gui/pylast.py", line 251, in _check_response_for_errors
-    raise ServiceException(status, details)
-pylast.ServiceException: No artist found
-* o pyqt: what is the filenew argument to createAction?
-  icon
 * o link to single artist all tracks
-* o heuristic / hack:
-  if artist has multiple subtrees, and the penultimate component of
-  the paths is the same for all of them, then use that in the links.
 * n if we are only saving the tree then make artists etc attributes of dbm, not root
-* n allow libdir to be script arg in addition to -i option
+*** n allow libdir to be script arg in addition to -i option
 * Building windows executable
   1. commit-dbm
   2. termserv ddavison@princeton
   3. net use h: \\files\ddavison
   4. h:
   5. cd lib\dbm
-  6. ..\Python\python.exe setup.py py2exe
+  6. ..\Python26\python.exe setup.py py2exe
   7. cd dist
   8. zip dbm.exe.zip dbm.exe
   9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
