@@ -705,9 +705,13 @@ class MainWindow(QMainWindow):
         dirs = dict(lastfm_similar='Last.fm Similar',
                     musicspace_similar='Musicspace Similar',
                     AtoZ='A-Z',
-                    tags='Artist Tags')
+                    tags='Artist Tags',
+                    lastfm_users = 'Last.fm Users')
+
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.links_path, d) for d in dirs.values()]))
+        
+        # TODO: hack: biographies have no place with Links code really
         dirs['bios'] = os.path.join(os.path.dirname(settings.output_dir), 'Biographies')
         for d in dirs.values():
             try:
@@ -1418,15 +1422,6 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
-        self.log('Creating last.fm tag links')
-        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
-
-        self.log('Creating alphabetical index')
-        self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
-
-        self.log('Writing artist biographies')
-        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
-
         self.log('Creating last.fm user links')
         ## A hack to deal with saved Root objects that predate this attribute
         if not hasattr(self.dbm.root, 'lastfm_users'):
@@ -1443,18 +1438,25 @@ class LinksCreator(NewThread):
             util.mkdirp(user_dir)
 
             self.log('%s listened music' % name)
-            d = os.path.join(user_dir, 'Present-Listened')
-            util.mkdirp(d)
-            user.write_listened_artists_linkfile(d)
+            user.write_listened_artists_linkfile(
+                os.path.join(self.dirs['lastfm_users'], name + '-listened'))
 
             self.log('%s unlistened music' % name)
-            d = os.path.join(user_dir, 'Present-Unlistened')
-            util.mkdirp(d)
-            user.write_unlistened_artists_linkfile(d)
+            user.write_unlistened_artists_linkfile(
+                os.path.join(self.dirs['lastfm_users'], name + '-unlistened'))
 
             self.log('%s absent music' % name)
-            path = os.path.join(user_dir, "Absent.link")
-            user.write_absent_artists_linkfile(path)
+            user.write_absent_artists_linkfile(
+                os.path.join(self.dirs['lastfm_users'], name + '-absent.link'))
+
+        self.log('Creating last.fm tag links')
+        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
+
+        self.log('Creating alphabetical index')
+        self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
+
+        self.log('Writing artist biographies')
+        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         if settings.musicspace_ready:
             self.log('Creating links to musicspace similar artists')
