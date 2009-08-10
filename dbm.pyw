@@ -1021,8 +1021,7 @@ class Settings(dbm.Settings):
         self.albumartdir = None
         self.persistent_settings = \
             [('path_to_rockbox', lambda(qv): unicode(qv.toString(), 'utf-8')),
-             ('nav_links_path', lambda(qv): unicode(qv.toString(), 'utf-8')),
-             ('playlists_path', lambda(qv): unicode(qv.toString(), 'utf-8')),
+             ('output_dir', lambda(qv): unicode(qv.toString(), 'utf-8')),
              ('musicspace_file', lambda(qv): unicode(qv.toString(), 'utf-8')),
              ('musicspace_dropoff_param', lambda(qv): qv.toDouble()[0]),
              ('minArtistTracks', lambda(qv): qv.toInt()[0]),
