@@ -723,11 +723,12 @@ class Root(Node):
             if i % 10 == 0 or i == n:
                 log('Last.fm tag playlists: \t%d / %d' % (i, n))
             try:
-                write_playlist(tag.playlist(),
+                write_playlist(generate_playlist(tag.artists),
                                os.path.join(direc, tag.name + '.m3u'))
             except:
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
+
     def write_lastfm_artist_biographies(self, direc):
         artists = (a for a in self.artists.values() if a.bio_content)
         for artist in artists:
@@ -1089,21 +1090,14 @@ class Artist(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
-
-
 class Tag(object):
     def __init__(self, name):
         self.name = name
         self.artists = []
-    def playlist(self, n=1000):
-        # Draw sample of artists with replacement
-        artists = [random.sample(self.artists, 1)[0] for i in range(n)]
-        # Pick one track from each
-        tracks = [random.sample(artist.tracks, 1)[0] for artist in artists]
-        return unique(tracks)
         
     def __cmp__(self, other):
         return cmp(self.name, other.name)
+
 class LastFmUser(pylast.User):
     def __init__(self, name, lastfm_auth_info):
         pylast.User.__init__(self, name, **lastfm_auth_info)
