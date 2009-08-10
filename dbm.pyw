@@ -708,8 +708,12 @@ class MainWindow(QMainWindow):
                     tags='Artist Tags')
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.links_path, d) for d in dirs.values()]))
+        dirs['bios'] = os.path.join(os.path.dirname(settings.output_dir), 'Biographies')
         for d in dirs.values():
-            if not os.path.exists(d): os.mkdir(d)
+            try:
+                if not os.path.exists(d): os.mkdir(d)
+            except:
+                dbm.elog('ERROR: Failed to create output directory %s' % d)
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
@@ -1399,21 +1403,11 @@ class LinksCreator(NewThread):
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
 
-        if settings.musicspace_ready:
-            self.log('Creating links to musicspace similar artists')
-            self.dbm.root.write_musicspace_similar_artists_linkfiles(
-                self.dirs['musicspace_similar'])
-        self.log('Creating links to lastfm similar artists')
-        self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
-
         self.log('Creating alphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('Writing artist biographies')
-        d = os.path.join(os.path.dirname(settings.output_dir), 'Biographies')
-        if not util.mkdirp(d):
-            self.elog('Failed to create Biographies output directory')
-        self.dbm.root.write_lastfm_artist_biographies(d)
+        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         self.log('Creating last.fm user links')
         self.dbm.root.lastfm_users = {}
@@ -1442,6 +1436,14 @@ class LinksCreator(NewThread):
             self.log('%s absent music' % name)
             path = os.path.join(user_dir, "Absent.link")
             user.write_absent_artists_linkfile(path)
+
+        if settings.musicspace_ready:
+            self.log('Creating links to musicspace similar artists')
+            self.dbm.root.write_musicspace_similar_artists_linkfiles(
+                self.dirs['musicspace_similar'])
+
+        self.log('Creating links to lastfm similar artists')
+        self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
 
         self.finishUp()
 
