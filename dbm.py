@@ -44,18 +44,20 @@ from cmdline import CommandLineApp
 import pylast
 import track
 from util import *
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 __progname__ = 'dbm'
 
 def elog(msg):
     # logfile is an object created by codecs.open(<path>, 'utf-8', <mode>)
     # under GUI, stdout is also an object created by codecs.open(<path>, 'utf-8', <mode>)
     try:
+        log(msg)
+    except:
+        log('ERROR: Failed to log error message!')
+    try:
         settings.logfile.write(msg + '\n')
-#        print(msg)
     except:
         settings.logfile.write('ERROR: Failed to write elog message\n')
-#        print('ERROR: Failed to write elog message\n')
 
 class Settings(object):
     various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'

@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
             dbm.sys.stdout = sys.stdout = settings.logfile
             dbm.sys.stderr = sys.stderr = settings.logfile
         dbm.settings = settings
-        dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
+        dbm.log = self.log
         dbm.root = None
 
 # -----------------------------------------------
@@ -146,7 +146,9 @@ class MainWindow(QMainWindow):
 
         status = self.statusBar()
         status.setSizeGripEnabled(False)
-        status.showMessage("%s -- Ready" % __progname__, 5000)
+        status.showMessage("%s version %s" % (__progname__,__version__), 5000)
+        dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
+
 
 # Actions -- file
 
