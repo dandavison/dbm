@@ -1399,7 +1399,7 @@ class LinksCreator(NewThread):
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('Writing artist biographies')
-        d = os.path.join(os.path.dirname(settings.nav_links_path), 'Biographies')
+        d = os.path.join(os.path.dirname(settings.outdir), 'Biographies')
         util.mkdirp(d)
         self.dbm.root.write_lastfm_artist_biographies(d)
 
