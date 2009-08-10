@@ -1114,29 +1114,17 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.update()
         self.parent.log('Set location of Rockbox device to %s' % settings.path_to_rockbox)
 
-    def setPathToNavFolder(self):
+    def setPathToOutputFolder(self):
         path = QFileDialog.getExistingDirectory(self,
-                   "%s - Select output folder for navigation links" % __progname__,
+                   "%s - Select output folder" % __progname__,
                    os.path.dirname(dbm.root.path) if dbm.root else QDir.homePath())
         if path.isEmpty(): return
         path = processPath(path)
-        if self.parent.alertIfDirNotEmpty(path, 'Navigation links folder not empty'):
-            return
-        settings.nav_links_path = path
+        # if self.parent.alertIfDirNotEmpty(path, 'Selected output folder not empty'):
+        #     return
+        settings.outdir = path
         self.update()
-        self.parent.log('Set output folder for navigation links to %s' % settings.nav_links_path)
-
-    def setPathToPlFolder(self):
-        path = QFileDialog.getExistingDirectory(self,
-                   "%s - Select output folder for playlists" % __progname__,
-                   os.path.dirname(dbm.root.path) if dbm.root else QDir.homePath())
-        if path.isEmpty(): return
-        path = processPath(path)
-        if self.parent.alertIfDirNotEmpty(path, 'Playlists folder not empty'):
-            return
-        settings.playlists_path = path
-        self.update()
-        self.parent.log('Set output folder for playlists to %s' % settings.playlists_path)
+        self.parent.log('Set output folder to %s' % settings.outdir)
 
     def setLastfmUsers(self):
         text = unicode(self.lastfmUsersLineEdit.text())
@@ -1185,17 +1173,12 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
             "%s - help" % __progname__,
             "If you have selected rockbox as your target, then use this button to indicate the location of your rockbox device. So, on Windows that might be something like E:, and on linux it might be something like /media/disk")
 
-    def navFolderHelp(self):
+    def outputFolderHelp(self):
         QMessageBox.information(
             self,
             "%s - help" % __progname__,
-            "This is the folder in which you want the rockbox navigation links to be created. It would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Navigation on Windows, or /media/disk/Navigation on linux.")
-
-    def plFolderHelp(self):
-        QMessageBox.information(
-            self,
-            "%s - help" % __progname__,
-            "This is the folder in which you want the various different playlists to be created. If you're going to use them on your rockbox player, then it would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\Playlists on Windows, or /media/disk/Playlists on linux.")
+            "This is where %s will store the various folders of links and playlists that it creates. It would make sense for this to be a folder at the root of your rockbox player's file system; so something like E:\%s on Windows, or /media/mp3player/%s on linux." % 
+            (__progname__,__progname__,__progname__))
 
     def minArtistTracksHelp(self):
         QMessageBox.information(
