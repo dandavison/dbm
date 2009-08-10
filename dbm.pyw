@@ -1385,15 +1385,17 @@ class PlaylistGenerator(NewThread):
         if not hasattr(self.dbm.root, 'lastfm_users'):
             self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
+            self.log(name)
             if not self.dbm.root.lastfm_users.has_key(name):
                 if not self.dbm.root.create_lastfm_user(name):
                     continue
-            self.log(name)
             user = self.dbm.root.lastfm_users[name]
             self.dbm.write_playlist(user.listened_playlist(),
-                                    os.path.join(self.dirs['lastfm_users'], name + '-listened'))
+                                    os.path.join(self.dirs['lastfm_users'],
+                                                 name + '-listened.m3u'))
             self.dbm.write_playlist(user.unlistened_playlist(),
-                                    os.path.join(self.dirs['lastfm_users'], name + '-unlistened'))
+                                    os.path.join(self.dirs['lastfm_users'],
+                                                 name + '-unlistened.m3u'))
 
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
