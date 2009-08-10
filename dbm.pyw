@@ -740,7 +740,8 @@ class MainWindow(QMainWindow):
                     all_artists='All_Artists',
                     tags = 'Artist Tags')
         
-        dirs = dict(zip(dirs.keys(), [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
+        dirs = dict(zip(dirs.keys(),
+                        [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
         for d in dirs.values():
             if not os.path.exists(d): os.mkdir(d)
         self.playlistGenerator.initialize(dirs)
