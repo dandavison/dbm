@@ -1143,15 +1143,11 @@ class LastFmUser(pylast.User):
     def absent_artists(self):
         return filter(lambda(a): not isinstance(a, Artist), self.artist_counts.keys())
 
-    def write_unlistened_artists_linkfile(self, direc):
-        for artist in self.unlistened_artists():
-            write_linkfile(sorted(list(artist.subtrees)),
-                           os.path.join(direc, artist.clean_name() + '.link'))
+    def write_unlistened_artists_linkfile(self, path):
+        write_linkfile(artist_nodes(self.unlistened_artists()), path)
 
-    def write_listened_artists_linkfile(self, direc):
-        for artist in self.listened_artists():
-            write_linkfile(sorted(list(artist.subtrees)),
-                           os.path.join(direc, artist.clean_name() + '.link'))
+    def write_listened_artists_linkfile(self, path):
+        write_linkfile(artist_nodes(self.listened_artists()), path)
 
     def write_absent_artists_linkfile(self, path):
         absent_artist_names = [a[1] for a in self.absent_artists()]
