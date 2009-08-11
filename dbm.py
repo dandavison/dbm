@@ -663,8 +663,8 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Single artist playlists: \t%d / %d' % (i, nok))
-            tracks = random.sample(artist.tracks, len(artist.tracks))
-            write_playlist(tracks, os.path.join(direc, artist.clean_name() + '.m3u'))
+            write_playlist(generate_playlist([artist]),
+                           os.path.join(direc, artist.clean_name() + '.m3u'))
             i += 1
 
     def write_all_artists_playlist(self, direc, chunk_size=1000):
