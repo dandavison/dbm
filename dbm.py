@@ -784,12 +784,9 @@ class Root(Node):
             c = index[i]
             log('Artist index link files: \t%s' % ' '.join(index[0:i]))
             artists = [a for a in self.artists.values() if a.name[0].upper() == c]
-            # Only link to artists with pure subtrees; not individual tracks in compilations
-            anodes = flatten([list(a.subtrees) for a in artists])
-            # anodes = [v for v in anodes if v.artist is v.albumartist]
-            anodes.sort()
             try:
-                write_linkfile(anodes, os.path.join(direc, c + '.link'))
+                write_linkfile(sorted(artist_nodes(artists)),
+                               os.path.join(direc, c + '.link'))
             except:
                 elog('Failed to create linkfile for index letter %s' % c)
 
