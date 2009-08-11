@@ -9,8 +9,23 @@
        self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
        self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
     2. In both cases, the tags are selected with
-       tags = filter(ok, self.tags.values())
-    3. root.tags
+       tags = filter(ok, self.tags.values()) i.e. root.tags
+    3. root.tags is created by tabulate_tags() which is called by analyse_library()
+    4. The artists are those in root.artists
+    5. This is created in create_artists, using root.artistnames
+
+    OK. I think the problem here lies in the following classes in dbm.pyw
+    - class LibraryScanner(NewThread)
+    - class LibraryGrafter(NewThread):
+    - class LastfmSimilarArtistSetter(NewThread):
+
+    At least the first two. They inherit root.simartists from the
+    pre-exisiting root, but then they have to do all sorts of other
+    stuff, ventually leading to creating root.artists. In the course
+    of which, they end up crea ting root.artists using only those
+    artists for which tracks were encountered, i.e. the new ones. Or
+    something l ike that. Anyway, to fix the bug, review and clean up
+    those 3 classes in dbm.pyw.
 
 *** x graft_tree error
     dbm.py: ERROR: Caught exception
@@ -54,6 +69,7 @@ Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no
   QVariant::load: unable to load type 307.
   At end:
   QVariant::save: unable to save type 307.
+* x Form clusters of artist tags according to overlap
 * x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
 * x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
 * o Last.fm user playlists
