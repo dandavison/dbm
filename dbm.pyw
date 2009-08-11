@@ -1448,9 +1448,8 @@ class LinksCreator(NewThread):
             user.write_unlistened_artists_linkfile(d)
 
             self.log('%s absent music' % name)
-            d = os.path.join(self.dirs['lastfm_users'], name + '-absent.link')
-            util.mkdirp(d)
-            user.write_absent_artists_linkfile(d)
+            f = os.path.join(self.dirs['lastfm_users'], name + '-absent.link')
+            user.write_absent_artists_linkfile(f)
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
