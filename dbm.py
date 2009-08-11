@@ -598,7 +598,7 @@ class Root(Node):
             self.artists.pop(dbm_aid)
 
     def analyse_library(self):
-        artists = [a for a in self.artists.values() if artist.subtrees]
+        artists = [a for a in self.artists.values() if a.subtrees]
         for artist in sorted(artists):
             if root.simartists.has_key(artist.id):
                 self.simartists = root.simartists[artist.id]
