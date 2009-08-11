@@ -600,8 +600,8 @@ class Root(Node):
     def analyse_library(self):
         artists = [a for a in self.artists.values() if a.subtrees]
         for artist in sorted(artists):
-            if root.simartists.has_key(artist.id):
-                self.simartists = root.simartists[artist.id]
+            if self.simartists.has_key(artist.id):
+                artist.simartists = self.simartists[artist.id]
             else:
                 artist.download_lastfm_data()
         self.tabulate_tags()
