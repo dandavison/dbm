@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
             self.setLastfmSimilarArtists,
             None, 'last.fm', "Download last.fm similar artists if lacking")
         createLinksAction = self.createAction(
-            "Generate Rockbox music &navigation links",
+            "Generate &Rockbox links",
             self.createLinks,
             None, 'rockbox', "Create system of links for navigating the library on a Rockbox player")
         generatePlaylistsAction = self.createAction(
@@ -1389,10 +1389,10 @@ class PlaylistGenerator(NewThread):
             user = self.dbm.root.lastfm_users[name]
             self.dbm.write_playlist(user.listened_playlist(),
                                     os.path.join(self.dirs['lastfm_users'],
-                                                 name + '-listened.m3u'))
+                                                 name + ' listened.m3u'))
             self.dbm.write_playlist(user.unlistened_playlist(),
                                     os.path.join(self.dirs['lastfm_users'],
-                                                 name + '-unlistened.m3u'))
+                                                 name + ' unlistened.m3u'))
 
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
