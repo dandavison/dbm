@@ -624,6 +624,15 @@ class Root(Node):
                     self.tags[tagname.lower()] = Tag(tagname)
                 self.tags[tagname.lower()].artists.append(artist)
 
+    def create_lastfm_user(self, name):
+        user = LastFmUser(name, settings.lastfm)
+        if user is None:
+            elog('ERROR: Failed to find last.fm user %s' % name)
+            return False
+        user.get_artist_counts()
+        self.lastfm_users[name] = user
+        return True
+
     def write_lastfm_similar_artists_playlists(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
@@ -923,7 +932,6 @@ class Artist(object):
 
     def download_lastfm_data(self):
         if not settings.query_lastfm: return
-
         waiting = True
         i = 0
         while waiting and i < settings.numtries:
