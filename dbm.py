@@ -712,9 +712,8 @@ class Root(Node):
         for tag in tags:
             if i % 10 == 0 or i == n:
                 log('Last.fm tag link files: \t%d / %d' % (i, n))
-            artist_nodes = flatten(list(a.subtrees) for a in tag.artists)
             try:
-                write_linkfile(artist_nodes,
+                write_linkfile(artist_nodes(tag.artists),
                                os.path.join(direc, tag.name + '.link'))
             except:
                 elog('Failed to create link file for tag %s' % tag.name)
@@ -1001,7 +1000,7 @@ class Artist(object):
 # an Artist instance. I would do the latter, except the circular
 # references seemed to fuck up on pickling somehow.
         artists = [root.artists[x[0]] for x in self.artists_weights]
-        return flatten([sorted(list(artist.subtrees)) for artist in artists])
+        return artist_nodes(artists)
 
     def lastfm_similar_artists_playlist(self, n=1000):
         dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.simartists)
@@ -1014,7 +1013,7 @@ class Artist(object):
         artists = [artist for artist in map(root.lookup_dbm_artist, self.simartists)
                    if artist and artist.tracks]
         artists = [self] + artists
-        return flatten([sorted(list(artist.subtrees)) for artist in artists])
+        return artist_nodes(artists)
 
     def lastfm_recommended(self):
         return [x[1] for x in self.simartists \
@@ -1203,6 +1202,9 @@ def write_linkfile(anodes, filepath):
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
 #        lfile.write('#Display last path segments=1\n')
         lfile.write('\n'.join([v.make_rockbox_link() for v in anodes]) + '\n')
+
+def artist_nodes(artists):
+    return flatten([sorted(list(artist.subtrees)) for artist in artists])
 
 def make_rockbox_path(path):
     """Form path to music on rockboxed player from path on computer.
