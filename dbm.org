@@ -1,16 +1,19 @@
-* x artist tags playlists
-* x Last.fm user window restricted to recent weeks
-* x single output directory
-* x refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
-  SCHEDULED: <2009-07-18 Sat>
-* x Add Folder To Library bug
-  Adding Decks, EFX & 909 resulted in (a) an entry for All under
-  Richie Hawtin in Artist View (All contained entries for Artists View
-  entrie for all the artists), and (b) in File View there was an entry
-  for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
-  level.
-* x graft_tree error
-dbm.py: ERROR: Caught exception
+* x tree update bugs
+*** x refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
+    SCHEDULED: <2009-07-18 Sat> At least, it seems that Artist
+    Tags/{links,playlists} are being generated only for Tags for
+    recently added music, and the entries are restricted to
+    recently-added artists.
+*** Reverse analysis
+    1. These are written by
+       self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
+       self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
+    2. In both cases, the tags are selected with
+       tags = filter(ok, self.tags.values())
+    3. root.tags
+
+*** x graft_tree error
+    dbm.py: ERROR: Caught exception
 Traceback (most recent call last):
   File "/home/dan/src/dbm/cmdline.py", line 163, in run
     exit_code = self.main(*main_args)
@@ -19,8 +22,16 @@ Traceback (most recent call last):
   File "./dbm.py", line 694, in graft_subtree
     subtree.parent = node[0]
 UnboundLocalError: local variable 'node' referenced before assignment
-* x set_lastfm_similar_artists is a mess
-  How should the various try...excepts be handled?
+*** x Add Folder To Library bug
+    Adding Decks, EFX & 909 resulted in (a) an entry for All under
+    Richie Hawtin in Artist View (All contained entries for Artists View
+    entrie for all the artists), and (b) in File View there was an entry
+    for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
+    level.
+* x Recommended artists as Biographies
+* x Make artist tags playlists operate at track a.o.t. artist level
+* x Links to tracks/albums split by letter
+* x use generate_playlist function for lastfm_similar_artists_playlist and elsewhere
 * x Is Lua scripting going to be useful for dbm?
 * x (ogg?) mbid parsing going wrong
 artistname "The Carter Family" associated with multiple artist IDs: "http://musicbrainz.org/artist/29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1" "29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1"
@@ -38,6 +49,11 @@ uniting 3 subtrees for Jarboe
 uniting 3 subtrees for Einojuhani Rautavaara
 Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
 * x correcting missing tags & reporting on library tag status
+* x Qvariant load/save error
+  At start
+  QVariant::load: unable to load type 307.
+  At end:
+  QVariant::save: unable to save type 307.
 * x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
 * x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
 * o Last.fm user playlists
@@ -262,106 +278,106 @@ discovered new artists through it.
 Here are some more in detail comments about the results from your
 program, for ideas.
 
-***** x Make compilations appear in Similar list
-      My music library has an important percentage stored in the
-      “Compilations” folder (mostly electronic music compilations). So it’s
-      very frequent to find in “Similar” the line “Music/Compilations/”
-      which of course doesn’t tell much, since there are also many
-      alternative, rock, etc compilations stored. I guess this happens
-      because you assume the Music/Artist/Album structure (true for most of
-      the tracks). I was thinking if it would be possible to put in the
-      Similar results the albums, because that would tell so much more in
-      the cases I described. I think assuming that tracks are within a
-      folder of similar music is ok.
+******* x Make compilations appear in Similar list
+      	My music library has an important percentage stored in the
+      	“Compilations” folder (mostly electronic music compilations). So it’s
+      	very frequent to find in “Similar” the line “Music/Compilations/”
+      	which of course doesn’t tell much, since there are also many
+      	alternative, rock, etc compilations stored. I guess this happens
+      	because you assume the Music/Artist/Album structure (true for most of
+      	the tracks). I was thinking if it would be possible to put in the
+      	Similar results the albums, because that would tell so much more in
+      	the cases I described. I think assuming that tracks are within a
+      	folder of similar music is ok.
 
-      As a little example, I have an artist called !Deladap. Similar
-      generates only “Music/Compilations/” and “Music/!Deladap/”, because
-      the similar music is stored only in compilations. So if I would have
-      links to the albums that have at least one similar artist/track there,
-      it would tell so much more.
+      	As a little example, I have an artist called !Deladap. Similar
+      	generates only “Music/Compilations/” and “Music/!Deladap/”, because
+      	the similar music is stored only in compilations. So if I would have
+      	links to the albums that have at least one similar artist/track there,
+      	it would tell so much more.
 
-      And in order to keep the “add everything from an artist” possibility
-      using the links in Rockbox, the idea would be to generate the album
-      links additionally to what you generate now, so that the similar music
-      could be linked through artist, or through it’s albums.
+      	And in order to keep the “add everything from an artist” possibility
+      	using the links in Rockbox, the idea would be to generate the album
+      	links additionally to what you generate now, so that the similar music
+      	could be linked through artist, or through it’s albums.
 
-      In the case described, the results would be something like:
+      	In the case described, the results would be something like:
 
-      Music/Compilations/
-      Music/Compilations/Album with similar artist 1/
-      Music/Compilations/Album with similar artist 2/…
-      Music/!Deladap/
+      	Music/Compilations/
+      	Music/Compilations/Album with similar artist 1/
+      	Music/Compilations/Album with similar artist 2/…
+      	Music/!Deladap/
 
-      For most of the other cases, it would look like:
-      Music/Similar artist 1/
-      Music/Similar artist 1/Album 1a
-      Music/Similar artist 1/Album 1b…
-      Music/Similar artist 2/
-      Music/Similar artist 2/Album 2a
-      Music/Similar artist 2/Album 2b…
+      	For most of the other cases, it would look like:
+      	Music/Similar artist 1/
+      	Music/Similar artist 1/Album 1a
+      	Music/Similar artist 1/Album 1b…
+      	Music/Similar artist 2/
+      	Music/Similar artist 2/Album 2a
+      	Music/Similar artist 2/Album 2b…
 
 
-***** x respond to points raised in this 'Random' section
+******* x respond to points raised in this 'Random' section
 
-      It seems to happen in an important number of playlists, that they
-      contain a very big percentage of 2 or 3 similar artists, even though
-      there are other similar artists not included (for “similar”, I checked
-      the last.fm page for those artists). As an example, my Pixies.m3u
-      playlist has really a lot of The Smiths tracks (shows VERY HIGH
-      similarity http://www.last.fm/music/Pixies/+similar?page=2 ), but has
-      no The Cure tracks whatsoever
-      (http://www.last.fm/music/Pixies/+similar?page=13 ). The Cure is the
-      artists I have more tracks from in my library.
+      	It seems to happen in an important number of playlists, that they
+      	contain a very big percentage of 2 or 3 similar artists, even though
+      	there are other similar artists not included (for “similar”, I checked
+      	the last.fm page for those artists). As an example, my Pixies.m3u
+      	playlist has really a lot of The Smiths tracks (shows VERY HIGH
+      	similarity http://www.last.fm/music/Pixies/+similar?page=2 ), but has
+      	no The Cure tracks whatsoever
+      	(http://www.last.fm/music/Pixies/+similar?page=13 ). The Cure is the
+      	artists I have more tracks from in my library.
 
-      A commercial playlist generating program (MusicIP Mixer) had a
-      parameter that would specify the “minimum tracks before allowing a
-      repeated artist”, and that seemed to help for variety; something close
-      to 5 seemed to work fine without shortening the playlists too much…
-      just a thought.  By the way and just to know, when does your program
-      stop adding tracks for an Artist.m3u in Random?
+      	A commercial playlist generating program (MusicIP Mixer) had a
+      	parameter that would specify the “minimum tracks before allowing a
+      	repeated artist”, and that seemed to help for variety; something close
+      	to 5 seemed to work fine without shortening the playlists too much…
+      	just a thought.  By the way and just to know, when does your program
+      	stop adding tracks for an Artist.m3u in Random?
 
-***** x add numtries option and improve report 
-      - I have 2909 muiscbrainz-tagged tracks, that identify 1404 different
-	artists. Random (also Similar and Recommended) generated results for
-	316 artists. A number of artists failed during the “last.fm similar
-	artist query” process, but I couldn’t count them (could that be
-	reported somehow after the process?).
+******* x add numtries option and improve report 
+      	- I have 2909 muiscbrainz-tagged tracks, that identify 1404 different
+	  artists. Random (also Similar and Recommended) generated results for
+	  316 artists. A number of artists failed during the “last.fm similar
+	  artist query” process, but I couldn’t count them (could that be
+	  reported somehow after the process?).
 
-	From the 1404 artists I have, only 358 have more than one track in
-	the library, so my guess is, results are only generated for artists
-	with more than one track?  That would mean that the process failed
-	for about 12% of the artists (42). I still have to check that in the
-	last.fm page, because all the artists seem to exist there (will
-	check the last.fm <> musicbrainz correspondence), I will report
-	later what I find. Note: It happened one time, that I run the
-	process having the internet connection very busy, and much more
-	artists failed during the process.
+	  From the 1404 artists I have, only 358 have more than one track in
+	  the library, so my guess is, results are only generated for artists
+	  with more than one track?  That would mean that the process failed
+	  for about 12% of the artists (42). I still have to check that in the
+	  last.fm page, because all the artists seem to exist there (will
+	  check the last.fm <> musicbrainz correspondence), I will report
+	  later what I find. Note: It happened one time, that I run the
+	  process having the internet connection very busy, and much more
+	  artists failed during the process.
 
-      - About 16% of the playlists have under 25 tracks. About 6% of the
-	playlists have under 15 tracks (= below about one hour playing
-	time).
+      	- About 16% of the playlists have under 25 tracks. About 6% of the
+	  playlists have under 15 tracks (= below about one hour playing
+	  time).
 
-      - The longest list has 241 tracks, the shortest has 2, the average is 101.
+      	- The longest list has 241 tracks, the shortest has 2, the average is 101.
 
-      - From the 2909 tagged tracks I have, 2312 (~80%) appear at least once
-	in the Random m3us.
+      	- From the 2909 tagged tracks I have, 2312 (~80%) appear at least once
+	  in the Random m3us.
 
-      - The most repeated track in Random, appears 94 times. The average
-	appearances per track is 13.5 times.
+      	- The most repeated track in Random, appears 94 times. The average
+	  appearances per track is 13.5 times.
 
-	Humberto
-*** x dbm: add support for
-******* o m4a
-******* o ogg
-******* x flac
-******* x mpc
-*** o create similar artist link files
-*** o create recommended lists
-*** o dbm: write tutorial.org
-*** o dbm: make last fm playlists relative to library root, not root of while filesystem
-*** o dbm: create last fm similar playlists only for artists with > i tracks.
-*** o dbm: write lists of similar artists as text files
-    Done much better than that; now have shortcuts to artist directories
-*** o implement artist_path properly
-*** n make job control file
-*** n make playlists based on BPM
+	  Humberto
+***** x dbm: add support for
+********* o m4a
+********* o ogg
+********* x flac
+********* x mpc
+***** o create similar artist link files
+***** o create recommended lists
+***** o dbm: write tutorial.org
+***** o dbm: make last fm playlists relative to library root, not root of while filesystem
+***** o dbm: create last fm similar playlists only for artists with > i tracks.
+***** o dbm: write lists of similar artists as text files
+      Done much better than that; now have shortcuts to artist directories
+***** o implement artist_path properly
+***** n make job control file
+***** n make playlists based on BPM
