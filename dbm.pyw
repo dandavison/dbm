@@ -307,7 +307,7 @@ class MainWindow(QMainWindow):
         for setting in settings.persistent_settings:
             if qSettings.contains(setting[0]):
                 name = setting[0]
-                val = setting[1](qSettings.value(setting[0])) or None
+                val = setting[1](qSettings.value(setting[0]))
                 try:
                     print_val = str(val)
                 except:
