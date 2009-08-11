@@ -527,6 +527,13 @@ class Root(Node):
         self.tags = {}
         self.lastfm_users = {}
         
+    def prepare_library(self):
+        self.create_artist_name_to_mbid_mapping()
+        self.set_dbm_artistids()
+        self.create_artists()
+        self.download_artist_lastfm_data_maybe()
+        self.tabulate_tags()
+
     def make_dbm_artistid(self, mbid, name):
         """Construct the dbm artist id for this (mbid, name) pair. If
         the mbid is present, then it is used as the dbm id. Otherwise,
@@ -597,14 +604,13 @@ class Root(Node):
             # Deleting artist but not subtree here may be a bug
             self.artists.pop(dbm_aid)
 
-    def analyse_library(self):
+    def download_artist_lastfm_data_maybe(self):
         artists = [a for a in self.artists.values() if a.subtrees]
         for artist in sorted(artists):
             if self.simartists.has_key(artist.id):
                 artist.simartists = self.simartists[artist.id]
             else:
                 artist.download_lastfm_data()
-        self.tabulate_tags()
         
     def tabulate_tags(self):
         self.tags = {}
