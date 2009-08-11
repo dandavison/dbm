@@ -749,11 +749,7 @@ class Root(Node):
         artists = (a for a in self.artists.values() if a.bio_content)
         for artist in artists:
             path = os.path.join(direc, artist.clean_name() + '.txt')
-            try:
-                with codecs.open(path, 'w', 'utf-8') as lfile:
-                    lfile.write(strip_html_tags(artist.bio_content))
-            except:
-                elog('Error writing bio for artist %s' % artist.name)
+            artist.write_biography(path)
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -1064,6 +1060,13 @@ class Artist(object):
             print('\t%s%f' % (root.artists[w[0]].name.ljust(30), w[1]))
             i += 1
             if i > 30: break
+
+    def write_biography(self, path):
+        try:
+            with codecs.open(path, 'w', 'utf-8') as lfile:
+                lfile.write(strip_html_tags(self.bio_content))
+        except:
+            elog('Error writing bio for artist %s' % self.name)
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
