@@ -663,8 +663,8 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Single artist playlists: \t%d / %d' % (i, nok))
-            tracks = random.sample(artist.tracks, len(artist.tracks))
-            write_playlist(tracks, os.path.join(direc, artist.clean_name() + '.m3u'))
+            write_playlist(generate_playlist([artist]),
+                           os.path.join(direc, artist.clean_name() + '.m3u'))
             i += 1
 
     def write_all_artists_playlist(self, direc, chunk_size=1000):
@@ -970,8 +970,8 @@ class Artist(object):
 
     def query_lastfm_similar(self):
         """Return list of similar artist (id, name) tuples. Since
-        pylast doesn't currently include mbids in Artist objects, it's a
-        bit convoluted to do this with pylast."""
+        pylast doesn't currently include mbids in Artist objects, it's
+        a bit convoluted to do this with the pylast public API."""
 
         params = {'artist': self.lastfm_name or self.name}
         doc = pylast._Request("artist.getSimilar", params, **settings.lastfm).execute(True)
@@ -1001,14 +1001,11 @@ class Artist(object):
         return flatten([sorted(list(artist.subtrees)) for artist in artists])
 
     def lastfm_similar_artists_playlist(self, n=1000):
-        # FIXME: code seems a bit ugly in this function; why using
-        # dbm_aids instead of artist references?
         dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.simartists)
                     if aid and root.artists[aid].tracks]
         dbm_aids.append(self.id)
-        # draw sample with replacement (sample size larger than population)
-        dbm_aids = [random.sample(dbm_aids, 1)[0] for i in range(n)]
-        return [random.sample(root.artists[dbm_aid].tracks, 1)[0] for dbm_aid in dbm_aids]
+        artists = [root.artists[aid] for aid in dbm_aids]
+        return generate_playlist(artists, n)
 
     def lastfm_similar_artists_nodes(self):
         artists = [artist for artist in map(root.lookup_dbm_artist, self.simartists)
