@@ -522,9 +522,10 @@ class Root(Node):
         self.artistnames = {}
         # artists is a dict of Artist instances, keyed by dbm_artistid
         self.artists = {}
-        self.simartists = {}
         self.subtree_tracks = []
+        self.simartists = {}
         self.tags = {}
+        self.bio_contents = {}
         self.lastfm_users = {}
         
     def prepare_library(self):
@@ -572,10 +573,21 @@ class Root(Node):
             self.artists.pop(dbm_aid)
 
     def download_artist_lastfm_data_maybe(self):
+        """For each artist, the following data is stored in the .dbm library file:
+        1. Similar artists data
+        2. Tag data
+        3. Biography contents
+        Unless all three are available for an artist, the full artist data
+        is (re-)downloaded from last.fm
+        """
         artists = [a for a in self.artists.values() if a.subtrees]
+        attrs = ['simartists', 'tags', 'bio_contents']
+        persistent_dicts = [getattr(self, attr) for attr in attrs]
         for artist in sorted(artists):
-            if self.simartists.has_key(artist.id):
-                artist.simartists = self.simartists[artist.id]
+            ok = [d.has_key(artist.id) for d in persistent_dicts]
+            if all(ok):
+                for attr, pdict in zip(attrs, persistent_dicts):
+                    setattr(artist, attr, pdict[artist.id])
             else:
                 artist.download_lastfm_data()
         
@@ -929,12 +941,10 @@ class Artist(object):
             try:
                 if not self.lastfm_name:
                     self.set_lastfm_name()
-                self.simartists = self.query_lastfm_similar()
-                root.simartists[self.id] = self.simartists
-
                 self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
-                self.tags = self.pylast.get_top_tags()
-                self.bio_content = self.pylast.get_bio_content()
+                root.simartists[self.id] = self.simartists = self.query_lastfm_similar()
+                root.tags[self.id] = self.tags = self.pylast.get_top_tags()
+                root.bio_contents[self.id] = self.bio_content = self.pylast.get_bio_content()
 
                 waiting = False
                 name = self.lastfm_name or self.name
