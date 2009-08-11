@@ -534,39 +534,6 @@ class Root(Node):
         self.download_artist_lastfm_data_maybe()
         self.tabulate_tags()
 
-    def make_dbm_artistid(self, mbid, name):
-        """Construct the dbm artist id for this (mbid, name) pair. If
-        the mbid is present, then it is used as the dbm id. Otherwise,
-        a look-up is performed to see if an mbid has been encountered
-        associated with the name, elsewhere in the library. If not,
-        then the name is used as the dbm id."""
-        if mbid: return mbid
-        dbm_name = canonicalise_name(name)
-        if self.artistids.has_key(dbm_name):
-            return self.artistids[dbm_name]
-        return dbm_name
-
-    def lookup_dbm_artistid(self, (mbid, name)):
-        """Return the dbm artist id, if any, that is currently in use
-        for this (mbid, name) pair."""
-        if mbid and self.artists.has_key(mbid): # ! added mbid 090512
-            return mbid
-        dbm_name = canonicalise_name(name)
-        if self.artists.has_key(dbm_name):
-            return dbm_name
-        return None
-
-    def lookup_dbm_artist(self, (mbid, name)):
-        """Return the dbm artist, if any, that is currently in use for
-        this (mbid, name) pair. I think this should be altered to use
-        tuple indexing somehow, but it's not totally trivial."""
-        if mbid and self.artists.has_key(mbid): # ! added mbid 090512
-            return self.artists[mbid]
-        dbm_name = canonicalise_name(name)
-        if self.artists.has_key(dbm_name):
-            return self.artists[dbm_name]
-        return None
-
     def create_artists(self):
         dbm_artistids = self.artistnames.keys()
         self.artists = dict(zip(dbm_artistids,
@@ -620,6 +587,39 @@ class Root(Node):
                 if not self.tags.has_key(tagname.lower()):
                     self.tags[tagname.lower()] = Tag(tagname)
                 self.tags[tagname.lower()].artists.append(artist)
+
+    def make_dbm_artistid(self, mbid, name):
+        """Construct the dbm artist id for this (mbid, name) pair. If
+        the mbid is present, then it is used as the dbm id. Otherwise,
+        a look-up is performed to see if an mbid has been encountered
+        associated with the name, elsewhere in the library. If not,
+        then the name is used as the dbm id."""
+        if mbid: return mbid
+        dbm_name = canonicalise_name(name)
+        if self.artistids.has_key(dbm_name):
+            return self.artistids[dbm_name]
+        return dbm_name
+
+    def lookup_dbm_artistid(self, (mbid, name)):
+        """Return the dbm artist id, if any, that is currently in use
+        for this (mbid, name) pair."""
+        if mbid and self.artists.has_key(mbid): # ! added mbid 090512
+            return mbid
+        dbm_name = canonicalise_name(name)
+        if self.artists.has_key(dbm_name):
+            return dbm_name
+        return None
+
+    def lookup_dbm_artist(self, (mbid, name)):
+        """Return the dbm artist, if any, that is currently in use for
+        this (mbid, name) pair. I think this should be altered to use
+        tuple indexing somehow, but it's not totally trivial."""
+        if mbid and self.artists.has_key(mbid): # ! added mbid 090512
+            return self.artists[mbid]
+        dbm_name = canonicalise_name(name)
+        if self.artists.has_key(dbm_name):
+            return self.artists[dbm_name]
+        return None
 
     def create_lastfm_user(self, name):
         user = LastFmUser(name, settings.lastfm)

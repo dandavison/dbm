@@ -21,8 +21,8 @@
 
     At least the first two. They inherit root.simartists from the
     pre-exisiting root, but then they have to do all sorts of other
-    stuff, ventually leading to creating root.artists. In the course
-    of which, they end up crea ting root.artists using only those
+    stuff, eventually leading to creating root.artists. In the course
+    of which, they end up creating root.artists using only those
     artists for which tracks were encountered, i.e. the new ones. Or
     something l ike that. Anyway, to fix the bug, review and clean up
     those 3 classes in dbm.pyw.
