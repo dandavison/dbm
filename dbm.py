@@ -620,9 +620,9 @@ class Root(Node):
         for artist in self.artists.values():
             tags = artist.tags[0:4]
             for tagname in [t.name for t in tags]:
-                if not root.tags.has_key(tagname.lower()):
-                    root.tags[tagname.lower()] = Tag(tagname)
-                root.tags[tagname.lower()].artists.append(artist)
+                if not self.tags.has_key(tagname.lower()):
+                    self.tags[tagname.lower()] = Tag(tagname)
+                self.tags[tagname.lower()].artists.append(artist)
 
     def write_lastfm_similar_artists_playlists(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
