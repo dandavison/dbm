@@ -512,6 +512,13 @@ class Node(object):
     def __cmp__(self, other):
         return cmp(self.path, other.path)
 
+    def gather_terminal_nodes(self):
+        if len(self.subtrees) == 0:
+            root.terminal_nodes.append(self)
+        else:
+            for subtree in self.subtrees:
+                subtree.gather_terminal_nodes()
+
 class Root(Node):
     """The root node has and does certain things that the internal
     nodes don't."""
@@ -529,6 +536,7 @@ class Root(Node):
         self.tags = {}
         self.bio_contents = {}
         self.lastfm_users = {}
+        self.terminal_nodes = []
         
     def prepare_library(self):
         self.create_artist_name_to_mbid_mapping()
