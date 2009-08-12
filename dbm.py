@@ -597,7 +597,9 @@ class Root(Node):
         
     def tabulate_tags(self):
         self.tags = {}
-        for artist in self.artists.values():
+        ## FIXME: hack
+        artists = [a for a in self.artists.values() if self.tags_by_artist.has_key(a.id)]
+        for artist in artists:
             tags = self.tags_by_artist[artist.id][0:4]
             log('tt: %s %s' % (artist.name, tags))
             for tagname in [t.name for t in tags]:
