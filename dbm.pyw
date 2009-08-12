@@ -1432,21 +1432,12 @@ class LinksCreator(NewThread):
                 if not self.dbm.root.create_lastfm_user(name):
                     continue
             user = self.dbm.root.lastfm_users[name]
-
-            user_dir = os.path.join(settings.links_path, name)
-            util.mkdirp(user_dir)
-
-            self.log('%s listened music' % name)
             user.write_listened_artists_linkfile(
                 os.path.join(self.dirs['lastfm_users'], name + ' listened.link'))
-
-            self.log('%s unlistened music' % name)
             user.write_unlistened_artists_linkfile(
                 os.path.join(self.dirs['lastfm_users'], name + ' unlistened.link'))
-
-            self.log('%s absent music' % name)
-            f = os.path.join(self.dirs['lastfm_users'], name + ' absent.link')
-            user.write_absent_artists_linkfile(f)
+            user.write_absent_artists_linkfile(
+                os.path.join(self.dirs['lastfm_users'], name + ' absent.link'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
