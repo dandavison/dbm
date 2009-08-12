@@ -1421,6 +1421,10 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
+        self.log('Creating links to recent music')
+        dbm.write_linkfile(self.dbm.root.recently_added_nodes(),
+                           os.path.join(settings.links_path, 'Recent music.link'))
+
         self.log('Creating last.fm user links')
         ## A hack to deal with saved Root objects that predate this attribute
         if not hasattr(self.dbm.root, 'lastfm_users'):

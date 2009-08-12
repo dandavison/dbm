@@ -332,6 +332,7 @@ class Node(object):
         self.tracks = []
         self.dbm_artistids = {}
         self.grow()
+        self.mtime = None
 
     def grow(self):
         # contents = [x.decode('utf-8') for x in os.listdir(self.path)]
@@ -866,6 +867,15 @@ class Root(Node):
         subtree.parent = node[0]
 
 
+    def recently_added_nodes(self):
+        # root.terminal_nodes = []
+        # root.gather_terminal_nodes()
+        anodes = artist_nodes(self.artists.values())
+        # anodes = filter(lambda anode: len(anode.node.subtrees) == 0, anodes)
+        for an in anodes:
+            print('%s: %s' % (an.artist.name, an.node.path))
+        return sorted(anodes, key=lambda anode: anode.node.mtime, reverse=True)
+        
 class ArtistNode(object):
     """A node may be associated with an artist for a variety of
     reasons. E.g.
