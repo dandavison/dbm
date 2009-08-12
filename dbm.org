@@ -1,5 +1,7 @@
-* x tree update bugs
-*** x refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
+* x Recent music
+* o lastfm user name dirs in top level of Links output dir
+* o tree update bugs
+*** o refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
     SCHEDULED: <2009-07-18 Sat> At least, it seems that Artist
     Tags/{links,playlists} are being generated only for Tags for
     recently added music, and the entries are restricted to
@@ -26,7 +28,9 @@
     artists for which tracks were encountered, i.e. the new ones. Or
     something l ike that. Anyway, to fix the bug, review and clean up
     those 3 classes in dbm.pyw.
-
+* x Does graft tree work properly?
+*** x Get it to refresh file view and artists view
+*** x It downloads last.fm data for other artists that it shouldn't have to
 *** x graft_tree error
     dbm.py: ERROR: Caught exception
 Traceback (most recent call last):
@@ -44,9 +48,13 @@ UnboundLocalError: local variable 'node' referenced before assignment
     for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
     level.
 * x Recommended artists as Biographies
+* x Tag similarity
+*** x Form clusters of artist tags according to overlap
+*** x What should be done with tag.get_similar?
+* x Unify my Tag class with that in pylast?
 * x Make artist tags playlists operate at track a.o.t. artist level
 * x Links to tracks/albums split by letter
-* x use generate_playlist function for lastfm_similar_artists_playlist and elsewhere
+* o use generate_playlist function for lastfm_similar_artists_playlist and elsewhere
 * x Is Lua scripting going to be useful for dbm?
 * x (ogg?) mbid parsing going wrong
 artistname "The Carter Family" associated with multiple artist IDs: "http://musicbrainz.org/artist/29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1" "29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1"
@@ -69,7 +77,7 @@ Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no
   QVariant::load: unable to load type 307.
   At end:
   QVariant::save: unable to save type 307.
-* x Form clusters of artist tags according to overlap
+* x [[file:~/src/dbm/dbm.py::FIXME%20hack%20artists%20a%20for%20a%20in%20self%20artists%20values%20if%20self%20tags_by_artist%20has_key%20a%20id][hack]]
 * x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
 * x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
 * x What's going on with [[file:~/src/dbm/dbm.py::def%20musicspace_similar_artists_playlist%20self%20n%201000%20artists%20sample%20n%20self%20artists_weights%20TMP%20while%20pickling%20problems%20otherwise%20I%20would%20use%20artist%20instance%20referencves%20rather%20than%20dbm_aids][this TMP comment]]?
