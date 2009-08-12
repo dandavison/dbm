@@ -523,7 +523,8 @@ class Root(Node):
         # artists is a dict of Artist instances, keyed by dbm_artistid
         self.artists = {}
         self.subtree_tracks = []
-        self.simartists = {}
+        self.similar_artists = {}
+        self.tags_by_artist = {}
         self.tags = {}
         self.bio_contents = {}
         self.lastfm_users = {}
@@ -581,11 +582,13 @@ class Root(Node):
         is (re-)downloaded from last.fm
         """
         artists = [a for a in self.artists.values() if a.subtrees]
-        attrs = ['simartists', 'tags', 'bio_contents']
-        persistent_dicts = [getattr(self, attr) for attr in attrs]
+        attrs = ['bio_contents', 'similar_artists', 'tags_by_artist']
+        persistent_dicts_exist = all([hasattr(self, attr) for attr in attrs])
+        if persistent_dicts_exist:
+            persistent_dicts = [getattr(self, attr) for attr in attrs]
         for artist in sorted(artists):
-            ok = [d.has_key(artist.id) for d in persistent_dicts]
-            if all(ok):
+            persistent_dicts_contain_artist = [d.has_key(artist.id) for d in persistent_dicts]
+            if persistent_dicts_exist and all(persistent_dicts_contain_artist):
                 for attr, pdict in zip(attrs, persistent_dicts):
                     setattr(artist, attr, pdict[artist.id])
             else:
@@ -594,7 +597,8 @@ class Root(Node):
     def tabulate_tags(self):
         self.tags = {}
         for artist in self.artists.values():
-            tags = artist.tags[0:4]
+            tags = self.tags_by_artist[artist.id][0:4]
+            log('tt: %s %s' % (artist.name, tags))
             for tagname in [t.name for t in tags]:
                 if not self.tags.has_key(tagname.lower()):
                     self.tags[tagname.lower()] = Tag(tagname)
@@ -921,7 +925,7 @@ class Artist(object):
         self.id = dbm_aid
         self.name = most_frequent_element(root.artistnames[dbm_aid])
         self.subtrees = set([])
-        self.simartists = []
+        self.similar_artists = []
         self.tracks = []
         self.tracks_as_albumartist = []
         self.lastfm_name = ''
@@ -938,8 +942,9 @@ class Artist(object):
                 if not self.lastfm_name:
                     self.set_lastfm_name()
                 self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
-                root.simartists[self.id] = self.simartists = self.query_lastfm_similar()
-                root.tags[self.id] = self.tags = self.pylast.get_top_tags()
+
+                root.similar_artists[self.id] = self.similar_artists = self.query_lastfm_similar()
+                root.tags_by_artist[self.id] = self.tags = self.pylast.get_top_tags()
                 root.bio_contents[self.id] = self.bio_content = self.pylast.get_bio_content()
 
                 waiting = False
@@ -949,7 +954,7 @@ class Artist(object):
                      'validated' if self.lastfm_name else 'unvalidated',
                      name,
                      self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
-                     len(self.simartists)))
+                     len(self.similar_artists)))
             # except pylast.ServiceException:
             except:
                 name = self.lastfm_name or self.name
@@ -1007,20 +1012,20 @@ class Artist(object):
         return artist_nodes(artists)
 
     def lastfm_similar_artists_playlist(self, n=1000):
-        dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.simartists)
+        dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.similar_artists)
                     if aid and root.artists[aid].tracks]
         dbm_aids.append(self.id)
         artists = [root.artists[aid] for aid in dbm_aids]
         return generate_playlist(artists, n)
 
     def lastfm_similar_artists_nodes(self):
-        artists = [artist for artist in map(root.lookup_dbm_artist, self.simartists)
+        artists = [artist for artist in map(root.lookup_dbm_artist, self.similar_artists)
                    if artist and artist.tracks]
         artists = [self] + artists
         return artist_nodes(artists)
 
     def lastfm_recommended(self):
-        return [x[1] for x in self.simartists \
+        return [x[1] for x in self.similar_artists \
                     if not root.lookup_dbm_artistid(x)]
 
     def unite_spuriously_separated_subtrees(self):
@@ -1279,7 +1284,7 @@ def recommend_new_artists(scrobble_archive='', q=.8):
         scrobbled = read_scrobble_archive(scrobble_archive)
         recent = [s['artistname'] for s in scrobbled]
         artists = filter(lambda(art): art['names'][0] in recent, artists)
-    simartnames = flatten([a['simartists'][1] for a in artists.values()])
+    simartnames = flatten([a['similar_artists'][1] for a in artists.values()])
     libartnames = [a['names'][0] for a in artists.values()]
     simartnames = filter(lambda(a): not a in libartnames, simartnames)
     usimartnames = unique(simartnames)
