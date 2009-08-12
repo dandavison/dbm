@@ -1140,7 +1140,7 @@ class LastFmUser(pylast.User):
         log('Collecting listening data from %d weekly charts' % len(dates))
         progress = ''
         for i in range(settings.lastfm_user_history_nweeks):
-            log("%d/%d" % (i, settings.lastfm_user_history_nweeks))
+            log("%s week %d/%d" % (self.name, i+1, settings.lastfm_user_history_nweeks))
             try:
                 chart = self.get_weekly_artist_charts_as_dict(*dates[i])
             except:
