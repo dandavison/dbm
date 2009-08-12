@@ -705,10 +705,12 @@ class MainWindow(QMainWindow):
 
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
-                    musicspace_similar='Musicspace Similar',
                     AtoZ='A-Z',
                     tags='Artist Tags',
                     lastfm_users = 'Last.fm Users')
+        
+        if settings.musicspace_ready:
+            dirs['musicspace_similar'] = 'Musicspace Similar'
 
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.links_path, d) for d in dirs.values()]))
@@ -750,11 +752,12 @@ class MainWindow(QMainWindow):
 
         self.log('Generating playlists...')
         dirs = dict(lastfm_similar='Last.fm Similar',
-                    musicspace_similar='Musicspace Similar',
                     single_artists='Single Artists',
                     all_artists='All Artists',
                     tags = 'Artist Tags',
                     lastfm_users = 'Last.fm Users')
+        if settings.musicspace_ready:
+            dirs['musicspace_similar'] = 'Musicspace Similar'
         
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
