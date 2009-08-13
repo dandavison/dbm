@@ -1012,7 +1012,7 @@ class Artist(object):
             self.lastfm_name = self.name
 
     def query_lastfm_similar(self):
-        """Return list of similar artist (id, name) tuples. Since
+        """Return list of similar artist (mbid, name) tuples. Since
         pylast doesn't currently include mbids in Artist objects, it's
         a bit convoluted to do this with the pylast public API."""
 
