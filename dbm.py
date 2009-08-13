@@ -1057,13 +1057,13 @@ class Artist(object):
         return artist_nodes(artists)
 
     def lastfm_recommended(self):
-        # This is not quite correct as x[0] is a (possibly missing)
-        # MBID which is not the same as a dbm artist id. However I
-        # hope this will serve to create sufficiently valid Artist
-        # objects for basic operations such as getting biographies for
-        # these artists.
-        return [Artist(*x) for x in self.similar_artists \
-                    if not root.lookup_dbm_artistid(x)]
+        """Create list of Artist objects for recommended (but absent)
+        artists."""
+        # Note that artist.similar_artists is a list of (mbid,name)
+        # tuples, as returned by artist.query_lastfm_similar()
+        return [Artist(dbm_aid=root.make_dbm_artistid(*x), name=x[1]) \
+                    for x in self.similar_artists \
+                    if x[1] and not root.lookup_dbm_artistid(x)]
 
     def unite_spuriously_separated_subtrees(self):
         """This is a bit of a hack / heuristic. If an artist has a
