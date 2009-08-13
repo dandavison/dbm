@@ -715,8 +715,6 @@ class MainWindow(QMainWindow):
         dirs = dict(zip(dirs.keys(),
                         [os.path.join(settings.links_path, d) for d in dirs.values()]))
         
-        # TODO: hack: biographies have no place with Links code really
-        dirs['bios'] = os.path.join(os.path.dirname(settings.output_dir), 'Biographies')
         for d in dirs.values():
             try:
                 if not os.path.exists(d): os.mkdir(d)
@@ -1425,6 +1423,9 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
+        self.log('Writing artist biographies')
+        self.dbm.root.write_lastfm_artist_biographies()
+
         self.log('Creating last.fm user links')
         ## A hack to deal with saved Root objects that predate this attribute
         if not hasattr(self.dbm.root, 'lastfm_users'):
@@ -1446,9 +1447,6 @@ class LinksCreator(NewThread):
 
         self.log('Creating alphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
-
-        self.log('Writing artist biographies')
-        self.dbm.root.write_lastfm_artist_biographies(self.dirs['bios'])
 
         if settings.musicspace_ready:
             self.log('Creating links to musicspace similar artists')
