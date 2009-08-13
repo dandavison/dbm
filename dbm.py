@@ -293,7 +293,7 @@ class Dbm(CommandLineApp):
             root.write_lastfm_similar_artists_linkfiles(lastfm_similar_links_dir)
             if settings.musicspace_ready:
                 root.write_musicspace_similar_artists_linkfiles(musicspace_similar_links_dir)
-            root.write_lastfm_recommended_linkfiles(rec_dir)
+            root.write_similar_but_absent_linkfiles(rec_dir)
             root.write_a_to_z_linkfiles(az_links_dir)
 
             if settings.musicspace_ready:
@@ -765,6 +765,22 @@ class Root(Node):
         for artist in artists:
             artist.write_biography_if_lacking()
 
+    def write_similar_but_absent_biographies(self, direc):
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
+        artists = filter(ok, sorted(self.artists.values()))
+        nok = len(artists)
+        i = 1
+        for artist in artists:
+            if i % 10 == 0 or i == nok:
+                log('Recommended artist biographies : \t%d / %d' % (i, nok))
+            similar_but_absent_artists = artist.similar_but_absent_artists()
+            for sa_artist in similar_but_absent_artists:
+                sa_artist.write_biography_if_lacking()
+
+            write_biographies_linkfile(similar_but_absent_artists,
+                                       os.path.join(direc, artist.clean_name() + '.link'))
+            i += 1
+
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
@@ -777,23 +793,6 @@ class Root(Node):
                 log('Musicspace similar artists link files: \t%d / %d' % (i, nok))
             write_linkfile(artist.musicspace_similar_artists_nodes(),
                            os.path.join(direc, artist.clean_name() + '.link'))
-            i += 1
-
-    def write_lastfm_recommended_biographies(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
-        artists = filter(ok, sorted(self.artists.values()))
-        nok = len(artists)
-        i = 1
-        for artist in artists:
-            if i % 10 == 0 or i == nok:
-                log('Recommended artist biographies : \t%d / %d' % (i, nok))
-            similar_but_absent_artists = artist.lastfm_recommended()
-            for sa_artist in similar_but_absent_artists:
-                sa_artist.download_biography_if_lacking()
-                sa_artist.write_biography_if_lacking()
-
-            write_biographies_linkfile(similar_but_absent_artists,
-                                       os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
     def write_a_to_z_linkfiles(self, direc):
@@ -1065,8 +1064,8 @@ class Artist(object):
         artists = [self] + artists
         return artist_nodes(artists)
 
-    def lastfm_recommended(self):
-        """Create list of Artist objects for recommended (but absent)
+    def similar_but_absent_artists(self):
+        """Create list of Artist objects for similar but absent
         artists."""
         # Note that artist.similar_artists is a list of (mbid,name)
         # tuples, as returned by artist.query_lastfm_similar()
@@ -1116,17 +1115,17 @@ class Artist(object):
         return os.path.join(settings.biographies_dir, artist.clean_name() + '.txt')
 
     def write_biography_if_lacking(self):
-        if not self.bio_content: return
-        if os.path_exists(self.biography_file()): return
+        if os.path_exists(self.biography_file()):
+            return True
         try:
+            if not self.bio_content:
+                self.download_lastfm_data(biography_only=True)
             with codecs.open(self.biography_file(), 'w', 'utf-8') as f:
                 f.write(strip_html_tags(self.bio_content))
+            return True
         except:
             elog('Error writing bio for artist %s' % self.name)
-
-    def download_biography_if_lacking(self):
-        if not self.bio_content:
-            self.download_lastfm_data(biography_only=True)
+            return False
 
     def make_link_to_biography(self):
         """Construct rockbox format link to this node"""
@@ -1231,10 +1230,11 @@ class LastFmUser(pylast.User):
     def write_listened_artists_linkfile(self, path):
         write_linkfile(artist_nodes(self.listened_artists()), path)
 
-    def write_absent_artists_linkfile(self, path):
-        absent_artist_names = [a[1] for a in self.absent_artists()]
-        with codecs.open(path, 'w', 'utf-8') as lfile:
-            lfile.write('\n'.join(absent_artist_names))
+    def write_listened_but_absent_artists_biographies_linkfile(self, path):
+        artists = self.absent_artists()
+        for a in artists:
+            a.write_biography_if_lacking()
+        write_biographies_linkfile(artists, path)
 
     def listened_playlist(self, n=1000):
         listened_artists = filter(lambda(a): isinstance(a, Artist),
