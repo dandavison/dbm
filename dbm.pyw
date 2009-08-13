@@ -1429,18 +1429,16 @@ class LinksCreator(NewThread):
         if not hasattr(self.dbm.root, 'lastfm_users'):
             self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
-            self.log(name)
-
-            if not self.dbm.root.lastfm_users.has_key(name):
-                if not self.dbm.root.create_lastfm_user(name):
-                    continue
+            if not self.dbm.root.lastfm_users.has_key(name) and \
+                    not self.dbm.root.create_lastfm_user(name):
+                continue
             user = self.dbm.root.lastfm_users[name]
-            user.write_listened_artists_linkfile(
-                os.path.join(self.dirs['lastfm_users'], name + ' listened.link'))
-            user.write_unlistened_artists_linkfile(
-                os.path.join(self.dirs['lastfm_users'], name + ' unlistened.link'))
-            user.write_absent_artists_linkfile(
-                os.path.join(self.dirs['lastfm_users'], name + ' absent.link'))
+            self.log(name)
+            d = os.path.join(self.dirs['lastfm_users'], name)
+            util.mkdirp(d)
+            user.write_listened_artists_linkfile(os.path.join(d, 'listened.link'))
+            user.write_unlistened_artists_linkfile(os.path.join(d, 'unlistened.link'))
+            user.write_absent_artists_biographies_linkfile(os.path.join(d, 'absent.link'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
