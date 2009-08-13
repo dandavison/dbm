@@ -1224,7 +1224,8 @@ class LastFmUser(pylast.User):
                 log('Failed to download chart %d' % (i+1))
                 continue
             for key in chart:
-                artist = root.lookup_dbm_artist(key) or key
+                artist = root.lookup_dbm_artist(key) or \
+                    Artist(dbm_aid=root.make_dbm_artistid(*key), name=key[1])
                 if not self.artist_counts.has_key(artist):
                     self.artist_counts[artist] = 0
                 self.artist_counts[artist] += chart[key]
@@ -1236,7 +1237,7 @@ class LastFmUser(pylast.User):
         return list(set(root.artists.values()).difference(self.listened_artists()))
 
     def absent_artists(self):
-        return filter(lambda(a): not isinstance(a, Artist), self.artist_counts.keys())
+        return filter(lambda a: len(a.subtrees) == 0, self.artist_counts.keys())
 
     def write_unlistened_artists_linkfile(self, path):
         write_linkfile(artist_nodes(self.unlistened_artists()), path)
