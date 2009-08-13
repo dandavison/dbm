@@ -779,20 +779,6 @@ class Root(Node):
                            os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
-    def write_lastfm_recommended_linkfiles(self, direc):
-        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
-        artists = filter(ok, sorted(self.artists.values()))
-        nok = len(artists)
-        i = 1
-        for artist in artists:
-            if i % 10 == 0 or i == nok:
-                log('Recommended artists files: \t%d / %d' % (i, nok))
-            recommended = artist.lastfm_recommended()
-            path = os.path.join(direc, artist.clean_name() + '.link')
-            with codecs.open(path, 'w', 'utf-8') as lfile:
-                lfile.write('\n'.join(recommended) + '\n')
-            i += 1
-
     def write_lastfm_recommended_biographies(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
