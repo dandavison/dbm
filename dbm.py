@@ -1107,6 +1107,7 @@ class Artist(object):
         return os.path.join(settings.biographies_dir, artist.clean_name() + '.txt')
 
     def write_biography(self):
+        if not self.bio_content: return
         try:
             with codecs.open(self.biography_file(), 'w', 'utf-8') as f:
                 f.write(strip_html_tags(self.bio_content))
