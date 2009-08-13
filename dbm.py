@@ -1216,7 +1216,7 @@ class LastFmUser(pylast.User):
                 self.artist_counts[artist] += chart[key]
 
     def listened_artists(self):
-        return filter(lambda(a): isinstance(a, Artist), self.artist_counts.keys())
+        return filter(lambda a: len(a.subtrees) > 0, self.artist_counts.keys())
 
     def unlistened_artists(self):
         return list(set(root.artists.values()).difference(self.listened_artists()))
