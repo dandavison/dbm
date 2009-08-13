@@ -942,9 +942,9 @@ class ArtistNode(object):
         return ans
 
 class Artist(object):
-    def __init__(self, dbm_aid):
+    def __init__(self, dbm_aid, name=None):
         self.id = dbm_aid
-        self.name = most_frequent_element(root.artistnames[dbm_aid])
+        self.name = name or most_frequent_element(root.artistnames[dbm_aid])
         self.subtrees = set([])
         self.similar_artists = []
         self.tracks = []
@@ -1057,7 +1057,12 @@ class Artist(object):
         return artist_nodes(artists)
 
     def lastfm_recommended(self):
-        return [x[1] for x in self.similar_artists \
+        # This is not quite correct as x[0] is a (possibly missing)
+        # MBID which is not the same as a dbm artist id. However I
+        # hope this will serve to create sufficiently valid Artist
+        # objects for basic operations such as getting biographies for
+        # these artists.
+        return [Artist(*x) for x in self.similar_artists \
                     if not root.lookup_dbm_artistid(x)]
 
     def unite_spuriously_separated_subtrees(self):
