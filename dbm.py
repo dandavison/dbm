@@ -763,8 +763,7 @@ class Root(Node):
     def write_lastfm_artist_biographies(self, direc):
         artists = (a for a in self.artists.values() if a.bio_content)
         for artist in artists:
-            path = os.path.join(direc, artist.clean_name() + '.txt')
-            artist.write_biography(path)
+            artist.write_biography()
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -901,7 +900,7 @@ class ArtistNode(object):
         self.albumartist = albumartist
         self.album = album
 
-    def make_rockbox_link(self):
+    def make_link(self):
         """Construct rockbox format link to this node"""
         link = make_rockbox_path(self.node.path)
         link += '/\t' + self.artist.name
@@ -917,8 +916,8 @@ class ArtistNode(object):
 #   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_artists_linkfiles
 #     os.path.join(direc, artist.clean_name() + '.link'))
 #   File "/home/dan/src/dbm/dbm.py", line 1006, in write_linkfile
-#     lfile.write('\n'.join([v.make_rockbox_link() for v in anodes]) + '\n')
-#   File "/home/dan/src/dbm/dbm.py", line 782, in make_rockbox_link
+#     lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
+#   File "/home/dan/src/dbm/dbm.py", line 782, in make_link
 #     link += self.albumartist.name
 # TypeError: coercing to Unicode: need string or buffer, NoneType found
 
@@ -1088,12 +1087,21 @@ class Artist(object):
             i += 1
             if i > 30: break
 
-    def write_biography(self, path):
+    def biography_file(self):
+        return os.path.join(settings.biographies_dir, artist.clean_name() + '.txt')
+
+    def write_biography(self):
         try:
-            with codecs.open(path, 'w', 'utf-8') as lfile:
-                lfile.write(strip_html_tags(self.bio_content))
+            with codecs.open(self.biography_file(), 'w', 'utf-8') as f:
+                f.write(strip_html_tags(self.bio_content))
         except:
             elog('Error writing bio for artist %s' % self.name)
+
+    def make_link_to_biography(self):
+        """Construct rockbox format link to this node"""
+        link = self.biography_file()
+        link += '\t' + self.artist.name
+        return link
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
@@ -1236,8 +1244,13 @@ def write_playlist(tracks, filepath):
 def write_linkfile(anodes, filepath):
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
 #        lfile.write('#Display last path segments=1\n')
-        lfile.write('\n'.join([v.make_rockbox_link() for v in anodes]) + '\n')
+        lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
 
+def write_biographies_linkfile(artists, filepath):
+    links = [a.make_link_to_biography() for a in artists]
+    with codecs.open(filepath, 'w', 'utf-8') as lfile:
+        lfile.write('\n'.join(links) + '\n')
+        
 def artist_nodes(artists):
     return flatten([sorted(list(artist.subtrees)) for artist in artists])
 

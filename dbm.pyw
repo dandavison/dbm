@@ -1111,6 +1111,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         if settings.output_dir is not None:
             settings.links_path = os.path.join(settings.output_dir, 'Links')
             settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')
+            settings.biographies_dir = os.path.join(settings.output_dir, 'Biographies')
 
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
         self.outputFolderChangeButton.setText(settings.output_dir or 'None')
