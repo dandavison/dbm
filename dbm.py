@@ -638,9 +638,9 @@ class Root(Node):
         return None
 
     def lookup_dbm_artist(self, (mbid, name)):
-        """Return the dbm artist, if any, that is currently in use for
-        this (mbid, name) pair. I think this should be altered to use
-        tuple indexing somehow, but it's not totally trivial."""
+        """Return the dbm Artist object, if any, that is currently in
+        use for this (mbid, name) pair. I think this should be altered
+        to use tuple indexing somehow, but it's not totally trivial."""
         if mbid and self.artists.has_key(mbid): # ! added mbid 090512
             return self.artists[mbid]
         dbm_name = canonicalise_name(name)
