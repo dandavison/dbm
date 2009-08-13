@@ -954,7 +954,7 @@ class Artist(object):
         self.tags = []
         self.bio_content = ''
 
-    def download_lastfm_data(self):
+    def download_lastfm_data(self, biography_only=False):
         if not settings.query_lastfm: return
         waiting = True
         i = 0
@@ -962,20 +962,31 @@ class Artist(object):
             try:
                 if not self.lastfm_name:
                     self.set_lastfm_name()
-                self.pylast = pylast.Artist(self.lastfm_name or self.name, **settings.lastfm)
+                name = self.lastfm_name or self.name
+                self.pylast = pylast.Artist(name, **settings.lastfm)
 
-                root.similar_artists[self.id] = self.similar_artists = self.query_lastfm_similar()
-                root.tags_by_artist[self.id] = self.tags = self.pylast.get_top_tags()
-                root.bio_contents[self.id] = self.bio_content = self.pylast.get_bio_content()
+                self.bio_content = self.pylast.get_bio_content()
+                root.bio_contents[self.id] = self.bio_content
+                if not biography_only:
+                    self.similar_artists = self.query_lastfm_similar()
+                    self.tags = self.pylast.get_top_tags()
+                    root.similar_artists[self.id] = self.similar_artists
+                    root.tags_by_artist[self.id] = self.tags
+                    log('%s last.fm query: %s name %s (%s) got %d artists' %
+                        (timenow(),
+                         'validated' if self.lastfm_name else 'unvalidated',
+                         name,
+                         self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
+                         len(self.similar_artists)))
+                else:
+                    log('%s last.fm query: %s name %s (%s) got biography' %
+                        (timenow(),
+                         'validated' if self.lastfm_name else 'unvalidated',
+                         name,
+                         self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID'))
 
                 waiting = False
-                name = self.lastfm_name or self.name
-                log('%s last.fm query: %s name %s (%s) got %d artists' %
-                    (timenow(),
-                     'validated' if self.lastfm_name else 'unvalidated',
-                     name,
-                     self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
-                     len(self.similar_artists)))
+                
             # except pylast.ServiceException:
             except:
                 name = self.lastfm_name or self.name
