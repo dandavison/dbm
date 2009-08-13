@@ -878,12 +878,14 @@ class Root(Node):
 
 
     def recently_added_nodes(self):
+        # I don't think this is working correctly, and I am not using
+        # it currently, as sorting directories by date in rockbox has
+        # the desired effect.
+        
         # root.terminal_nodes = []
         # root.gather_terminal_nodes()
         anodes = artist_nodes(self.artists.values())
         # anodes = filter(lambda anode: len(anode.node.subtrees) == 0, anodes)
-        for an in anodes:
-            print('%s: %s' % (an.artist.name, an.node.path))
         return sorted(anodes, key=lambda anode: anode.node.mtime, reverse=True)
         
 class ArtistNode(object):
