@@ -760,10 +760,10 @@ class Root(Node):
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
 
-    def write_lastfm_artist_biographies(self, direc):
+    def write_lastfm_artist_biographies(self):
         artists = (a for a in self.artists.values() if a.bio_content)
         for artist in artists:
-            artist.write_biography()
+            artist.write_biography_if_lacking()
 
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
@@ -791,6 +791,23 @@ class Root(Node):
             path = os.path.join(direc, artist.clean_name() + '.link')
             with codecs.open(path, 'w', 'utf-8') as lfile:
                 lfile.write('\n'.join(recommended) + '\n')
+            i += 1
+
+    def write_lastfm_recommended_biographies(self, direc):
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
+        artists = filter(ok, sorted(self.artists.values()))
+        nok = len(artists)
+        i = 1
+        for artist in artists:
+            if i % 10 == 0 or i == nok:
+                log('Recommended artist biographies : \t%d / %d' % (i, nok))
+            similar_but_absent_artists = artist.lastfm_recommended()
+            for sa_artist in similar_but_absent_artists:
+                sa_artist.download_biography_if_lacking()
+                sa_artist.write_biography_if_lacking()
+
+            write_biographies_linkfile(similar_but_absent_artists,
+                                       os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
     def write_a_to_z_linkfiles(self, direc):
@@ -964,14 +981,20 @@ class Artist(object):
                     self.set_lastfm_name()
                 name = self.lastfm_name or self.name
                 self.pylast = pylast.Artist(name, **settings.lastfm)
-
+                
                 self.bio_content = self.pylast.get_bio_content()
-                root.bio_contents[self.id] = self.bio_content
+                    
                 if not biography_only:
+                    # This implies that we are working on an artist in
+                    # the library. Note that we only store biographies
+                    # in the .dbm file (i.e. in the root.XXX dicts)
+                    # for artists in the library, in order that the
+                    # .dbm file stays a reasonable size.
                     self.similar_artists = self.query_lastfm_similar()
                     self.tags = self.pylast.get_top_tags()
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
+                    root.bio_contents[self.id] = self.bio_content
                     log('%s last.fm query: %s name %s (%s) got %d artists' %
                         (timenow(),
                          'validated' if self.lastfm_name else 'unvalidated',
@@ -1106,19 +1129,26 @@ class Artist(object):
     def biography_file(self):
         return os.path.join(settings.biographies_dir, artist.clean_name() + '.txt')
 
-    def write_biography(self):
+    def write_biography_if_lacking(self):
         if not self.bio_content: return
+        if os.path_exists(self.biography_file()): return
         try:
             with codecs.open(self.biography_file(), 'w', 'utf-8') as f:
                 f.write(strip_html_tags(self.bio_content))
         except:
             elog('Error writing bio for artist %s' % self.name)
 
+    def download_biography_if_lacking(self):
+        if not self.bio_content:
+            self.download_lastfm_data(biography_only=True)
+
     def make_link_to_biography(self):
         """Construct rockbox format link to this node"""
-        link = self.biography_file()
-        link += '\t' + self.artist.name
-        return link
+        path = self.biography_file()
+        if not os.path.exists(path):
+            return None
+        else:
+            return path + '\t' + self.artist.name
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
@@ -1264,7 +1294,7 @@ def write_linkfile(anodes, filepath):
         lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath):
-    links = [a.make_link_to_biography() for a in artists]
+    links = filter(None, [a.make_link_to_biography() for a in artists])
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
         
