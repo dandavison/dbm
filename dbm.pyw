@@ -1425,7 +1425,7 @@ class LinksCreator(NewThread):
 
     def run(self):
         self.log('Creating links to recent music')
-        dbm.write_linkfile(self.dbm.root.recently_added_nodes(),
+        dbm.write_linkfile(self.dbm.root.recently_added_nodes()[0:100],
                            os.path.join(settings.links_path, 'Recent music.link'))
 
         self.log('Creating last.fm user links')
