@@ -1454,9 +1454,9 @@ class LinksCreator(NewThread):
             self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
             util.mkdirp(d)
-            self.dbm.write_linkfile(user.listened_and_present_artists,
+            self.dbm.write_linkfile(user.listened_and_present_artists(),
                                     os.path.join(d, 'Listened.link'))
-            self.dbm.write_linkfile(user.unlistened_but_present_artists,
+            self.dbm.write_linkfile(user.unlistened_but_present_artists(),
                                     os.path.join(d, 'Unlistened.link'))
             self.dbm.write_biographies_linkfile(user.listened_but_absent_artists(),
                                                 os.path.join(d, 'Absent.link'))
