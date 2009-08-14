@@ -190,11 +190,11 @@ class MainWindow(QMainWindow):
 
 # Actions -- actions
         setSimilarArtistsAction = self.createAction(
-            "Retrieve &Last.fm similar artists",
+            "Retrieve Last.fm &similar artists",
             self.setLastfmSimilarArtists,
             None, 'last.fm', "Download last.fm similar artists if lacking")
         createLinksAction = self.createAction(
-            "Generate &Rockbox links",
+            "Generate Rockbox &links",
             self.createLinks,
             None, 'rockbox', "Create system of links for navigating the library on a Rockbox player")
         generatePlaylistsAction = self.createAction(
