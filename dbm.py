@@ -1226,6 +1226,7 @@ def canonicalise_name(name):
     return r2.sub('_', r1.sub('', name.lower()))
 
 def generate_playlist(artists, n=1000):
+    artists = filter(lambda a: len(a.tracks) > 0, artists)
     if len(artists) == 0: return []
     # draw sample of artists with replacement (sample size larger than population)    
     artists = [random.sample(artists, 1)[0] for i in range(n)]
