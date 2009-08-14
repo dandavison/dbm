@@ -1205,10 +1205,10 @@ class LastFmUser(pylast.User):
                 self.artist_counts[artist] += chart[key]
 
     def listened_and_present_artists(self):
-        return filter(lambda a: a.present, self.artist_counts.keys())
+        return filter(lambda a: a.is_present(), self.artist_counts.keys())
 
     def listened_but_absent_artists(self):
-        return filter(lambda a: not a.present, self.artist_counts.keys())
+        return filter(lambda a: not a.is_present(), self.artist_counts.keys())
 
     def unlistened_but_present_artists(self):
         present_artists = set(root.artists.values())
