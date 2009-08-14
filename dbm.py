@@ -1299,41 +1299,6 @@ if __name__ == '__main__':
     dbm = Dbm()
     dbm.run()
 
-def recommend_new_artists(scrobble_archive='', q=.8):
-    """List artists that occur most frequently in similar artists but
-    are absent from the library"""
-    if scrobble_archive:
-        scrobbled = read_scrobble_archive(scrobble_archive)
-        recent = [s['artistname'] for s in scrobbled]
-        artists = filter(lambda(art): art['names'][0] in recent, artists)
-    simartnames = flatten([a['similar_artists'][1] for a in artists.values()])
-    libartnames = [a['names'][0] for a in artists.values()]
-    simartnames = filter(lambda(a): not a in libartnames, simartnames)
-    usimartnames = unique(simartnames)
-    simartcounts = dict.fromkeys(usimartnames, 0)
-    for name in simartnames:
-        simartcounts[name] = simartcounts[name] + 1
-    counts = simartcounts.values()
-    counts.sort()
-    cutoff = counts[int(round(q * len(usimartnames)))]
-    topsimartcounts = {}
-    for name, count in simartcounts.items():
-        if count >= cutoff:
-            topsimartcounts[name] = count
-    referers = {}
-    for libart in artists.values():
-        for simart in topsimartcounts.keys():
-            if simart in libart['simartnames']:
-                if not simart in referers.keys(): referers[simart] = []
-                referers[simart].append(libart['names'][0])
-    for simart, count in topsimartcounts.items():
-        try:
-            print simart.ljust(30), str(count).ljust(10)
-            for artname in referers[simart]:
-                print artname.rjust(55)
-        except:
-            None
-
 
 def read_scrobble_archive(f):
     f = open(f, 'r')
