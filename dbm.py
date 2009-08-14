@@ -1050,11 +1050,7 @@ class Artist(object):
         return [root.artists[x[0]] for x in self.artists_weights]
 
     def lastfm_similar_and_present_playlist(self, n=1000):
-        dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.similar_artists)
-                    if aid and root.artists[aid].tracks]
-        dbm_aids.append(self.id)
-        artists = [root.artists[aid] for aid in dbm_aids]
-        return generate_playlist(artists, n)
+        return generate_playlist(self.lastfm_similar_and_present_artists(), n)
 
     def lastfm_similar_and_present_artists(self):
         artists = map(root.lookup_dbm_artist, self.similar_artists)
