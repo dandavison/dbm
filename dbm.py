@@ -665,7 +665,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists playlists: \t%d / %d' % (i, nok))
-            tracks = artist.lastfm_similar_and_present_playlist()
+            tracks = generate_playlist(artist.lastfm_similar_and_present_artists())
             try:
                 write_playlist(tracks,
                                os.path.join(direc, artist.clean_name() + '.m3u'))
@@ -1048,9 +1048,6 @@ class Artist(object):
         # an Artist instance. I would do the latter, except the circular
         # references seemed to fuck up on pickling somehow.
         return [root.artists[x[0]] for x in self.artists_weights]
-
-    def lastfm_similar_and_present_playlist(self, n=1000):
-        return generate_playlist(self.lastfm_similar_and_present_artists(), n)
 
     def lastfm_similar_and_present_artists(self):
         artists = map(root.lookup_dbm_artist, self.similar_artists)
