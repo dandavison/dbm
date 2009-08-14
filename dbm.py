@@ -1299,10 +1299,6 @@ def make_rockbox_path(path):
         path = path.replace('\\', '/') ## rockbox uses linux-style path separators
         return path
 
-#     path = path.replace(settings.libdir, '')
-#     path = path.replace('\\', '/') ## rockbox uses linux style path separators
-#     return '/' + os.path.split(settings.libdir)[1] + path
-
 def rockbox_clean_name(s):
     bad = '\/:<>?*|'
     for c in bad:
