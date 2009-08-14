@@ -871,26 +871,42 @@ class Artist(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
+
 class Biography(object):
     metadata_marker = '-------------------'
     def __init__(self, artist, path):
         self.artist = artist
         self.path = path
         self.metadata = {}
-
-    def update_metadata(new_metadata):
-        x = self.read().split(self.metadata_marker)
-        if len(x) == 1: # No pre-existing metadata
-            metadata = list(new_metadata)
-        else:
-            old_metadata = parse_biography_metadata(x[1])
-            metadata = merge_biography_metadata(old_metadata, new_metadata)
-        with open(self.path, 'w') as f:
-            f.write('\n'.join([x[0].rstrip(), self.metadata_marker, metadata]))
+        self.biography = ''
+        self.read()
 
     def read(self):
+        """Read from disk and set instance attributes"""
         with open(self.path, 'r') as f:
-            return f.read()
+            x = f.read().split(self.metadata_marker)
+        self.biography = x[0].strip()
+        if len(x) == 2:
+            self.metadata = parse_biography_metadata(x[1])
+        elif len(x) > 2:
+            elog('Biography metadata contains colon for artist %s' % self.artist)
+
+    def write(self):
+        """Write instance attributes to disk"""
+        with open(self.path, 'w') as f:
+            f.write('\n'.join([self.biography,
+                               self.metadata_marker,
+                               deparse_biography_metadata(self.metadata)]) + '\n')
+
+    def update_metadata(self, new_metadata):
+        for k in new_metadata:
+            if not islist(new_metadata[k]):
+                new_metadata[k] = [new_metadata[k]]
+            if self.metadata.has_key(k):
+                self.metadata[k].extend(new_metadata[k])
+                self.metadata[k] = sorted(unique(self.metadata[k]))
+            else:
+                self.metadata[k] = sorted(new_metadata[k])
 
 class Tag(object):
     def __init__(self, name):
@@ -1086,16 +1102,16 @@ def parse_biography_metadata(text):
             continue
         key = l[0].strip()
         if not d.has_key(key): d[key] = []
-        d[key] = sorted(unique(d[key].append([s.strip() for s in l[1].split(',')])))
+        d[key].extend([s.strip() for s in l[1].split(',')])
+        d[key] = sorted(unique(d[key]))
     return d
 
-def merge_biography_metadata(d1, d2):
-    for k in d2:
-        if d1.has_key(k):
-            d1[k] = sorted(unique(d1[k].append(d2[k])))
-        else:
-            d1[k] = sorted(d2[k])
-
+def deparse_biography_metadata(d):
+    lines = []
+    for k in d:
+        lines.append('%s: %s' % (k, ', '.join(d[k])))
+    return '\n'.join(lines)
+        
 class Dbm(CommandLineApp):
 
     def __init__(self):
