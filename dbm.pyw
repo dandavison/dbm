@@ -1406,10 +1406,12 @@ class PlaylistGenerator(NewThread):
             util.mkdirp(d)
 
             user = self.dbm.root.lastfm_users[name]
-            self.dbm.write_playlist(generate_playlist(user.listened_and_present_artists()),
-                                    os.path.join(d, 'listened.m3u'))
-            self.dbm.write_playlist(generate_playlist(user.unlistened_but_present_artists()),
-                                    os.path.join(d, 'unlistened.m3u'))
+            self.dbm.write_playlist(
+                self.dbm.generate_playlist(user.listened_and_present_artists()),
+                os.path.join(d, 'listened.m3u'))
+            self.dbm.write_playlist(
+                self.dbm.generate_playlist(user.unlistened_but_present_artists()),
+                os.path.join(d, 'unlistened.m3u'))
 
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
