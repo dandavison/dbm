@@ -290,7 +290,7 @@ class Dbm(CommandLineApp):
                 if not os.path.exists(d):
                     os.mkdir(d)
 
-            root.write_lastfm_similar_artists_linkfiles(lastfm_similar_links_dir)
+            root.write_lastfm_similar_and_present_artists_linkfiles(lastfm_similar_links_dir)
             if settings.musicspace_ready:
                 root.write_musicspace_similar_artists_linkfiles(musicspace_similar_links_dir)
             root.write_similar_but_absent_linkfiles(rec_dir)
@@ -298,7 +298,7 @@ class Dbm(CommandLineApp):
 
             if settings.musicspace_ready:
                 root.write_musicspace_similar_artists_playlists(musicspace_similar_playlists_dir)
-            root.write_lastfm_similar_artists_playlists(lastfm_similar_playlists_dir)
+            root.write_lastfm_similar_and_present_playlists(lastfm_similar_playlists_dir)
             root.write_single_artists_playlists(single_artists_playlists_dir)
             root.write_all_artists_playlist(all_artists_playlists_dir)
 
@@ -657,7 +657,7 @@ class Root(Node):
         self.lastfm_users[name] = user
         return True
 
-    def write_lastfm_similar_artists_playlists(self, direc):
+    def write_lastfm_similar_and_present_playlists(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
@@ -665,7 +665,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists playlists: \t%d / %d' % (i, nok))
-            tracks = artist.lastfm_similar_artists_playlist()
+            tracks = artist.lastfm_similar_and_present_playlist()
             try:
                 write_playlist(tracks,
                                os.path.join(direc, artist.clean_name() + '.m3u'))
@@ -715,7 +715,7 @@ class Root(Node):
             write_playlist(tracks, filepath)
             plist += 1
 
-    def write_lastfm_similar_artists_linkfiles(self, direc):
+    def write_lastfm_similar_and_present_artists_linkfiles(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
@@ -724,7 +724,7 @@ class Root(Node):
             if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists link files: \t%d / %d' % (i, nok))
             try:
-                write_linkfile(artist.lastfm_similar_artists(),
+                write_linkfile(artist.lastfm_similar_and_present_artists(),
                                os.path.join(direc, artist.clean_name() + '.link'))
             except:
                 elog('Failed to create last.fm similar link file for artist %s' % artist.name)
@@ -772,7 +772,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Recommended artist biographies : \t%d / %d' % (i, nok))
-            similar_but_absent_artists = artist.similar_but_absent_artists()
+            similar_but_absent_artists = artist.lastfm_similar_but_absent_artists()
             for sa_artist in similar_but_absent_artists:
                 sa_artist.write_biography_if_lacking()
 
@@ -913,8 +913,8 @@ class ArtistNode(object):
         return link
 #             Traceback (most recent call last):
 #   File "/home/dan/bin/dbm", line 1329, in run
-#     self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
-#   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_artists_linkfiles
+#     self.dbm.root.write_lastfm_similar_and_present_artists_linkfiles(self.dirs['lastfm_similar'])
+#   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_and_present_artists_linkfiles
 #     os.path.join(direc, artist.clean_name() + '.link'))
 #   File "/home/dan/src/dbm/dbm.py", line 1006, in write_linkfile
 #     lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
@@ -1049,19 +1049,19 @@ class Artist(object):
         # references seemed to fuck up on pickling somehow.
         return [root.artists[x[0]] for x in self.artists_weights]
 
-    def lastfm_similar_artists_playlist(self, n=1000):
+    def lastfm_similar_and_present_playlist(self, n=1000):
         dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.similar_artists)
                     if aid and root.artists[aid].tracks]
         dbm_aids.append(self.id)
         artists = [root.artists[aid] for aid in dbm_aids]
         return generate_playlist(artists, n)
 
-    def lastfm_similar_artists(self):
+    def lastfm_similar_and_present_artists(self):
         artists = map(root.lookup_dbm_artist, self.similar_artists)
         artists = filter(lambda a: a and a.is_present(), artists)
         return [self] + artists
 
-    def similar_but_absent_artists(self):
+    def lastfm_similar_but_absent_artists(self):
         """Create list of Artist objects for similar but absent
         artists."""
         # Note that artist.similar_artists is a list of (mbid,name)
