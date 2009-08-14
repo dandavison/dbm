@@ -496,7 +496,7 @@ class Root(Node):
         for artist in artists:
             artist.write_biography_if_lacking()
 
-    def write_similar_but_absent_biographies(self, direc):
+    def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
@@ -504,7 +504,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Recommended artist biographies : \t%d / %d' % (i, nok))
-            write_biographies_linkfile(artist.lastfm_similar_but_absent_artists(),
+            write_biographies_linkfile(artist.lastfm_similar_but_absent_artists()[0:n],
                                        os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
