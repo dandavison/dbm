@@ -1415,13 +1415,18 @@ class PlaylistGenerator(NewThread):
 
         if self.settings.musicspace_ready:
             self.log('Generating musicspace similar artists playlists...')
-            self.dbm.root.write_musicspace_similar_artists_playlists(self.dirs['musicspace_similar'])
+            self.dbm.root.write_musicspace_similar_artists_playlists(
+                self.dirs['musicspace_similar'])
+
         self.log('Generating Last.fm similar artists playlists...')
-        self.dbm.root.write_lastfm_similar_artists_playlists(self.dirs['lastfm_similar'])
+        self.dbm.root.write_lastfm_similar_and_present_playlists(self.dirs['lastfm_similar'])
+
         self.log('Generating single artist random playlists...')
         self.dbm.root.write_single_artists_playlists(self.dirs['single_artists'])
+
         self.log('Generating whole-library random playlists...')
         self.dbm.root.write_all_artists_playlist(self.dirs['all_artists'])
+
         self.finishUp()
 
 class LinksCreator(NewThread):
