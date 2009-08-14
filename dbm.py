@@ -1117,7 +1117,7 @@ class Artist(object):
                 f.write(strip_html_tags(self.bio_content))
             return True
         except:
-            elog('Error writing bio for artist %s' % self.name)
+            elog('Failed to write biography for artist %s' % self.name)
             return False
 
     def make_link_to_biography(self):
