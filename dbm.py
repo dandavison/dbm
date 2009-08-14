@@ -905,20 +905,8 @@ class ArtistNode(object):
             link += ' in '
             if self.album:
                 link += self.album + ' by '
-            link += self.albumartist.name or '' # TMP see traceback below
+            link += self.albumartist.name or ''
         return link
-#             Traceback (most recent call last):
-#   File "/home/dan/bin/dbm", line 1329, in run
-#     self.dbm.root.write_lastfm_similar_and_present_linkfiles(self.dirs['lastfm_similar'])
-#   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_and_present_linkfiles
-#     os.path.join(direc, artist.clean_name() + '.link'))
-#   File "/home/dan/src/dbm/dbm.py", line 1006, in write_linkfile
-#     lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
-#   File "/home/dan/src/dbm/dbm.py", line 782, in make_link
-#     link += self.albumartist.name
-# TypeError: coercing to Unicode: need string or buffer, NoneType found
-
-
 
     def show(self):
         print('ArtistNode: %s, %s, %s' %
