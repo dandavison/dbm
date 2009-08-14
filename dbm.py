@@ -1126,7 +1126,7 @@ class Artist(object):
         if not os.path.exists(path):
             return None
         else:
-            return path + '\t' + self.artist.name
+            return path + '\t' + self.name
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
