@@ -703,6 +703,10 @@ class MainWindow(QMainWindow):
             settings.links_path = prev_val
             return
 
+        if settings.biographies_dir is None:
+            settings.biographies_dir = os.path.join(settings.output_dir, 'Biographies')
+        util.mkdirp(settings.biographies_dir)
+
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
                     lastfm_recommended='Last.fm Recommended',
@@ -1016,6 +1020,7 @@ class Settings(dbm.Settings):
         self.output_dir = None
         self.links_path = None
         self.playlists_path = None
+        self.biographies_dir = None
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
