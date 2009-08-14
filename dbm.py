@@ -724,7 +724,7 @@ class Root(Node):
             if i % 10 == 0 or i == nok:
                 log('Last.fm similar artists link files: \t%d / %d' % (i, nok))
             try:
-                write_linkfile(artist.lastfm_similar_artists_nodes(),
+                write_linkfile(artist.lastfm_similar_artists(),
                                os.path.join(direc, artist.clean_name() + '.link'))
             except:
                 elog('Failed to create last.fm similar link file for artist %s' % artist.name)
@@ -739,8 +739,7 @@ class Root(Node):
             if i % 10 == 0 or i == n:
                 log('Last.fm tag link files: \t%d / %d' % (i, n))
             try:
-                write_linkfile(artist_nodes(tag.artists),
-                               os.path.join(direc, tag.name + '.link'))
+                write_linkfile(tag.artists, os.path.join(direc, tag.name + '.link'))
             except:
                 elog('Failed to create link file for tag %s' % tag.name)
             i += 1
@@ -791,7 +790,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Musicspace similar artists link files: \t%d / %d' % (i, nok))
-            write_linkfile(artist.musicspace_similar_artists_nodes(),
+            write_linkfile(artist.musicspace_similar_artists(),
                            os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
@@ -806,7 +805,7 @@ class Root(Node):
             log('Artist index link files: \t%s' % ' '.join(index[0:i]))
             artists = [a for a in self.artists.values() if a.name[0].upper() == c]
             try:
-                write_linkfile(sorted(artist_nodes(artists)),
+                write_linkfile(sorted(artists),
                                os.path.join(direc, c + '.link'))
             except:
                 elog('Failed to create linkfile for index letter %s' % c)
@@ -1044,12 +1043,11 @@ class Artist(object):
             return []
 
     def musicspace_similar_artists_nodes(self):
-# TMP As noted elsewhere, artists_weights is a list of tuples the
-# first elements of which hold a dbm_aid, rather than a reference to
-# an Artist instance. I would do the latter, except the circular
-# references seemed to fuck up on pickling somehow.
-        artists = [root.artists[x[0]] for x in self.artists_weights]
-        return artist_nodes(artists)
+        # TMP As noted elsewhere, artists_weights is a list of tuples the
+        # first elements of which hold a dbm_aid, rather than a reference to
+        # an Artist instance. I would do the latter, except the circular
+        # references seemed to fuck up on pickling somehow.
+        return [root.artists[x[0]] for x in self.artists_weights]
 
     def lastfm_similar_artists_playlist(self, n=1000):
         dbm_aids = [aid for aid in map(root.lookup_dbm_artistid, self.similar_artists)
@@ -1229,10 +1227,10 @@ class LastFmUser(pylast.User):
         return list(present_artists.difference(self.listened_and_present_artists()))
 
     def write_unlistened_but_present_linkfile(self, path):
-        write_linkfile(artist_nodes(self.unlistened_but_present_artists()), path)
+        write_linkfile(self.unlistened_but_present_artists(), path)
 
     def write_listened_and_present_linkfile(self, path):
-        write_linkfile(artist_nodes(self.listened_and_present_artists()), path)
+        write_linkfile(self.listened_and_present_artists(), path)
 
     def write_listened_but_absent_biographies_linkfile(self, path):
         artists = self.listened_but_absent_artists()
@@ -1277,10 +1275,11 @@ def write_playlist(tracks, filepath):
         log('Character encoding problem while writing playlist, destination file is %s.'
             'Please report to Dan: davison@stats.ox.ac.uk.' % filepath)
 
-def write_linkfile(anodes, filepath):
+def write_linkfile(artists, filepath):
+    nodes = artist_nodes(artists)
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
 #        lfile.write('#Display last path segments=1\n')
-        lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
+        lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath):
     links = filter(None, [a.make_link_to_biography() for a in artists])
