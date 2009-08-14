@@ -1077,6 +1077,25 @@ def rockbox_clean_name(s):
     s = s.replace('"', "'")
     return s
 
+def parse_biography_metadata(text):
+    d = {}
+    lines = text.strip().split('\n')
+    for l in lines:
+        l = l.split(':')
+        if len(l) != 2: # misformed metadata line, or colon in metadata
+            continue
+        key = l[0].strip()
+        if not d.has_key(key): d[key] = []
+        d[key] = sorted(unique(d[key].append([s.strip() for s in l[1].split(',')])))
+    return d
+
+def merge_biography_metadata(d1, d2):
+    for k in d2:
+        if d1.has_key(k):
+            d1[k] = sorted(unique(d1[k].append(d2[k])))
+        else:
+            d1[k] = sorted(d2[k])
+
 class Dbm(CommandLineApp):
 
     def __init__(self):
