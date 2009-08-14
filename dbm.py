@@ -631,7 +631,6 @@ class Root(Node):
                 raise DbmError('More than one subtree with path %s' % p)
         subtree.parent = node[0]
 
-
     def recently_added_nodes(self):
         # I don't think this is working correctly, and I am not using
         # it currently, as sorting directories by date in rockbox has
@@ -1298,10 +1297,3 @@ if __name__ == '__main__':
             sys.stdout.write('ERROR: Failed to encode log message\n')
     dbm = Dbm()
     dbm.run()
-
-
-def read_scrobble_archive(f):
-    f = open(f, 'r')
-    entries = ('artistname', 'releasename', 'trackname', 'something',
-               'length', 'listened', 'playtime')
-    return [dict(entries, l.split('\t')) for l in f.readlines()]
