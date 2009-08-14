@@ -1109,10 +1109,10 @@ class Artist(object):
             if i > 30: break
 
     def biography_file(self):
-        return os.path.join(settings.biographies_dir, artist.clean_name() + '.txt')
+        return os.path.join(settings.biographies_dir, self.clean_name() + '.txt')
 
     def write_biography_if_lacking(self):
-        if os.path_exists(self.biography_file()):
+        if os.path.exists(self.biography_file()):
             return True
         try:
             if not self.bio_content:
