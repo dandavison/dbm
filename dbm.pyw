@@ -705,6 +705,7 @@ class MainWindow(QMainWindow):
 
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
+                    lastfm_recommended='Last.fm Recommended',
                     AtoZ='A-Z',
                     tags='Artist Tags',
                     lastfm_users = 'Last.fm Users')
@@ -1457,6 +1458,9 @@ class LinksCreator(NewThread):
 
         self.log('Creating links to lastfm similar artists')
         self.dbm.root.write_lastfm_similar_artists_linkfiles(self.dirs['lastfm_similar'])
+
+        self.log('Recommended artists biographies')
+        self.dbm.root.write_similar_but_absent_biographies(self.dirs['lastfm_recommended'])
 
         self.finishUp()
 
