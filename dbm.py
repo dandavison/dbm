@@ -290,7 +290,7 @@ class Dbm(CommandLineApp):
                 if not os.path.exists(d):
                     os.mkdir(d)
 
-            root.write_lastfm_similar_and_present_artists_linkfiles(lastfm_similar_links_dir)
+            root.write_lastfm_similar_and_present_linkfiles(lastfm_similar_links_dir)
             if settings.musicspace_ready:
                 root.write_musicspace_similar_artists_linkfiles(musicspace_similar_links_dir)
             root.write_similar_but_absent_linkfiles(rec_dir)
@@ -715,7 +715,7 @@ class Root(Node):
             write_playlist(tracks, filepath)
             plist += 1
 
-    def write_lastfm_similar_and_present_artists_linkfiles(self, direc):
+    def write_lastfm_similar_and_present_linkfiles(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
@@ -909,8 +909,8 @@ class ArtistNode(object):
         return link
 #             Traceback (most recent call last):
 #   File "/home/dan/bin/dbm", line 1329, in run
-#     self.dbm.root.write_lastfm_similar_and_present_artists_linkfiles(self.dirs['lastfm_similar'])
-#   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_and_present_artists_linkfiles
+#     self.dbm.root.write_lastfm_similar_and_present_linkfiles(self.dirs['lastfm_similar'])
+#   File "/home/dan/src/dbm/dbm.py", line 643, in write_lastfm_similar_and_present_linkfiles
 #     os.path.join(direc, artist.clean_name() + '.link'))
 #   File "/home/dan/src/dbm/dbm.py", line 1006, in write_linkfile
 #     lfile.write('\n'.join([v.make_link() for v in anodes]) + '\n')
