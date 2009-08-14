@@ -568,14 +568,10 @@ class Root(Node):
                 bad.append(dbm_aid)
                 continue
             if not a.tracks and not a.tracks_as_albumartist:
-                msg = "Artist %s has no tracks: deleting\n" % a.name
-                msg += "This shouldn't happen, please email the saved library file %s " % settings.savefile
-                msg += "to davison@stats.ox.ac.uk\n"
+                msg = "Artist %s has no tracks (shouldn't happen!): deleting\n" % a.name
                 elog(msg)
                 bad.append(dbm_aid)
                 continue
-#             if not a.subtrees:
-#                 print('Artist %s has no subtrees.' % a.name.encode('utf-8'))
             a.unite_spuriously_separated_subtrees()
 
         for dbm_aid in bad:
