@@ -59,33 +59,6 @@ def elog(msg):
     except:
         settings.logfile.write('ERROR: Failed to write elog message\n')
 
-class Settings(object):
-    various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'
-    lastfm = dict(api_key = 'a271d46d61c8e0960c50bec237c9941d',
-                  api_secret = '680457c03625980f61e88c319c218d53',
-#                  session_key = 'b9815e428303086842b14822296e5cff')
-                  session_key = '')
-
-    mbid_regexp = re.compile('[0-9a-fA-F]'*8 + '-' + \
-                                 '[0-9a-fA-F]'*4 + '-' + \
-                                 '[0-9a-fA-F]'*4 + '-' + \
-                                 '[0-9a-fA-F]'*4 + '-' + \
-                                 '[0-9a-fA-F]'*12)
-    def __init__(self, options=None):
-        self.gui = False
-        if options:
-            attributes = [a for a in dir(options) if a[0] != '_']
-            for attr in attributes:
-                setattr(self, attr, getattr(options, attr))
-
-    def show(self):
-        public = filter(lambda(x): x[0] != '_', dir(self))
-        noshow = ['read_file', 'read_module', 'show', 'ensure_value', 'mbid_regexp']
-        for attr_name in public:
-            if attr_name in noshow: continue
-            attr = getattr(self, attr_name)
-            print('%s %s %s' % (repr(attr_name), type(attr), attr))
-
 class Node(object):
     """A tree representation of a music library."""
     def __init__(self, path, parent):
@@ -960,6 +933,33 @@ class LastFmUser(pylast.User):
     def unlistened_but_present_artists(self):
         present_artists = set(root.artists.values())
         return list(present_artists.difference(self.listened_and_present_artists()))
+
+class Settings(object):
+    various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'
+    lastfm = dict(api_key = 'a271d46d61c8e0960c50bec237c9941d',
+                  api_secret = '680457c03625980f61e88c319c218d53',
+#                  session_key = 'b9815e428303086842b14822296e5cff')
+                  session_key = '')
+
+    mbid_regexp = re.compile('[0-9a-fA-F]'*8 + '-' + \
+                                 '[0-9a-fA-F]'*4 + '-' + \
+                                 '[0-9a-fA-F]'*4 + '-' + \
+                                 '[0-9a-fA-F]'*4 + '-' + \
+                                 '[0-9a-fA-F]'*12)
+    def __init__(self, options=None):
+        self.gui = False
+        if options:
+            attributes = [a for a in dir(options) if a[0] != '_']
+            for attr in attributes:
+                setattr(self, attr, getattr(options, attr))
+
+    def show(self):
+        public = filter(lambda(x): x[0] != '_', dir(self))
+        noshow = ['read_file', 'read_module', 'show', 'ensure_value', 'mbid_regexp']
+        for attr_name in public:
+            if attr_name in noshow: continue
+            attr = getattr(self, attr_name)
+            print('%s %s %s' % (repr(attr_name), type(attr), attr))
 
 class DbmError(Exception):
     def __init__(self, value):
