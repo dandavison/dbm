@@ -772,11 +772,7 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Recommended artist biographies : \t%d / %d' % (i, nok))
-            similar_but_absent_artists = artist.lastfm_similar_but_absent_artists()
-            for sa_artist in similar_but_absent_artists:
-                sa_artist.write_biography_if_lacking()
-
-            write_biographies_linkfile(similar_but_absent_artists,
+            write_biographies_linkfile(artist.lastfm_similar_but_absent_artists(),
                                        os.path.join(direc, artist.clean_name() + '.link'))
             i += 1
 
@@ -1119,11 +1115,10 @@ class Artist(object):
 
     def make_link_to_biography(self):
         """Construct rockbox format link to this node"""
-        path = self.biography_file()
-        if not os.path.exists(path):
+        if not self.write_biography_if_lacking():
             return None
         else:
-            return path + '\t' + self.name
+            return self.biography_file() + '\t' + self.name
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
@@ -1218,24 +1213,6 @@ class LastFmUser(pylast.User):
     def unlistened_but_present_artists(self):
         present_artists = set(root.artists.values())
         return list(present_artists.difference(self.listened_and_present_artists()))
-
-    def write_unlistened_but_present_linkfile(self, path):
-        write_linkfile(self.unlistened_but_present_artists(), path)
-
-    def write_listened_and_present_linkfile(self, path):
-        write_linkfile(self.listened_and_present_artists(), path)
-
-    def write_listened_but_absent_biographies_linkfile(self, path):
-        artists = self.listened_but_absent_artists()
-        for a in artists:
-            a.write_biography_if_lacking()
-        write_biographies_linkfile(artists, path)
-
-    def listened_and_present_playlist(self, n=1000):
-        return generate_playlist(self.listened_and_present_artists(), n)
-
-    def unlistened_but_present_playlist(self, n=1000):
-        return generate_playlist(self.unlistened_but_present_artists())
 
 class DbmError(Exception):
     def __init__(self, value):

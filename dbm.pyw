@@ -1395,6 +1395,7 @@ class PlaylistGenerator(NewThread):
         ## A hack to deal with saved Root objects that predate this attribute
         if not hasattr(self.dbm.root, 'lastfm_users'):
             self.dbm.root.lastfm_users = {}
+
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
@@ -1405,9 +1406,9 @@ class PlaylistGenerator(NewThread):
             util.mkdirp(d)
 
             user = self.dbm.root.lastfm_users[name]
-            self.dbm.write_playlist(user.listened_and_present_playlist(),
+            self.dbm.write_playlist(generate_playlist(user.listened_and_present_artists()),
                                     os.path.join(d, 'listened.m3u'))
-            self.dbm.write_playlist(user.unlistened_but_present_playlist(),
+            self.dbm.write_playlist(generate_playlist(user.unlistened_but_present_artists()),
                                     os.path.join(d, 'unlistened.m3u'))
 
         self.log('Generating Last.fm tag playlists...')
@@ -1451,9 +1452,12 @@ class LinksCreator(NewThread):
             self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
             util.mkdirp(d)
-            user.write_listened_and_present_linkfile(os.path.join(d, 'Listened.link'))
-            user.write_unlistened_but_present_linkfile(os.path.join(d, 'Unlistened.link'))
-            user.write_listened_but_absent_biographies_linkfile(os.path.join(d, 'Absent.link'))
+            self.dbm.write_linkfile(user.listened_and_present_artists,
+                                    os.path.join(d, 'Listened.link'))
+            self.dbm.write_linkfile(user.unlistened_but_present_artists,
+                                    os.path.join(d, 'Unlistened.link'))
+            self.dbm.write_biographies_linkfile(user.listened_but_absent_artists(),
+                                                os.path.join(d, 'Absent.link'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
