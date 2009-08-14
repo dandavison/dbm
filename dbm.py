@@ -1118,7 +1118,8 @@ class Artist(object):
         if not self.write_biography_if_lacking():
             return None
         else:
-            return self.biography_file() + '\t' + self.name
+            path = make_rockbox_path(self.biography_file())
+            return path + '\t' + self.name
 
     def write_music_space_entry(self, fileobj):
         fileobj.write(
