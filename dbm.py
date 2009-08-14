@@ -1058,11 +1058,10 @@ class Artist(object):
         artists = [root.artists[aid] for aid in dbm_aids]
         return generate_playlist(artists, n)
 
-    def lastfm_similar_artists_nodes(self):
-        artists = [artist for artist in map(root.lookup_dbm_artist, self.similar_artists)
-                   if artist and artist.tracks]
-        artists = [self] + artists
-        return artist_nodes(artists)
+    def lastfm_similar_artists(self):
+        artists = map(root.lookup_dbm_artist, self.similar_artists)
+        artists = filter(lambda a: a and a.is_present(), artists)
+        return [self] + artists
 
     def similar_but_absent_artists(self):
         """Create list of Artist objects for similar but absent
@@ -1149,6 +1148,10 @@ class Artist(object):
             ','.join(map(str, self.musicspace_location)) + \
                 ',' * (settings.musicspace_dimension - len(self.musicspace_location)) + '\n')
 
+
+    def is_present(self):
+        "Is the artist present in the library?"
+        return len(self.tracks) > 0
 
     def clean_name(self):
         name = self.name
