@@ -1390,17 +1390,19 @@ class PlaylistGenerator(NewThread):
         if not hasattr(self.dbm.root, 'lastfm_users'):
             self.dbm.root.lastfm_users = {}
         for name in settings.lastfm_user_names:
+            if not self.dbm.root.lastfm_users.has_key(name) and \
+                    not self.dbm.root.create_lastfm_user(name):
+                continue
+
             self.log(name)
-            if not self.dbm.root.lastfm_users.has_key(name):
-                if not self.dbm.root.create_lastfm_user(name):
-                    continue
+            d = os.path.join(self.dirs['lastfm_users'], name)
+            util.mkdirp(d)
+
             user = self.dbm.root.lastfm_users[name]
-            self.dbm.write_playlist(user.listened_playlist(),
-                                    os.path.join(self.dirs['lastfm_users'],
-                                                 name + ' listened.m3u'))
-            self.dbm.write_playlist(user.unlistened_playlist(),
-                                    os.path.join(self.dirs['lastfm_users'],
-                                                 name + ' unlistened.m3u'))
+            self.dbm.write_playlist(user.listened_and_present_playlist(),
+                                    os.path.join(d, 'listened.m3u'))
+            self.dbm.write_playlist(user.unlistened_but_present_playlist(),
+                                    os.path.join(d, 'unlistened.m3u'))
 
         self.log('Generating Last.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
@@ -1438,9 +1440,9 @@ class LinksCreator(NewThread):
             self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
             util.mkdirp(d)
-            user.write_listened_artists_linkfile(os.path.join(d, 'listened.link'))
-            user.write_unlistened_artists_linkfile(os.path.join(d, 'unlistened.link'))
-            user.write_absent_artists_biographies_linkfile(os.path.join(d, 'absent.link'))
+            user.write_listened_and_present_linkfile(os.path.join(d, 'listened.link'))
+            user.write_unlistened_but_present_linkfile(os.path.join(d, 'unlistened.link'))
+            user.write_listened_but_absent_biographies_linkfile(os.path.join(d, 'absent.link'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])

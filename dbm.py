@@ -1215,34 +1215,33 @@ class LastFmUser(pylast.User):
                     self.artist_counts[artist] = 0
                 self.artist_counts[artist] += chart[key]
 
-    def listened_artists(self):
+    def listened_and_present_artists(self):
         return filter(lambda a: len(a.subtrees) > 0, self.artist_counts.keys())
 
-    def unlistened_artists(self):
-        return list(set(root.artists.values()).difference(self.listened_artists()))
-
-    def absent_artists(self):
+    def listened_but_absent_artists(self):
         return filter(lambda a: len(a.subtrees) == 0, self.artist_counts.keys())
 
-    def write_unlistened_artists_linkfile(self, path):
-        write_linkfile(artist_nodes(self.unlistened_artists()), path)
+    def unlistened_but_present_artists(self):
+        present_artists = set(root.artists.values())
+        return list(present_artists.difference(self.listened_and_present_artists()))
 
-    def write_listened_artists_linkfile(self, path):
-        write_linkfile(artist_nodes(self.listened_artists()), path)
+    def write_unlistened_but_present_linkfile(self, path):
+        write_linkfile(artist_nodes(self.unlistened_but_present_artists()), path)
 
-    def write_listened_but_absent_artists_biographies_linkfile(self, path):
-        artists = self.absent_artists()
+    def write_listened_and_present_linkfile(self, path):
+        write_linkfile(artist_nodes(self.listened_and_present_artists()), path)
+
+    def write_listened_but_absent_biographies_linkfile(self, path):
+        artists = self.listened_but_absent_artists()
         for a in artists:
             a.write_biography_if_lacking()
         write_biographies_linkfile(artists, path)
 
-    def listened_playlist(self, n=1000):
-        listened_artists = filter(lambda(a): isinstance(a, Artist),
-                                  self.artist_counts.keys())
-        return generate_playlist(listened_artists)
+    def listened_and_present_playlist(self, n=1000):
+        return generate_playlist(self.listened_and_present_artists(), n)
 
-    def unlistened_playlist(self, n=1000):
-        return generate_playlist(self.listened_artists())
+    def unlistened_but_present_playlist(self, n=1000):
+        return generate_playlist(self.unlistened_but_present_artists())
 
 class DbmError(Exception):
     def __init__(self, value):
