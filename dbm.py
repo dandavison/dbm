@@ -1151,6 +1151,27 @@ class Artist(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
+class Biography(object):
+    metadata_marker = '-------------------'
+    def __init__(self, artist, path):
+        self.artist = artist
+        self.path = path
+        self.metadata = {}
+
+    def update_metadata(new_metadata):
+        x = self.read().split(self.metadata_marker)
+        if len(x) == 1: # No pre-existing metadata
+            metadata = list(new_metadata)
+        else:
+            old_metadata = parse_biography_metadata(x[1])
+            metadata = merge_biography_metadata(old_metadata, new_metadata)
+        with open(self.path, 'w') as f:
+            f.write('\n'.join([x[0].rstrip(), self.metadata_marker, metadata]))
+
+    def read(self):
+        with open(self.path, 'r') as f:
+            return f.read()
+
 class Tag(object):
     def __init__(self, name):
         self.name = name
@@ -1252,8 +1273,12 @@ def write_linkfile(artists, filepath):
 #        lfile.write('#Display last path segments=1\n')
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
-def write_biographies_linkfile(artists, filepath):
-    links = filter(None, [a.make_link_to_biography() for a in artists])
+def write_biographies_linkfile(artists, filepath, metadata={}):
+    if metadata:
+        for a in artists:
+            a.biography().update_metadata(metadata)
+    links = [a.make_link_to_biography() for a in artists]
+    links = filter(None, links)
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
         
