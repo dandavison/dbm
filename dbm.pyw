@@ -701,26 +701,29 @@ class MainWindow(QMainWindow):
                 self.log(msg)
                 dbm.elog(msg)
                 return
-        elif self.alertIfDirNotEmpty(settings.links_path, 'Navigation links folder not empty'):
+        elif self.alertIfDirNotEmpty(settings.links_path,
+                                     'Navigation links folder not empty'):
             settings.links_path = prev_val
             return
 
         if settings.biographies_dir is None:
-            settings.biographies_dir = os.path.join(settings.output_dir, 'Biographies')
+            settings.biographies_dir = os.path.join(settings.output_dir,
+                                                    'Biographies')
         util.mkdirp(settings.biographies_dir)
 
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
                     lastfm_recommended='Last.fm Recommended',
                     AtoZ='A-Z',
-                    tags='Artist Tags',
-                    lastfm_users = 'Last.fm Users')
-        
+                    tags='Artist Tags')
+
+        if settings.lastfm_user_names:
+            dirs['lastfm_users'] = 'Last.fm Users'
         if settings.musicspace_ready:
             dirs['musicspace_similar'] = 'Musicspace Similar'
 
-        dirs = dict(zip(dirs.keys(),
-                        [os.path.join(settings.links_path, d) for d in dirs.values()]))
+        dirs = dict(zip(dirs.keys(), [os.path.join(settings.links_path, d) \
+                                          for d in dirs.values()]))
         
         for d in dirs.values():
             try:
