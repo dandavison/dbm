@@ -884,7 +884,6 @@ class Biography(object):
                                  self.artist.clean_name() + '.txt')
         self.biography = ''
         self.metadata = {}
-        self.read()
 
     def update(self, metadata={}):
         """Download the biography if lacking, and update the
