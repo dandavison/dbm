@@ -671,7 +671,7 @@ class Artist(object):
         self.lastfm_name = ''
         self.musicspace_location = []
         self.tags = []
-        self.biography = Biography(artist)
+        self.biography = Biography(self)
 
     def download_lastfm_data(self, biography_only=False):
         if not settings.query_lastfm: return
