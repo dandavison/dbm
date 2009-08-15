@@ -270,7 +270,7 @@ class Root(Node):
         self.similar_artists = {}
         self.tags_by_artist = {}
         self.tags = {}
-        self.bio_contents = {}
+        self.biographies = {}
         self.lastfm_users = {}
         self.terminal_nodes = []
         
@@ -323,7 +323,7 @@ class Root(Node):
         is (re-)downloaded from last.fm
         """
         artists = [a for a in self.artists.values() if a.subtrees]
-        attrs = ['bio_contents', 'similar_artists', 'tags_by_artist']
+        attrs = ['biographies', 'similar_artists', 'tags_by_artist']
         persistent_dicts_exist = all([hasattr(self, attr) for attr in attrs])
         if persistent_dicts_exist:
             persistent_dicts = [getattr(self, attr) for attr in attrs]
@@ -671,7 +671,6 @@ class Artist(object):
         self.musicspace_location = []
         self.tags = []
         self.biography = Biography(artist)
-        self.bio_content = ''
 
     def download_lastfm_data(self, biography_only=False):
         if not settings.query_lastfm: return
@@ -684,7 +683,7 @@ class Artist(object):
                 name = self.lastfm_name or self.name
                 self.pylast = pylast.Artist(name, **settings.lastfm)
                 
-                self.bio_content = self.pylast.get_bio_content()
+                self.artist.biography = self.pylast.get_bio_content()
                     
                 if not biography_only:
                     # This implies that we are working on an artist in
@@ -696,7 +695,7 @@ class Artist(object):
                     self.tags = self.pylast.get_top_tags()
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
-                    root.bio_contents[self.id] = self.bio_content
+                    root.biographies[self.id] = self.biography
                     log('%s last.fm query: %s name %s (%s) got %d artists' %
                         (timenow(),
                          'validated' if self.lastfm_name else 'unvalidated',
@@ -873,6 +872,7 @@ class Biography(object):
         self.artist = artist
         self.path = os.path.join(settings.biographies_dir,
                                  self.artist.clean_name() + '.txt')
+        self.biography = ''
         self.metadata = {}
         self.read()
 
@@ -880,9 +880,10 @@ class Biography(object):
         """Download the biography if lacking, and update the
         metadata"""
         if not os.path.exists(self.path):
-            if not self.artist.bio_content:
+            if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
-            biography = strip_html_tags(self.artist.bio_content)
+            biography = strip_html_tags(self.biography)
+            self.biography = ''
             self.metadata = metadata
         else:
             (biography, self.metadata) = self.read()

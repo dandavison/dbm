@@ -515,7 +515,7 @@ class MainWindow(QMainWindow):
         if not self.okToContinue(): return
         self.libraryScanner.initialize(
             dbm.root.path,
-            dbm.root.bio_contents, dbm.root.similar_artists, dbm.root.tags_by_artist)
+            dbm.root.biographies, dbm.root.similar_artists, dbm.root.tags_by_artist)
         self.libraryScanner.start()
 
     def libraryOpen(self):
@@ -1309,17 +1309,17 @@ class NewThread(QThread):
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
 class LibraryScanner(NewThread):
-    def initialize(self, path, bio_contents={}, similar_artists={}, tags_by_artist={}):
+    def initialize(self, path, biographies={}, similar_artists={}, tags_by_artist={}):
         NewThread.initialize(self)
         self.path = path
-        self.bio_contents = bio_contents
+        self.biographies = biographies
         self.similar_artists = similar_artists
         self.tags_by_artist = tags_by_artist
         
     def run(self):
         self.log('Scanning library rooted at %s' % self.path)
         self.dbm.root = dbm.Root(self.path, None)
-        self.dbm.root.bio_contents = self.bio_contents
+        self.dbm.root.biographies = self.biographies
         self.dbm.root.similar_artists = self.similar_artists
         self.dbm.root.tags_by_artist = self.tags_by_artist
         self.dbm.root.prepare_library()
