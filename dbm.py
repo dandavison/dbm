@@ -684,7 +684,10 @@ class Artist(object):
                 name = self.lastfm_name or self.name
                 self.pylast = pylast.Artist(name, **settings.lastfm)
                 
-                self.artist.biography = self.pylast.get_bio_content()
+                if settings.noweb:
+                    self.artist.biography = 'Dummy bio for %s' % name
+                else:
+                    self.artist.biography = self.pylast.get_bio_content()
                     
                 if not biography_only:
                     # This implies that we are working on an artist in
@@ -692,8 +695,12 @@ class Artist(object):
                     # in the .dbm file (i.e. in the root.XXX dicts)
                     # for artists in the library, in order that the
                     # .dbm file stays a reasonable size.
-                    self.similar_artists = self.query_lastfm_similar()
-                    self.tags = self.pylast.get_top_tags()
+                    if settings.noweb:
+                        self.similar_artists = root.similar_artists.values()[0:2]
+                        self.tags = ['Dummy Tag 1', 'Dummy Tag 2']
+                    else:
+                        self.similar_artists = self.query_lastfm_similar()
+                        self.tags = self.pylast.get_top_tags()
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
@@ -962,6 +969,12 @@ class LastFmUser(pylast.User):
         """A modified version of
         pylast.User.get_weekly_artist_charts. Changed to include mbids
         in return data."""
+
+        if settings.noweb:
+            mbids = ['mbid1','mbid2']
+            names = ['name1','name2']
+            counts = [1,2]
+            return dict(zip(zip(mbids, names), counts))
 
         params = self._get_params()
         if from_date and to_date:

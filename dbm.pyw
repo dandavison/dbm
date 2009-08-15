@@ -1041,7 +1041,7 @@ class Settings(dbm.Settings):
         self.target = 'rockbox'
         self.quiet = False
         self.albumartdir = None
-
+        self.noweb = True
         ## This is fairly obscure.
         ## See the code [[for%20setting%20in%20settings%20persistent_settings][here]]
         self.persistent_settings = \
