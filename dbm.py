@@ -819,19 +819,6 @@ class Artist(object):
             i += 1
             if i > 30: break
 
-    def write_biography_if_lacking(self):
-        if os.path.exists(self.biography_file()):
-            return True
-        try:
-            if not self.bio_content:
-                self.download_lastfm_data(biography_only=True)
-            with codecs.open(self.biography_file(), 'w', 'utf-8') as f:
-                f.write(strip_html_tags(self.bio_content))
-            return True
-        except:
-            elog('Failed to write biography for artist %s' % self.name)
-            return False
-
     def write_music_space_entry(self, fileobj):
         fileobj.write(
             '"%s",%s,' % (self.name,
