@@ -670,6 +670,7 @@ class Artist(object):
         self.lastfm_name = ''
         self.musicspace_location = []
         self.tags = []
+        self.biography = Biography(artist)
         self.bio_content = ''
 
     def download_lastfm_data(self, biography_only=False):
@@ -818,9 +819,6 @@ class Artist(object):
             i += 1
             if i > 30: break
 
-    def biography_file(self):
-        return os.path.join(settings.biographies_dir, self.clean_name() + '.txt')
-
     def write_biography_if_lacking(self):
         if os.path.exists(self.biography_file()):
             return True
@@ -868,9 +866,10 @@ class Artist(object):
 
 class Biography(object):
     metadata_marker = '-------------------'
-    def __init__(self, artist, path):
+    def __init__(self, artist):
         self.artist = artist
-        self.path = path
+        self.path = os.path.join(settings.biographies_dir,
+                                 self.artist.clean_name() + '.txt')
         self.metadata = {}
         self.biography = ''
         self.read()
