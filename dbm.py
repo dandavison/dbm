@@ -865,33 +865,60 @@ class Artist(object):
 
 
 class Biography(object):
+    """A class for artist biographies, as obtained from last.fm
+    
+    The metadata is a dict created by dbm containing information on
+    how this artist relates to the library. An example of metadata is
+    
+    dict(Similar_to=['Tim Hecker', 'Jetone'], Listened_to_by=['davisonio', 'Myrmornis'])
+
+    which lists LastFm similar artists for the artist, and LastFm
+    Users which have listened to the artist.
+
+    Biographies are stored on disk, and not in the save .dbm library
+    object. To avoid accidentally storing biographies in memory, the
+    code in this class is slightly odd in that the biography gets
+    passed around using function arguments, whereas the metadata is
+    stored as an instance attribute.
+    """
     metadata_marker = '-------------------'
     def __init__(self, artist):
         self.artist = artist
         self.path = os.path.join(settings.biographies_dir,
                                  self.artist.clean_name() + '.txt')
         self.metadata = {}
-        self.biography = ''
         self.read()
 
+    def update(self, metadata={}):
+        """Download the biography if lacking, and update the
+        metadata"""
+        if not os.path.exists(self.path):
+            if not self.artist.bio_content:
+                self.artist.download_lastfm_data(biography_only=True)
+            biography = strip_html_tags(self.artist.bio_content)
+            self.metadata = metadata
+        else:
+            (biography, self.metadata) = self.read()
+            self.merge_metadata(metadata)
+        self.write(biography)
+            
     def read(self):
-        """Read from disk and set instance attributes"""
+        """Read biography (and metadata, if any) from disk and return
+        a (biography, metadata) tuple."""
         with open(self.path, 'r') as f:
-            x = f.read().split(self.metadata_marker)
-        self.biography = x[0].strip()
-        if len(x) == 2:
-            self.metadata = parse_biography_metadata(x[1])
-        elif len(x) > 2:
-            elog('Biography metadata contains colon for artist %s' % self.artist)
+            x = f.read().split(self.metadata_marker, maxsplit=1)
+        biography = x[0].strip()
+        metadata = parse_biography_metadata(x[1]) if len(x) == 2 else {}
+        return (biography, metadata)
 
-    def write(self):
+    def write(self, biography):
         """Write instance attributes to disk"""
         with open(self.path, 'w') as f:
-            f.write('\n'.join([self.biography,
+            f.write('\n'.join([biography,
                                self.metadata_marker,
                                deparse_biography_metadata(self.metadata)]) + '\n')
 
-    def update_metadata(self, new_metadata):
+    def merge_metadata(self, new_metadata):
         for k in new_metadata:
             if not islist(new_metadata[k]):
                 new_metadata[k] = [new_metadata[k]]
@@ -906,8 +933,7 @@ class Biography(object):
         if not self.artist.write_biography_if_lacking():
             return None
         else:
-            path = make_rockbox_path(self.artist.biography_file())
-            return path + '\t' + self.name
+            return make_rockbox_path(self.path) + '\t' + self.artist.name
 
 class Tag(object):
     def __init__(self, name):
@@ -1038,11 +1064,8 @@ def write_linkfile(artists, filepath):
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
-    if metadata:
-        for a in artists:
-            a.biography.update_metadata(metadata)
-    links = [a.biography.make_link() for a in artists]
-    links = filter(None, links)
+    biographies = filter(None, [a.biography.update(metadata) for a in artists])
+    links = [b.make_link() for b in biographies]
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
         
