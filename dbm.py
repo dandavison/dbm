@@ -881,25 +881,25 @@ class Biography(object):
 
     def update(self, metadata={}):
         """Download the biography if lacking, and update the
-        metadata"""
+        metadata. The updated biography is written to disk."""
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
-            biography = strip_html_tags(self.biography)
-            self.biography = ''
             self.metadata = metadata
-        else:
+            self.write(strip_html_tags(self.biography))
+            self.biography = ''
+        elif metadata:
             (biography, self.metadata) = self.read()
             self.merge_metadata(metadata)
-        self.write(biography)
-            
+            self.write(biography)
+
     def read(self):
         """Read biography (and metadata, if any) from disk and return
         a (biography, metadata) tuple."""
         with open(self.path, 'r') as f:
             x = f.read().split(self.metadata_marker, maxsplit=1)
         biography = x[0].strip()
-        metadata = parse_biography_metadata(x[1]) if len(x) == 2 else {}
+        metadata = self.parse_metadata(x[1]) if len(x) == 2 else {}
         return (biography, metadata)
 
     def write(self, biography):
@@ -907,7 +907,7 @@ class Biography(object):
         with open(self.path, 'w') as f:
             f.write('\n'.join([biography,
                                self.metadata_marker,
-                               deparse_biography_metadata(self.metadata)]) + '\n')
+                               self.deparse_metadata()]) + '\n')
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
@@ -1074,7 +1074,8 @@ def write_linkfile(artists, filepath):
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
-    biographies = filter(None, [a.biography.update(metadata) for a in artists])
+    biographies = [a.biography for a in artists]
+    for b in biographies: b.update(metadata)
     links = [b.make_link() for b in biographies]
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
