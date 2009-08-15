@@ -941,7 +941,8 @@ class Biography(object):
     def deparse_metadata(self):
         lines = []
         for k in self.metadata:
-            lines.append('%s: %s' % (k, ', '.join(self.metadata[k])))
+            lines.append('%s: %s' % (k.replace('_',' '),
+                                     ', '.join(self.metadata[k])))
         return '\n'.join(lines)
 
     def make_link(self):
