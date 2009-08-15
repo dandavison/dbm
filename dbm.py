@@ -914,6 +914,27 @@ class Biography(object):
                 self.metadata[k] = sorted(unique(self.metadata[k]))
             else:
                 self.metadata[k] = sorted(new_metadata[k])
+    
+    def parse_metadata(self, text):
+        # Doesn't actually access any instance data, because biography
+        # text is passed around with function arguments.
+        d = {}
+        lines = text.strip().split('\n')
+        for l in lines:
+            l = l.split(':')
+            if len(l) != 2: # misformed metadata line, or colon in metadata
+                continue
+            key = l[0].strip()
+            if not d.has_key(key): d[key] = []
+            d[key].extend([s.strip() for s in l[1].split(',')])
+            d[key] = sorted(unique(d[key]))
+        return d
+
+    def deparse_metadata(self):
+        lines = []
+        for k in self.metadata:
+            lines.append('%s: %s' % (k, ', '.join(self.metadata[k])))
+        return '\n'.join(lines)
 
     def make_link(self):
         """Construct rockbox format link to this node"""
@@ -1104,25 +1125,6 @@ def rockbox_clean_name(s):
     s = s.replace('"', "'")
     return s
 
-def parse_biography_metadata(text):
-    d = {}
-    lines = text.strip().split('\n')
-    for l in lines:
-        l = l.split(':')
-        if len(l) != 2: # misformed metadata line, or colon in metadata
-            continue
-        key = l[0].strip()
-        if not d.has_key(key): d[key] = []
-        d[key].extend([s.strip() for s in l[1].split(',')])
-        d[key] = sorted(unique(d[key]))
-    return d
-
-def deparse_biography_metadata(d):
-    lines = []
-    for k in d:
-        lines.append('%s: %s' % (k, ', '.join(d[k])))
-    return '\n'.join(lines)
-        
 class Dbm(CommandLineApp):
 
     def __init__(self):
