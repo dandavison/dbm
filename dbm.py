@@ -495,7 +495,7 @@ class Root(Node):
         ## This needs to be replaced / is basically nonsense currently
         artists = (a for a in self.artists.values() if a.is_present())
         for artist in artists:
-            artist.biography.update(dict(In_library='Yes'))
+            artist.biography.update(dict(In_library=['Yes']))
             
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
