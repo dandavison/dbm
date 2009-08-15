@@ -1041,8 +1041,8 @@ def write_linkfile(artists, filepath):
 def write_biographies_linkfile(artists, filepath, metadata={}):
     if metadata:
         for a in artists:
-            a.biography().update_metadata(metadata)
-    links = [a.make_link_to_biography() for a in artists]
+            a.biography.update_metadata(metadata)
+    links = [a.biography.make_link() for a in artists]
     links = filter(None, links)
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
