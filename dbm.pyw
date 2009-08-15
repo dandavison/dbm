@@ -315,6 +315,8 @@ class MainWindow(QMainWindow):
                 dbm.elog('%s:  %s' % (name, print_val))
                 setattr(settings, name, val)
 
+        settings.update_output_directories()
+
 # Run actions in a new thread
 # code descended from Form.__init__() rgpwpyqt/chap19/pageindexer.pyw
 # self.lock = QReadWriteLock() # Not using this
@@ -1053,6 +1055,18 @@ class Settings(dbm.Settings):
              ('lastfm_user_names', lambda(qv): map(str, qv.toStringList())),
              ('target', lambda(qv): unicode(qv.toString(), 'utf-8'))]
 
+    def update_output_directories(self):
+        if self.target != 'rockbox':
+            self.path_to_rockbox = None
+
+        if self.output_dir is None:
+            self.output_dir = self.path_to_rockbox \
+                or process_path(QDir.homePath())
+
+        self.links_path = os.path.join(self.output_dir, 'Links')
+        self.playlists_path = os.path.join(self.output_dir, 'Playlists')
+        self.biographies_dir = os.path.join(self.output_dir, 'Biographies')
+
 class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
     def __init__(self, parent=None):
@@ -1107,15 +1121,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
                 raise
 
     def update(self):
-        if settings.target != 'rockbox':
-            settings.path_to_rockbox = None
-        elif settings.output_dir is None:
-            settings.output_dir = settings.path_to_rockbox
-
-        if settings.output_dir is not None:
-            settings.links_path = os.path.join(settings.output_dir, 'Links')
-            settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')
-            settings.biographies_dir = os.path.join(settings.output_dir, 'Biographies')
+        settings.update_output_directories()
 
         self.rockboxPathChangeButton.setText(settings.path_to_rockbox or 'None')
         self.outputFolderChangeButton.setText(settings.output_dir or 'None')
