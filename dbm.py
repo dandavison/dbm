@@ -834,14 +834,6 @@ class Artist(object):
             elog('Failed to write biography for artist %s' % self.name)
             return False
 
-    def make_link_to_biography(self):
-        """Construct rockbox format link to this node"""
-        if not self.write_biography_if_lacking():
-            return None
-        else:
-            path = make_rockbox_path(self.biography_file())
-            return path + '\t' + self.name
-
     def write_music_space_entry(self, fileobj):
         fileobj.write(
             '"%s",%s,' % (self.name,
@@ -909,6 +901,14 @@ class Biography(object):
                 self.metadata[k] = sorted(unique(self.metadata[k]))
             else:
                 self.metadata[k] = sorted(new_metadata[k])
+
+    def make_link(self):
+        """Construct rockbox format link to this node"""
+        if not self.artist.write_biography_if_lacking():
+            return None
+        else:
+            path = make_rockbox_path(self.artist.biography_file())
+            return path + '\t' + self.name
 
 class Tag(object):
     def __init__(self, name):
