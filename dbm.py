@@ -491,11 +491,12 @@ class Root(Node):
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
 
-    def write_lastfm_artist_biographies(self):
-        artists = (a for a in self.artists.values() if a.bio_content)
+    def write_present_artist_biographies(self):
+        ## This needs to be replaced / is basically nonsense currently
+        artists = (a for a in self.artists.values() if a.is_present())
         for artist in artists:
-            artist.write_biography_if_lacking()
-
+            artist.biography.update(dict(In_library='Yes'))
+            
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
