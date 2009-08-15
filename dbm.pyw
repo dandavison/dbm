@@ -1475,10 +1475,12 @@ class LinksCreator(NewThread):
                 self.dirs['musicspace_similar'])
 
         self.log('Creating links to lastfm similar artists')
-        self.dbm.root.write_lastfm_similar_and_present_linkfiles(self.dirs['lastfm_similar'])
+        self.dbm.root.write_lastfm_similar_and_present_linkfiles(
+            self.dirs['lastfm_similar'])
 
         self.log('Recommended artists biographies')
-        self.dbm.root.write_similar_but_absent_biographies(self.dirs['lastfm_recommended'])
+        self.dbm.root.write_similar_but_absent_biographies(
+            self.dirs['lastfm_recommended'])
 
         self.finishUp()
 

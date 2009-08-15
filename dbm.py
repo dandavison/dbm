@@ -701,15 +701,16 @@ class Artist(object):
                         (timenow(),
                          'validated' if self.lastfm_name else 'unvalidated',
                          name,
-                         self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
+                         self.id if settings.mbid_regexp.match(self.id) \
+                             else 'no MusicBrainz ID',
                          len(self.similar_artists)))
                 else:
                     log('%s last.fm query: %s name %s (%s) got biography' %
                         (timenow(),
                          'validated' if self.lastfm_name else 'unvalidated',
                          name,
-                         self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID'))
-
+                         self.id if settings.mbid_regexp.match(self.id) \
+                             else 'no MusicBrainz ID'))
                 waiting = False
                 
             # except pylast.ServiceException:
@@ -857,7 +858,8 @@ class Biography(object):
     The metadata is a dict created by dbm containing information on
     how this artist relates to the library. An example of metadata is
     
-    dict(Similar_to=['Tim Hecker', 'Jetone'], Listened_to_by=['davisonio', 'Myrmornis'])
+    dict(Similar_to=['Tim Hecker', 'Jetone'],
+    Listened_to_by=['davisonio', 'Myrmornis'])
 
     which lists LastFm similar artists for the artist, and LastFm
     Users which have listened to the artist.
