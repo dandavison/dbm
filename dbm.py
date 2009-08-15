@@ -903,7 +903,7 @@ class Biography(object):
         """Read biography (and metadata, if any) from disk and return
         a (biography, metadata) tuple."""
         with open(self.path, 'r') as f:
-            x = f.read().split(self.metadata_marker, maxsplit=1)
+            x = f.read().split(self.metadata_marker, 1)
         biography = x[0].strip()
         metadata = self.parse_metadata(x[1]) if len(x) == 2 else {}
         return (biography, metadata)
