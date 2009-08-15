@@ -909,8 +909,6 @@ class Biography(object):
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
-            if not islist(new_metadata[k]):
-                new_metadata[k] = [new_metadata[k]]
             if self.metadata.has_key(k):
                 self.metadata[k].extend(new_metadata[k])
                 self.metadata[k] = sorted(unique(self.metadata[k]))
