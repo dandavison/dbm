@@ -906,10 +906,10 @@ class Biography(object):
     def read(self):
         """Read biography (and metadata, if any) from disk and return
         a (biography, metadata) tuple."""
-        with open(self.path, 'r') as f:
+        with codecs.open(self.path, 'r', 'utf-8') as f:
             x = f.read().split(self.metadata_marker, 1)
-        biography = x[0].strip()
-        metadata = self.parse_metadata(x[1]) if len(x) == 2 else {}
+        biography = unicode(x[0]).strip()
+        metadata = self.parse_metadata(unicode(x[1])) if len(x) == 2 else {}
         return (biography, metadata)
 
     def write(self, biography):
