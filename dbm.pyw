@@ -100,9 +100,8 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
-# -----------------------------------------------
-# dbm variables
-
+        # -----------------------------------------------
+        # dbm variables
         global settings
         settings = Settings()
         settings.savefile = None
@@ -112,8 +111,8 @@ class MainWindow(QMainWindow):
         dbm.settings = settings
         dbm.log = self.log
         dbm.root = None
+# ------------------------------------------------
 
-# -----------------------------------------------
         self.dirty = False
 
         self.listWidget = QListWidget()
