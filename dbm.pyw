@@ -514,6 +514,17 @@ class MainWindow(QMainWindow):
             dbm.root.biographies, dbm.root.similar_artists, dbm.root.tags_by_artist)
         self.libraryScanner.start()
 
+    def libraryAdd(self):
+        if not self.okToContinue(): return
+        if self.alertIfNoLibrary(): return
+        path = QFileDialog.getExistingDirectory(self,
+                   "%s - Choose a music folder to add to the library" % __progname__,
+                                                dbm.root.path)
+        if path.isEmpty(): return
+        path = processPath(path)
+        self.libraryGrafter.initialize(path)
+        self.libraryGrafter.start()
+
     def libraryOpen(self):
         if not self.okToContinue():
             return
@@ -624,17 +635,6 @@ class MainWindow(QMainWindow):
             os.mkdir(settings.albumartdir)
         self.albumArtDownloader.initialize()
         self.albumArtDownloader.start()
-
-    def libraryAdd(self):
-        if not self.okToContinue(): return
-        if self.alertIfNoLibrary(): return
-        path = QFileDialog.getExistingDirectory(self,
-                   "%s - Choose a music folder to add to the library" % __progname__,
-                                                dbm.root.path)
-        if path.isEmpty(): return
-        path = processPath(path)
-        self.libraryGrafter.initialize(path)
-        self.libraryGrafter.start()
 
     def alertIfNoLibrary(self):
         if dbm.root is None:
