@@ -333,12 +333,13 @@ class MainWindow(QMainWindow):
             return
         # if self.view == 'Artists':
         #     self.removeDockWidget(self.viewDockWidget)
-        self.removeDockWidget(self.diskViewDockWidget)
-        self.diskViewDockWidget = QDockWidget("Disk view", self)
-        self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
-        self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        # self.removeDockWidget(self.diskViewDockWidget)
+        if self.diskViewDockWidget is None:
+            self.diskViewDockWidget = QDockWidget("Disk view", self)
+            self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
+            self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+            self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
         self.diskViewDockWidget.setWidget(self.diskTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
         self.view = 'Disk'
 
     def setArtistsViewDockWidget(self):
@@ -346,12 +347,14 @@ class MainWindow(QMainWindow):
             return
         # if self.view == 'Disk':
         #     self.removeDockWidget(self.viewDockWidget)
-        self.removeDockWidget(self.artistsViewDockWidget)
-        self.artistsViewDockWidget = QDockWidget("Artists view", self)
-        self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
-        self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        # self.removeDockWidget(self.artistsViewDockWidget)
+        if self.artistsViewDockWidget is None:
+            self.artistsViewDockWidget = QDockWidget("Artists view", self)
+            self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
+            self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+            self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
+
         self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
         self.view = 'Artists'
 
     def setLogDockWidget(self):
