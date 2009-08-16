@@ -686,7 +686,7 @@ class MainWindow(QMainWindow):
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
-        settings.all_biographies_dir = os.path.join(setting.biographies_dir, 'All')
+        settings.all_biographies_dir = os.path.join(settings.biographies_dir, 'All')
         util.mkdirp(settings.all_biographies_dir)
 
         self.log('Creating rockbox library navigation links...')
