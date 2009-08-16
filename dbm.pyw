@@ -693,9 +693,6 @@ class MainWindow(QMainWindow):
         dirs = dict(lastfm_similar='Last.fm Similar',
                     AtoZ='A-Z',
                     tags='Artist Tags')
-        
-        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
-                                                  'Last.fm Recommended Artists'),
         if settings.lastfm_user_names:
             dirs['lastfm_users'] = 'Last.fm Users'
         if settings.musicspace_ready:
@@ -703,12 +700,11 @@ class MainWindow(QMainWindow):
 
         dirs = dict(zip(dirs.keys(), [os.path.join(settings.links_path, d) \
                                           for d in dirs.values()]))
-        
+
+        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
+                                                  'Last.fm Recommended Artists')
         for d in dirs.values():
-            try:
-                if not os.path.exists(d): os.mkdir(d)
-            except:
-                dbm.elog('ERROR: Failed to create output directory %s' % d)
+            util.mkdirp(d)
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
