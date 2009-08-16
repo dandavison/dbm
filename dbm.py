@@ -878,6 +878,7 @@ class Biography(object):
     def __init__(self, artist):
         self.artist = artist
         self.path = os.path.join(settings.biographies_dir,
+                                 self.artist.clean_name()[0].upper(),
                                  self.artist.clean_name() + '.txt')
         self.biography = ''
         self.metadata = {}
@@ -908,6 +909,7 @@ class Biography(object):
     def write(self, biography):
         """Write instance attributes to disk"""
         try:
+            util.mkdirp(os.path.dirname(self.path))
             with codecs.open(self.path, 'w', 'utf-8') as f:
                 f.write('\n'.join([biography,
                                    self.metadata_marker,
