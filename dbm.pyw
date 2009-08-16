@@ -684,11 +684,6 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
-        util.mkdirp(settings.links_path)
-        util.mkdirp(settings.biographies_dir)
-        settings.all_biographies_dir = os.path.join(settings.biographies_dir, 'All')
-        util.mkdirp(settings.all_biographies_dir)
-
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
                     AtoZ='A-Z',
@@ -705,6 +700,10 @@ class MainWindow(QMainWindow):
                                                   'Last.fm Recommended Artists')
         for d in dirs.values():
             util.mkdirp(d)
+
+        util.mkdirp(settings.links_path)
+        util.mkdirp(settings.biographies_dir)
+        util.mkdirp(settings.all_biographies_dir)
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
