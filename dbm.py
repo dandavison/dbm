@@ -1067,6 +1067,7 @@ def generate_playlist(artists, n=1000):
     return unique(tracks)
 
 def write_playlist(tracks, filepath):
+    if os.path.exists(filepath): return
     paths = unique([t.path for t in tracks])
     if settings.target == 'rockbox':
         paths = map(make_rockbox_path, paths)
@@ -1079,6 +1080,7 @@ def write_playlist(tracks, filepath):
             'Please report to Dan: davison@stats.ox.ac.uk.' % filepath)
 
 def write_linkfile(artists, filepath):
+    if os.path.exists(filepath): return
     nodes = artist_nodes(artists)
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
 #        lfile.write('#Display last path segments=1\n')
@@ -1089,6 +1091,7 @@ def write_biographies_linkfile(artists, filepath, metadata={}):
     for a in artists:
         if not hasattr(a, 'biography'):
             a.biography = Biography(a)
+    if os.path.exists(filepath): return
     biographies = [a.biography for a in artists]
     for b in biographies: b.update(metadata)
     links = [b.make_link() for b in biographies]

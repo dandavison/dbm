@@ -658,11 +658,14 @@ class MainWindow(QMainWindow):
 
 
     def alertIfDirNotEmpty(self, path, title='Directory not empty'):
+        """Not used currently, as I am allowing output dirs to be
+        non-empty."""
         if os.listdir(path):
-            QMessageBox.warning(self,
-                                "%s - %s" % (__progname__, title),
-                                "The folder %s is not empty. Please choose an empty folder for output." %
-                                path)
+            QMessageBox.warning(
+                self,
+                "%s - %s" % (__progname__, title),
+                "The folder %s is not empty. Please choose an empty folder for output." %
+                path)
             return True
         return False
 
@@ -699,17 +702,7 @@ class MainWindow(QMainWindow):
         settings.links_path = os.path.join(settings.output_dir, 'Links')
 
         if not os.path.exists(settings.links_path):
-            try:
-                os.mkdir(settings.links_path)
-            except:
-                msg = 'Failed to make new directory %s' % settings.links_path
-                self.log(msg)
-                dbm.elog(msg)
-                return
-        elif self.alertIfDirNotEmpty(settings.links_path,
-                                     'Navigation links folder not empty'):
-            settings.links_path = prev_val
-            return
+            util.mkdirp(settings.links_path)
 
         if settings.biographies_dir is None:
             settings.biographies_dir = os.path.join(settings.output_dir,
@@ -752,16 +745,7 @@ class MainWindow(QMainWindow):
         prev_val = settings.playlists_path
         settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')        
         if not os.path.exists(settings.playlists_path):
-            try:
-                os.mkdir(settings.playlists_path)
-            except:
-                msg = 'Failed to make new directory %s' % settings.playlists_path
-                self.log(msg)
-                dbm.elog(msg)
-                return
-        elif self.alertIfDirNotEmpty(settings.playlists_path, 'Playlist folder not empty'):
-            settings.playlists_path = prev_val
-            return
+            util.mkdirp(settings.playlists_path)
 
         self.log('Generating playlists...')
         dirs = dict(lastfm_similar='Last.fm Similar',
@@ -1164,8 +1148,6 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
                    os.path.dirname(dbm.root.path) if dbm.root else QDir.homePath())
         if path.isEmpty(): return
         path = processPath(path)
-        # if self.parent.alertIfDirNotEmpty(path, 'Selected output folder not empty'):
-        #     return
         settings.output_dir = path
         self.update()
         self.parent.log('Set output folder to %s' % settings.output_dir)
