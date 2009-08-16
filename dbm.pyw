@@ -135,9 +135,63 @@ class MainWindow(QMainWindow):
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
         dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
 
+        self.setUpActionsAndMenus()
 
-# Actions -- file
+        qSettings = QSettings()
+        self.recentFiles = qSettings.value("RecentFiles").toStringList()
+        size = qSettings.value("MainWindow/Size",
+                               QVariant(QSize(600, 500))).toSize()
+        self.resize(size)
+        position = qSettings.value("MainWindow/Position",
+                                   QVariant(QPoint(0, 0))).toPoint()
+        self.move(position)
+        self.restoreState(
+            qSettings.value("MainWindow/State").toByteArray())
 
+        self.setWindowTitle("%s" % __progname__)
+        self.updateFileMenu()
+        # QTimer.singleShot(0, self.loadInitialFile)
+
+        # persistent_settings is a list of
+        # (setting_name, QVariant_cast_method) tuples
+        dbm.elog('Loading previous settings')
+        for setting in settings.persistent_settings:
+            if qSettings.contains(setting[0]):
+                name = setting[0]
+                val = setting[1](qSettings.value(setting[0]))
+                try:
+                    print_val = str(val)
+                except:
+                    val = 'Unprintable value'
+                dbm.elog('%s:  %s' % (name, print_val))
+                setattr(settings, name, val)
+
+        settings.update_output_directories()
+
+        # Run actions in a new thread
+        # code descended from Form.__init__() rgpwpyqt/chap19/pageindexer.pyw
+        # self.lock = QReadWriteLock() # Not using this
+
+        self.threads = [
+            ('albumArtDownloader', AlbumArtDownloader, self.finishedDownloadingAlbumArt),
+            ('libraryScanner', LibraryScanner, self.finishedScanningLibrary),
+            ('libraryLoader', LibraryLoader, self.finishedLoadingLibrary),
+            ('librarySaver', LibrarySaver, self.finishedSavingLibrary),
+            ('libraryGrafter', LibraryGrafter, self.finishedGraftingLibrary),
+            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
+             self.finishedSettingLastfmSimilarArtists),
+            ('linksCreator', LinksCreator, self.finishedCreatingLinks),
+            ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
+
+        for attr_name, constructor, finisher in self.threads:
+            thread = constructor()
+            setattr(self, attr_name, thread)
+            self.connect(thread, SIGNAL("log(QString)"), self.log)
+            self.connect(thread, SIGNAL("logi(QString)"), self.logi)
+            self.connect(thread, SIGNAL("finished(bool)"), finisher)
+
+    def setUpActionsAndMenus(self):
+        # Actions -- file
         libraryScanAction = self.createAction(
             "Sca&n library...", self.libraryScan,
             QKeySequence.New, "filenew",
@@ -174,7 +228,7 @@ class MainWindow(QMainWindow):
             "&Quit", self.close,
             "Ctrl+Q", "filequit", "Close %s" % __progname__)
 
-# Actions -- actions
+        # Actions -- actions
         setSimilarArtistsAction = self.createAction(
             "Retrieve Last.fm &similar artists",
             self.setLastfmSimilarArtists,
@@ -192,17 +246,17 @@ class MainWindow(QMainWindow):
             None, "None",
             "Download all album art")
 
-# Actions -- settings
-#         setPathToRockboxAction = self.createAction("Set path to &Rockbox player",
-#                 self.setPathToRockbox,
-#                 None, 'rockbox',
-#                 "Set path to rockbox player to ensure that file paths are constructed correctly")
+        # Actions -- settings
+        #         setPathToRockboxAction = self.createAction("Set path to &Rockbox player",
+        #                 self.setPathToRockbox,
+        #                 None, 'rockbox',
+        #                 "Set path to rockbox player to ensure that file paths are constructed correctly")
         setSettingsAction = self.createAction("&Settings",
                                               self.setSettings,
                                               None, 'settings',
                                               "Set %s options" % __progname__)
 
-# Actions -- view
+        # Actions -- view
         diskTreeWidgetToggleExpansionAction = self.createAction(
             "Expand / Collapse",
             self.diskTreeWidget.toggleExpansion,
@@ -218,7 +272,7 @@ class MainWindow(QMainWindow):
             self.setArtistsViewDockWidget,
             None, None, "View the library by artists")
 
-# Actions -- etc
+        # Actions -- etc
         abortThreadAction = self.createAction(
             "Abort",
             self.abortThread,
@@ -229,7 +283,7 @@ class MainWindow(QMainWindow):
         helpHelpAction = self.createAction("&Help", self.helpHelp,
                                            QKeySequence.HelpContents)
 
-# Menus -- file
+        # Menus -- file
         self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenuActions = (libraryScanAction, libraryOpenAction,
                                 librarySaveAction, librarySaveAsAction,
@@ -241,14 +295,14 @@ class MainWindow(QMainWindow):
                                 fileQuitAction)
         self.connect(self.fileMenu, SIGNAL("aboutToShow()"), self.updateFileMenu)
 
-# Menus -- view
+        # Menus -- view
         viewMenu = self.menuBar().addMenu("&View")
         self.addActions(viewMenu,
                         (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
                          None,
                          artistsTreeWidgetAction))
 
-# Menus -- actions
+        # Menus -- actions
         self.libMenu = self.menuBar().addMenu("&Tasks")
         self.addActions(self.libMenu,
                         (setSimilarArtistsAction, None,
@@ -256,74 +310,21 @@ class MainWindow(QMainWindow):
                          albumArtDownloadAction, None,
                          setSettingsAction))
 
-# # Menus -- settings
-#         self.settingsMenu = self.menuBar().addMenu("&Settings")
-#         self.addActions(self.settingsMenu,
-#                         (setSettingsAction,)) # setPathToRockboxAction
+        # # Menus -- settings
+        #         self.settingsMenu = self.menuBar().addMenu("&Settings")
+        #         self.addActions(self.settingsMenu,
+        #                         (setSettingsAction,)) # setPathToRockboxAction
 
-# Menus -- help
+        # Menus -- help
         helpMenu = self.menuBar().addMenu("&Help")
         self.addActions(helpMenu, (helpAboutAction, helpHelpAction))
 
         fileToolbar = self.addToolBar("File")
         fileToolbar.setObjectName("FileToolBar")
-        self.addActions(fileToolbar, (libraryScanAction, libraryOpenAction, librarySaveAsAction,
-                                      libraryAddAction, setSettingsAction,
-                                      setSimilarArtistsAction, createLinksAction, generatePlaylistsAction))
-
-# Etc
-        qSettings = QSettings()
-        self.recentFiles = qSettings.value("RecentFiles").toStringList()
-        size = qSettings.value("MainWindow/Size",
-                               QVariant(QSize(600, 500))).toSize()
-        self.resize(size)
-        position = qSettings.value("MainWindow/Position",
-                                   QVariant(QPoint(0, 0))).toPoint()
-        self.move(position)
-        self.restoreState(
-            qSettings.value("MainWindow/State").toByteArray())
-
-        self.setWindowTitle("%s" % __progname__)
-        self.updateFileMenu()
-        # QTimer.singleShot(0, self.loadInitialFile)
-
-        # persistent_settings is a list of
-        # (setting_name, QVariant_cast_method) tuples
-        dbm.elog('Loading previous settings')
-        for setting in settings.persistent_settings:
-            if qSettings.contains(setting[0]):
-                name = setting[0]
-                val = setting[1](qSettings.value(setting[0]))
-                try:
-                    print_val = str(val)
-                except:
-                    val = 'Unprintable value'
-                dbm.elog('%s:  %s' % (name, print_val))
-                setattr(settings, name, val)
-
-        settings.update_output_directories()
-
-# Run actions in a new thread
-# code descended from Form.__init__() rgpwpyqt/chap19/pageindexer.pyw
-# self.lock = QReadWriteLock() # Not using this
-
-        self.threads = [
-            ('albumArtDownloader', AlbumArtDownloader, self.finishedDownloadingAlbumArt),
-            ('libraryScanner', LibraryScanner, self.finishedScanningLibrary),
-            ('libraryLoader', LibraryLoader, self.finishedLoadingLibrary),
-            ('librarySaver', LibrarySaver, self.finishedSavingLibrary),
-            ('libraryGrafter', LibraryGrafter, self.finishedGraftingLibrary),
-            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
-             self.finishedSettingLastfmSimilarArtists),
-            ('linksCreator', LinksCreator, self.finishedCreatingLinks),
-            ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
-
-        for attr_name, constructor, finisher in self.threads:
-            thread = constructor()
-            setattr(self, attr_name, thread)
-            self.connect(thread, SIGNAL("log(QString)"), self.log)
-            self.connect(thread, SIGNAL("logi(QString)"), self.logi)
-            self.connect(thread, SIGNAL("finished(bool)"), finisher)
+        self.addActions(fileToolbar,
+                        (libraryScanAction, libraryOpenAction, librarySaveAsAction,
+                         libraryAddAction, setSettingsAction,
+                         setSimilarArtistsAction, createLinksAction, generatePlaylistsAction))
 
     def setDiskViewDockWidget(self):
         if self.view == 'Disk':
