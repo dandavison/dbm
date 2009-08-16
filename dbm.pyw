@@ -209,15 +209,15 @@ class MainWindow(QMainWindow):
             self.diskTreeWidget.toggleExpansion,
             None, None, "Expand / Hide all nodes in the disk tree view")
 
-        diskTreeWidgetAction = self.createAction(
-            "Disk view",
-            self.setDiskViewDockWidget,
-            None, None, "View the library as it is stored on disk, with tag information")
+        # diskTreeWidgetAction = self.createAction(
+        #     "Disk view",
+        #     self.setDiskViewDockWidget,
+        #     None, None, "View the library as it is stored on disk, with tag information")
 
-        artistsTreeWidgetAction = self.createAction(
-            "Artists view",
-            self.setArtistsViewDockWidget,
-            None, None, "View the library by artists")
+        # artistsTreeWidgetAction = self.createAction(
+        #     "Artists view",
+        #     self.setArtistsViewDockWidget,
+        #     None, None, "View the library by artists")
 
         # Actions -- etc
         abortThreadAction = self.createAction(
@@ -242,12 +242,12 @@ class MainWindow(QMainWindow):
                                 fileQuitAction)
         self.connect(self.fileMenu, SIGNAL("aboutToShow()"), self.updateFileMenu)
 
-        # Menus -- view
-        viewMenu = self.menuBar().addMenu("&View")
-        self.addActions(viewMenu,
-                        (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
-                         None,
-                         artistsTreeWidgetAction))
+        # # Menus -- view
+        # viewMenu = self.menuBar().addMenu("&View")
+        # self.addActions(viewMenu,
+        #                 (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
+        #                  None,
+        #                  artistsTreeWidgetAction))
 
         # Menus -- actions
         self.libMenu = self.menuBar().addMenu("&Tasks")
