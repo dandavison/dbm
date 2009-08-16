@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
         # self.setDiskViewDockWidget()
         self.setLogDockWidget()
 
-        self.fileViewDockWidget = None
+        self.diskViewDockWidget = None
         self.artistsViewDockWidget = None        
 
         status = self.statusBar()
@@ -209,7 +209,7 @@ class MainWindow(QMainWindow):
             None, None, "Expand / Hide all nodes in the disk tree view")
 
         diskTreeWidgetAction = self.createAction(
-            "File view",
+            "Disk view",
             self.setDiskViewDockWidget,
             None, None, "View the library as it is stored on disk, with tag information")
 
@@ -330,12 +330,12 @@ class MainWindow(QMainWindow):
             return
         # if self.view == 'Artists':
         #     self.removeDockWidget(self.viewDockWidget)
-        self.removeDockWidget(self.fileViewDockWidget)
-        self.fileViewDockWidget = QDockWidget("File view", self)
-        self.fileViewDockWidget.setObjectName("DiskViewDockWidget")
-        self.fileViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.fileViewDockWidget.setWidget(self.diskTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.fileViewDockWidget)
+        self.removeDockWidget(self.diskViewDockWidget)
+        self.diskViewDockWidget = QDockWidget("Disk view", self)
+        self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
+        self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.diskViewDockWidget.setWidget(self.diskTreeWidget)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
         self.view = 'Disk'
 
     def setArtistsViewDockWidget(self):
