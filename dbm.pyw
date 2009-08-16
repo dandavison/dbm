@@ -763,6 +763,13 @@ class MainWindow(QMainWindow):
                               if completed else "Stopped")
         self.libraryLoader.wait()
 
+    def finishedGraftingLibrary(self, completed):
+        if completed:
+            self.refreshDiskAndArtistsView()
+        self.updateStatus("Done" if completed else "Stopped")
+        self.dirty = True
+        self.libraryGrafter.wait()
+
     def finishedSavingLibrary(self, completed):
         if completed:
             self.dirty = False
@@ -775,11 +782,6 @@ class MainWindow(QMainWindow):
     def finishedDownloadingAlbumArt(self, completed):
         self.updateStatus("Done" if completed else "Stopped")
         self.albumArtDownloader.wait()
-
-    def finishedGraftingLibrary(self, completed):
-        self.updateStatus("Done" if completed else "Stopped")
-        self.dirty = True
-        self.libraryGrafter.wait()
 
     def finishedSettingLastfmSimilarArtists(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
