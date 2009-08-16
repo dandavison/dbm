@@ -847,6 +847,7 @@ class Artist(object):
         name = name.replace('"','').replace('\'','') ## "Weird Al" Yankovic, Guns 'N' Roses
         name = name.replace('/', '').replace('?', '') ## DJ /rupture, Therapy?,
         name = name.replace(':','').replace('*', '') # :wumpscut: ??!!
+        name = name[0].upper() + name[1:]
         return name
 
     def __eq__(self, other):
@@ -878,7 +879,7 @@ class Biography(object):
     def __init__(self, artist):
         self.artist = artist
         self.path = os.path.join(settings.biographies_dir,
-                                 self.artist.clean_name()[0].upper(),
+                                 self.artist.clean_name()[0],
                                  self.artist.clean_name() + '.txt')
         self.biography = ''
         self.metadata = {}
