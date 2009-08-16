@@ -136,36 +136,7 @@ class MainWindow(QMainWindow):
         dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
 
         self.setUpActionsAndMenus()
-
-        qSettings = QSettings()
-        self.recentFiles = qSettings.value("RecentFiles").toStringList()
-        size = qSettings.value("MainWindow/Size",
-                               QVariant(QSize(600, 500))).toSize()
-        self.resize(size)
-        position = qSettings.value("MainWindow/Position",
-                                   QVariant(QPoint(0, 0))).toPoint()
-        self.move(position)
-        self.restoreState(
-            qSettings.value("MainWindow/State").toByteArray())
-
-        self.setWindowTitle("%s" % __progname__)
-        self.updateFileMenu()
-        # QTimer.singleShot(0, self.loadInitialFile)
-
-        # persistent_settings is a list of
-        # (setting_name, QVariant_cast_method) tuples
-        dbm.elog('Loading previous settings')
-        for setting in settings.persistent_settings:
-            if qSettings.contains(setting[0]):
-                name = setting[0]
-                val = setting[1](qSettings.value(setting[0]))
-                try:
-                    print_val = str(val)
-                except:
-                    val = 'Unprintable value'
-                dbm.elog('%s:  %s' % (name, print_val))
-                setattr(settings, name, val)
-
+        self.restoreSettings()
         settings.update_output_directories()
 
         # Run actions in a new thread
@@ -325,6 +296,36 @@ class MainWindow(QMainWindow):
                         (libraryScanAction, libraryOpenAction, librarySaveAsAction,
                          libraryAddAction, setSettingsAction,
                          setSimilarArtistsAction, createLinksAction, generatePlaylistsAction))
+
+    def restoreSettings(self):
+        qSettings = QSettings()
+        self.recentFiles = qSettings.value("RecentFiles").toStringList()
+        size = qSettings.value("MainWindow/Size",
+                               QVariant(QSize(600, 500))).toSize()
+        self.resize(size)
+        position = qSettings.value("MainWindow/Position",
+                                   QVariant(QPoint(0, 0))).toPoint()
+        self.move(position)
+        self.restoreState(
+            qSettings.value("MainWindow/State").toByteArray())
+
+        self.setWindowTitle("%s" % __progname__)
+        self.updateFileMenu()
+        # QTimer.singleShot(0, self.loadInitialFile)
+
+        # persistent_settings is a list of
+        # (setting_name, QVariant_cast_method) tuples
+        dbm.elog('Loading previous settings')
+        for setting in settings.persistent_settings:
+            if qSettings.contains(setting[0]):
+                name = setting[0]
+                val = setting[1](qSettings.value(setting[0]))
+                try:
+                    print_val = str(val)
+                except:
+                    val = 'Unprintable value'
+                dbm.elog('%s:  %s' % (name, print_val))
+                setattr(settings, name, val)
 
     def setDiskViewDockWidget(self):
         if self.view == 'Disk':
