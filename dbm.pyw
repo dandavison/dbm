@@ -722,10 +722,7 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
-        prev_val = settings.playlists_path
-        settings.playlists_path = os.path.join(settings.output_dir, 'Playlists')        
-        if not os.path.exists(settings.playlists_path):
-            util.mkdirp(settings.playlists_path)
+        util.mkdirp(settings.playlists_path)
 
         self.log('Generating playlists...')
         dirs = dict(lastfm_similar='Last.fm Similar',
