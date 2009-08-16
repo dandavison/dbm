@@ -138,28 +138,7 @@ class MainWindow(QMainWindow):
         self.setUpActionsAndMenus()
         self.restoreSettings()
         settings.update_output_directories()
-
-        # Run actions in a new thread
-        # code descended from Form.__init__() rgpwpyqt/chap19/pageindexer.pyw
-        # self.lock = QReadWriteLock() # Not using this
-
-        self.threads = [
-            ('albumArtDownloader', AlbumArtDownloader, self.finishedDownloadingAlbumArt),
-            ('libraryScanner', LibraryScanner, self.finishedScanningLibrary),
-            ('libraryLoader', LibraryLoader, self.finishedLoadingLibrary),
-            ('librarySaver', LibrarySaver, self.finishedSavingLibrary),
-            ('libraryGrafter', LibraryGrafter, self.finishedGraftingLibrary),
-            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
-             self.finishedSettingLastfmSimilarArtists),
-            ('linksCreator', LinksCreator, self.finishedCreatingLinks),
-            ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
-
-        for attr_name, constructor, finisher in self.threads:
-            thread = constructor()
-            setattr(self, attr_name, thread)
-            self.connect(thread, SIGNAL("log(QString)"), self.log)
-            self.connect(thread, SIGNAL("logi(QString)"), self.logi)
-            self.connect(thread, SIGNAL("finished(bool)"), finisher)
+        self.configureThreads()
 
     def setUpActionsAndMenus(self):
         # Actions -- file
@@ -326,6 +305,29 @@ class MainWindow(QMainWindow):
                     val = 'Unprintable value'
                 dbm.elog('%s:  %s' % (name, print_val))
                 setattr(settings, name, val)
+
+    def configureThreads(self):
+        # Run actions in a new thread
+        # code descended from Form.__init__() rgpwpyqt/chap19/pageindexer.pyw
+        # self.lock = QReadWriteLock() # Not using this
+
+        self.threads = [
+            ('albumArtDownloader', AlbumArtDownloader, self.finishedDownloadingAlbumArt),
+            ('libraryScanner', LibraryScanner, self.finishedScanningLibrary),
+            ('libraryLoader', LibraryLoader, self.finishedLoadingLibrary),
+            ('librarySaver', LibrarySaver, self.finishedSavingLibrary),
+            ('libraryGrafter', LibraryGrafter, self.finishedGraftingLibrary),
+            ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
+             self.finishedSettingLastfmSimilarArtists),
+            ('linksCreator', LinksCreator, self.finishedCreatingLinks),
+            ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
+
+        for attr_name, constructor, finisher in self.threads:
+            thread = constructor()
+            setattr(self, attr_name, thread)
+            self.connect(thread, SIGNAL("log(QString)"), self.log)
+            self.connect(thread, SIGNAL("logi(QString)"), self.logi)
+            self.connect(thread, SIGNAL("finished(bool)"), finisher)
 
     def setDiskViewDockWidget(self):
         if self.view == 'Disk':
