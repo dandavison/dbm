@@ -121,14 +121,12 @@ class MainWindow(QMainWindow):
 
         self.diskTreeWidget = DiskTreeWidget()
         self.artistsTreeWidget = ArtistsTreeWidget()
+        self.initialiseDiskAndArtistsView()
+        self.refreshDiskAndArtistsView()
 
-        self.view = None
-        # self.setDiskViewDockWidget()
         self.setLogDockWidget()
 
-        self.diskViewDockWidget = None
-        self.artistsViewDockWidget = None        
-
+        
         status = self.statusBar()
         status.setSizeGripEnabled(False)
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
@@ -328,34 +326,25 @@ class MainWindow(QMainWindow):
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
             self.connect(thread, SIGNAL("finished(bool)"), finisher)
 
-    def setDiskViewDockWidget(self):
-        if self.view == 'Disk':
-            return
-        # if self.view == 'Artists':
-        #     self.removeDockWidget(self.viewDockWidget)
-        # self.removeDockWidget(self.diskViewDockWidget)
-        if self.diskViewDockWidget is None:
-            self.diskViewDockWidget = QDockWidget("Disk view", self)
-            self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
-            self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-            self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
-        self.diskViewDockWidget.setWidget(self.diskTreeWidget)
-        self.view = 'Disk'
-
-    def setArtistsViewDockWidget(self):
-        if self.view == 'Artists':
-            return
-        # if self.view == 'Disk':
-        #     self.removeDockWidget(self.viewDockWidget)
-        # self.removeDockWidget(self.artistsViewDockWidget)
-        if self.artistsViewDockWidget is None:
-            self.artistsViewDockWidget = QDockWidget("Artists view", self)
-            self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
-            self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-            self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
-
+    def refreshDiskAndArtistsView(self):
+        if dbm.root is not None:
+            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
+            self.diskTreeWidget.populate(dbm.root)
         self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
-        self.view = 'Artists'
+        self.diskViewDockWidget.setWidget(self.diskTreeWidget)
+        
+    def initialiseDiskAndArtistsView(self):
+        self.diskViewDockWidget = QDockWidget("Disk view", self)
+        self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
+        self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
+        # self.diskViewDockWidget.setWidget(self.diskTreeWidget)
+
+        self.artistsViewDockWidget = QDockWidget("Artists view", self)
+        self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
+        self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
+        # self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
 
     def setLogDockWidget(self):
         logDockWidget = QDockWidget("Log", self)
@@ -760,18 +749,12 @@ class MainWindow(QMainWindow):
         self.updateStatus("Done" if completed else "Stopped")
         self.dirty = True
         if completed:
-            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
-            self.setArtistsViewDockWidget()
-            self.diskTreeWidget.populate(dbm.root)
-            self.setDiskViewDockWidget()
+            self.refreshDiskAndArtistViewDiskWidgets()
         self.libraryScanner.wait()
 
     def finishedLoadingLibrary(self, completed):
         if completed:
-            self.diskTreeWidget.populate(dbm.root)
-            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
-            self.setArtistsViewDockWidget()
-            self.setDiskViewDockWidget()
+            self.refreshDiskAndArtistViewDiskWidgets()
             self.dirty = False
             self.addRecentFile(settings.savefile)
         else:
