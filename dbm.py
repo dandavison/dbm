@@ -912,13 +912,13 @@ class Biography(object):
     def write(self, biography):
         """Write instance attributes to disk"""
         try:
-            util.mkdirp(os.path.dirname(self.path))
+            mkdirp(os.path.dirname(self.path))
             with codecs.open(self.path, 'w', 'utf-8') as f:
                 f.write('\n'.join([biography,
                                    self.metadata_marker,
                                    self.deparse_metadata()]) + '\n')
-        except:
-            elog('Failed to write biography for artist %s' % self.artist.name)
+        except Exception, e:
+            elog('Failed to write biography for artist %s: %s' % (self.artist.name, e))
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
