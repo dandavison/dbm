@@ -1136,7 +1136,7 @@ def make_rockbox_path(path):
 def make_rockbox_link(target, name):
     return target + '\t' + name
 
-def make_rockbox_linkfile(targets, filepath, names):
+def make_rockbox_linkfile(targets, names, filepath):
     links = [make_rockbox_link(*tn) for tn in zip(targets,names)]
     try:
         with codecs.open(filepath, 'w', 'utf-8') as lfile:
