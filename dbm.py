@@ -914,7 +914,7 @@ class Biography(object):
 
     def write(self, biography):
         """Write instance attributes to disk"""
-        with open(self.path, 'w') as f:
+        with codecs.open(self.path, 'w', 'utf-8') as f:
             f.write('\n'.join([biography,
                                self.metadata_marker,
                                self.deparse_metadata()]) + '\n')
