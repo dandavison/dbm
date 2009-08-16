@@ -1438,7 +1438,7 @@ class LinksCreator(NewThread):
         self.dbm.make_rockbox_linkfile(
             targets=linkfiles.values(),
             names=linkfiles.keys(),
-            filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists'))
+            filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
