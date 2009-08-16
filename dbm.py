@@ -685,7 +685,7 @@ class Artist(object):
                 name = self.lastfm_name or self.name
                 self.pylast = pylast.Artist(name, **settings.lastfm)
                 
-                self.artist.biography = self.pylast.get_bio_content()
+                self.biography.biography = self.pylast.get_bio_content()
                     
                 if not biography_only:
                     # This implies that we are working on an artist in
