@@ -888,7 +888,10 @@ class Biography(object):
         pool = os.path.join('/home/dan/music/Biographies',
                             self.artist.clean_name() + '.txt')
         if os.path.exists(pool):
-            os.system("mv %s %s" % (pool, self.path))
+            try:
+                os.system('mv "%s" "%s"' % (pool, self.path))
+            except:
+                elog('mv %s failed' % (self.artist.name))
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
