@@ -694,7 +694,8 @@ class MainWindow(QMainWindow):
                     AtoZ='A-Z',
                     tags='Artist Tags')
         
-        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir, 'Last.fm Recommended'),
+        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
+                                                  'Last.fm Recommended Artists'),
         if settings.lastfm_user_names:
             dirs['lastfm_users'] = 'Last.fm Users'
         if settings.musicspace_ready:
