@@ -116,23 +116,6 @@ class MainWindow(QMainWindow):
 # -----------------------------------------------
         self.dirty = False
 
-        # self.listWidget = QListWidget()
-        # if settings.disk_tree_view:
-        #     self.diskTreeWidget = DiskTreeWidget()
-        #     self.setCentralWidget(self.diskTreeWidget)
-
-        #     logDockWidget = QDockWidget("Log", self)
-        #     logDockWidget.setObjectName("LogDockWidget")
-        #     logDockWidget.setAllowedAreas(Qt.TopDockWidgetArea|
-        #                                   Qt.BottomDockWidgetArea)
-        #     logDockWidget.setWidget(self.listWidget)
-        #     self.addDockWidget(Qt.BottomDockWidgetArea, logDockWidget)
-
-        # else:
-        #     self.setCentralWidget(self.listWidget)
-
-        # new configuration
-
         self.listWidget = QListWidget()
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
