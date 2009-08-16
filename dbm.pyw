@@ -684,23 +684,17 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
-        prev_val = settings.links_path
-        settings.links_path = os.path.join(settings.output_dir, 'Links')
-
-        if not os.path.exists(settings.links_path):
-            util.mkdirp(settings.links_path)
-
-        if settings.biographies_dir is None:
-            settings.biographies_dir = os.path.join(settings.output_dir,
-                                                    'Biographies')
+        util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
+        settings.all_biographies_dir = os.path.join(setting.biographies_dir, 'All')
+        util.mkdirp(settings.all_biographies_dir)
 
         self.log('Creating rockbox library navigation links...')
         dirs = dict(lastfm_similar='Last.fm Similar',
-                    lastfm_recommended='Last.fm Recommended',
                     AtoZ='A-Z',
                     tags='Artist Tags')
-
+        
+        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir, 'Last.fm Recommended'),
         if settings.lastfm_user_names:
             dirs['lastfm_users'] = 'Last.fm Users'
         if settings.musicspace_ready:
