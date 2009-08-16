@@ -685,6 +685,11 @@ class MainWindow(QMainWindow):
             return
 
         self.log('Creating rockbox library navigation links...')
+
+        util.mkdirp(settings.links_path)
+        util.mkdirp(settings.biographies_dir)
+        util.mkdirp(settings.all_biographies_dir)
+
         dirs = dict(lastfm_similar='Last.fm Similar',
                     AtoZ='A-Z',
                     tags='Artist Tags')
@@ -700,10 +705,6 @@ class MainWindow(QMainWindow):
                                                   'Last.fm Recommended Artists')
         for d in dirs.values():
             util.mkdirp(d)
-
-        util.mkdirp(settings.links_path)
-        util.mkdirp(settings.biographies_dir)
-        util.mkdirp(settings.all_biographies_dir)
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
