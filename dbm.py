@@ -884,14 +884,6 @@ class Biography(object):
     def update(self, metadata={}):
         """Download the biography if lacking, and update the
         metadata. The updated biography is written to disk."""
-        # TMP
-        pool = os.path.join('/home/dan/music/Biographies',
-                            self.artist.clean_name() + '.txt')
-        if os.path.exists(pool):
-            try:
-                os.system('mv "%s" "%s"' % (pool, self.path))
-            except:
-                elog('mv %s failed' % (self.artist.name))
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
