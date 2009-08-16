@@ -951,10 +951,7 @@ class Biography(object):
 
     def make_link(self):
         """Construct rockbox format link to this node"""
-        if not self.artist.write_biography_if_lacking():
-            return None
-        else:
-            return make_rockbox_path(self.path) + '\t' + self.artist.name
+        return make_rockbox_path(self.path) + '\t' + self.artist.name
 
 class Tag(object):
     def __init__(self, name):
