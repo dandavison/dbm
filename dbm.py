@@ -1133,6 +1133,17 @@ def make_rockbox_path(path):
         path = path.replace('\\', '/') ## rockbox uses linux-style path separators
         return path
 
+def make_rockbox_link(target, name):
+    return target + '\t' + name
+
+def make_rockbox_linkfile(targets, filepath, names):
+    links = [make_rockbox_link(*tn) for tn in zip(targets,names)]
+    try:
+        with codecs.open(filepath, 'w', 'utf-8') as lfile:
+            lfile.write('\n'.join(links) + '\n')
+    except:
+        elog('Failed to write linkfile %s' % filepath)
+
 def rockbox_clean_name(s):
     bad = '\/:<>?*|'
     for c in bad:
