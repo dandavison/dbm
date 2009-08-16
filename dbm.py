@@ -498,7 +498,7 @@ class Root(Node):
                 artist.biography = Biography(artist)
         write_biographies_linkfile(artists, filepath, dict(In_library=['Yes']))
             
-    def write_similar_but_absent_biographies(self, direc, n=10):
+    def write_similar_but_absent_biographies_ORIGINAL(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, sorted(self.artists.values()))
         nok = len(artists)
@@ -506,6 +506,28 @@ class Root(Node):
         for artist in artists:
             if i % 10 == 0 or i == nok:
                 log('Recommended artist biographies : \t%d / %d' % (i, nok))
+            write_biographies_linkfile(
+                artist.lastfm_similar_but_absent_artists()[0:n],
+                os.path.join(direc, artist.clean_name() + '.link'),
+                metadata=dict(Similar_to=[artist.name]))
+            i += 1
+
+    def write_similar_but_absent_biographies(self, direc, n=10):
+        ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
+        seed_artists = filter(ok, sorted(self.artists.values()))
+        all_artists = []
+        for seed_artist in seed_artists:
+            sim_artists = a.lastfm_similar_but_absent_artists()[0:n]
+            for sim_artist in sim_artists:
+                sim_artist.biography.metadata['Similar_to'].append(seed_artist.name)
+
+        nseeds = len(seed_artists)
+        all_artists = unique(flatten([a.lastfm_similar_but_absent_artists()[0:n] \
+                                      for a in seed_artists]))
+        i = 1
+        for artist in artists:
+            if i % 10 == 0 or i == nseeds:
+                log('Recommended artist biographies : \t%d / %d' % (i, nseeds))
             write_biographies_linkfile(
                 artist.lastfm_similar_but_absent_artists()[0:n],
                 os.path.join(direc, artist.clean_name() + '.link'),
