@@ -144,6 +144,9 @@ class MainWindow(QMainWindow):
         # self.setDiskViewDockWidget()
         self.setLogDockWidget()
 
+        self.fileViewDockWidget = None
+        self.artistsViewDockWidget = None        
+
         status = self.statusBar()
         status.setSizeGripEnabled(False)
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
@@ -344,11 +347,12 @@ class MainWindow(QMainWindow):
             return
         # if self.view == 'Artists':
         #     self.removeDockWidget(self.viewDockWidget)
-        self.viewDockWidget = QDockWidget("File view", self)
-        self.viewDockWidget.setObjectName("DiskViewDockWidget")
-        self.viewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.viewDockWidget.setWidget(self.diskTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.viewDockWidget)
+        self.removeDockWidget(self.fileViewDockWidget)
+        self.fileViewDockWidget = QDockWidget("File view", self)
+        self.fileViewDockWidget.setObjectName("DiskViewDockWidget")
+        self.fileViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.fileViewDockWidget.setWidget(self.diskTreeWidget)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.fileViewDockWidget)
         self.view = 'Disk'
 
     def setArtistsViewDockWidget(self):
@@ -356,11 +360,12 @@ class MainWindow(QMainWindow):
             return
         # if self.view == 'Disk':
         #     self.removeDockWidget(self.viewDockWidget)
-        self.viewDockWidget = QDockWidget("Artists view", self)
-        self.viewDockWidget.setObjectName("ArtistsViewDockWidget")
-        self.viewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.viewDockWidget.setWidget(self.artistsTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.viewDockWidget)
+        self.removeDockWidget(self.artistsViewDockWidget)
+        self.artistsViewDockWidget = QDockWidget("Artists view", self)
+        self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
+        self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
         self.view = 'Artists'
 
     def setLogDockWidget(self):
