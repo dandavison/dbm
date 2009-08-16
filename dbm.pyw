@@ -988,6 +988,7 @@ class Settings(dbm.Settings):
         self.links_path = None
         self.playlists_path = None
         self.biographies_dir = None
+        self.all_biographies_dir = None
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
@@ -1031,6 +1032,7 @@ class Settings(dbm.Settings):
         self.links_path = os.path.join(self.output_dir, 'Links')
         self.playlists_path = os.path.join(self.output_dir, 'Playlists')
         self.biographies_dir = os.path.join(self.output_dir, 'Biographies')
+        self.all_biographies_dir = os.path.join(self.biographies_dir, 'All')
 
 class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 

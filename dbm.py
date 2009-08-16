@@ -876,15 +876,19 @@ class Biography(object):
     metadata_marker = '-------------------'
     def __init__(self, artist):
         self.artist = artist
-        self.path = os.path.join(settings.biographies_dir,
-                                 self.artist.clean_name()[0],
-                                 self.artist.clean_name() + '.txt')
         self.biography = ''
         self.metadata = {}
+        self.path = self.make_path()
+
+    def make_path(self):
+        return os.path.join(settings.all_biographies_dir,
+                            self.artist.clean_name()[0],
+                            self.artist.clean_name() + '.txt')
 
     def update(self, metadata={}):
         """Download the biography if lacking, and update the
         metadata. The updated biography is written to disk."""
+        self.path = self.make_path() # due to old Artist objects
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
