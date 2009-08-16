@@ -1421,6 +1421,7 @@ class LinksCreator(NewThread):
         ## A hack to deal with saved Root objects that predate this attribute
         if not hasattr(self.dbm.root, 'lastfm_users'):
             self.dbm.root.lastfm_users = {}
+        linkfiles = {}
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
@@ -1433,10 +1434,15 @@ class LinksCreator(NewThread):
                                     os.path.join(d, 'Listened.link'))
             self.dbm.write_linkfile(user.unlistened_but_present_artists(),
                                     os.path.join(d, 'Unlistened.link'))
+            linkfiles[name] = os.path.join(d, 'Absent.link')
             self.dbm.write_biographies_linkfile(
-                user.listened_but_absent_artists(),
-                os.path.join(d, 'Absent.link'),
+                user.listened_but_absent_artists(), linkfiles[name],
                 metadata=dict(Listened_to_by=[name]))
+
+        self.dbm.make_rockbox_linkfile(
+            targets=linkfiles.values(),
+            names=linkfiles.keys(),
+            filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists'))
 
         self.log('Creating last.fm tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
