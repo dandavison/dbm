@@ -1087,9 +1087,9 @@ def write_linkfile(artists, filepath):
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
     # TMP hack to deal with old Artist objects
-    for a in artists:
-        if not hasattr(a, 'biography'):
-            a.biography = Biography(a)
+    # for a in artists:
+    #     if not hasattr(a, 'biography'):
+    #         a.biography = Biography(a)
     if os.path.exists(filepath): return
     biographies = [a.biography for a in artists]
     for b in biographies: b.update(metadata)
