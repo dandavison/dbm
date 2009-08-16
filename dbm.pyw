@@ -1413,7 +1413,8 @@ class LinksCreator(NewThread):
 
     def run(self):
         self.log('Writing artist biographies')
-        self.dbm.root.write_present_artist_biographies()
+        f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
+        self.dbm.root.write_present_artist_biographies(f)
 
         self.log('Creating last.fm user links')
         ## A hack to deal with saved Root objects that predate this attribute

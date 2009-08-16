@@ -491,14 +491,12 @@ class Root(Node):
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
 
-    def write_present_artist_biographies(self):
-        ## This needs to be replaced / is basically nonsense currently
+    def write_present_artist_biographies(self, filepath):
         artists = (a for a in self.artists.values() if a.is_present())
         for artist in artists:
-            # TMP
-            if not hasattr(artist, 'biography'):
+            if not hasattr(artist, 'biography'): # TMP
                 artist.biography = Biography(artist)
-            artist.biography.update(dict(In_library=['Yes']))
+        write_biographies_linkfile(artists, filepath, dict(In_library=['Yes']))
             
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
