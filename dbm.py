@@ -715,16 +715,17 @@ class Artist(object):
                 waiting = False
                 
             # except pylast.ServiceException:
-            except:
+            except Exception, e:
                 name = self.lastfm_name or self.name
                 if not isinstance(name, basestring):
                     elog('self.lastfm_name = %s, self.name = %s' %
                          (repr(dir(self.lastfm_name)), repr(dir(self.name))))
-                log('%s last.fm query: %s name %s (%s) FAILED' %
+                elog('%s last.fm query: %s name %s (%s) FAILED: %s' %
                     (timenow(),
                      'validated' if self.lastfm_name else 'unvalidated',
                      name,
-                     self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID'))
+                     self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
+                     e))
                 i = i+1
                 time.sleep(.1)
 
