@@ -845,7 +845,8 @@ class Artist(object):
     def clean_name(self):
         name = self.name
         name = name.replace('"','').replace('\'','') ## "Weird Al" Yankovic, Guns 'N' Roses
-        name = name.replace('/', '').replace('?', '').replace(':','') ## DJ /rupture, Therapy?, :wumpscut: ??!!
+        name = name.replace('/', '').replace('?', '') ## DJ /rupture, Therapy?,
+        name = name.replace(':','').replace('*', '') # :wumpscut: ??!!
         return name
 
     def __eq__(self, other):
