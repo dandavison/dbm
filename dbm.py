@@ -1082,6 +1082,10 @@ def write_linkfile(artists, filepath):
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
+    # TMP hack to deal with old Artist objects
+    for a in artists:
+        if not hasattr(a, 'biography'):
+            a.biography = Biography(a)
     biographies = [a.biography for a in artists]
     for b in biographies: b.update(metadata)
     links = [b.make_link() for b in biographies]
