@@ -125,7 +125,6 @@ class MainWindow(QMainWindow):
         self.refreshDiskAndArtistsView()
 
         self.setLogDockWidget()
-
         
         status = self.statusBar()
         status.setSizeGripEnabled(False)
@@ -349,9 +348,6 @@ class MainWindow(QMainWindow):
     def setLogDockWidget(self):
         logDockWidget = QDockWidget("Log", self)
         logDockWidget.setObjectName("LogDockWidget")
-        # logDockWidget.setAllowedAreas(Qt.TopDockWidgetArea|
-        #                               Qt.BottomDockWidgetArea)
-        # logDockWidget.setWidget(self.listWidget)
         logDockWidget.setAllowedAreas(Qt.BottomDockWidgetArea)
         logDockWidget.setWidget(self.listWidget)
         logDockWidget.setMaximumSize(logDockWidget.maximumSize())
