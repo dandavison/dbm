@@ -1013,7 +1013,7 @@ class Settings(dbm.Settings):
 
         if self.output_dir is None:
             self.output_dir = self.path_to_rockbox \
-                or process_path(QDir.homePath())
+                or processPath(QDir.homePath())
 
         self.links_path = os.path.join(self.output_dir, 'Links')
         self.playlists_path = os.path.join(self.output_dir, 'Playlists')
