@@ -334,17 +334,17 @@ class MainWindow(QMainWindow):
         self.diskViewDockWidget.setWidget(self.diskTreeWidget)
         
     def initialiseDiskAndArtistsView(self):
-        self.diskViewDockWidget = QDockWidget("Disk view", self)
-        self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
-        self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
-        # self.diskViewDockWidget.setWidget(self.diskTreeWidget)
+        self.diskViewDockWidget = dvdw = QDockWidget("Disk view", self)
+        dvdw.setObjectName("DiskViewDockWidget")
+        dvdw.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.addDockWidget(Qt.TopDockWidgetArea, dvdw)
+        dvdw.setMaximumSize(dvdw.maximumSize())
 
-        self.artistsViewDockWidget = QDockWidget("Artists view", self)
-        self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
-        self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
-        # self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
+        self.artistsViewDockWidget = avdw = QDockWidget("Artists view", self)
+        avdw.setObjectName("ArtistsViewDockWidget")
+        avdw.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.addDockWidget(Qt.TopDockWidgetArea, avdw)
+        avdw.setMaximumSize(avdw.maximumSize())
 
     def setLogDockWidget(self):
         logDockWidget = QDockWidget("Log", self)
