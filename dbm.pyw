@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
         self.initialiseDiskAndArtistsView()
         self.refreshDiskAndArtistsView()
 
-        self.setLogDockWidget()
+        self.initialiseLogDockWidget()
         
         status = self.statusBar()
         status.setSizeGripEnabled(False)
@@ -336,23 +336,22 @@ class MainWindow(QMainWindow):
         self.diskViewDockWidget = dvdw = QDockWidget("Disk view", self)
         dvdw.setObjectName("DiskViewDockWidget")
         dvdw.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.addDockWidget(Qt.TopDockWidgetArea, dvdw)
         dvdw.setMaximumSize(dvdw.maximumSize())
+        self.addDockWidget(Qt.TopDockWidgetArea, dvdw)
 
         self.artistsViewDockWidget = avdw = QDockWidget("Artists view", self)
         avdw.setObjectName("ArtistsViewDockWidget")
         avdw.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.addDockWidget(Qt.TopDockWidgetArea, avdw)
         avdw.setMaximumSize(avdw.maximumSize())
+        self.addDockWidget(Qt.TopDockWidgetArea, avdw)
 
-    def setLogDockWidget(self):
-        logDockWidget = QDockWidget("Log", self)
-        logDockWidget.setObjectName("LogDockWidget")
-        logDockWidget.setAllowedAreas(Qt.BottomDockWidgetArea)
-        logDockWidget.setWidget(self.listWidget)
-        logDockWidget.setMaximumSize(logDockWidget.maximumSize())
-        self.addDockWidget(Qt.BottomDockWidgetArea, logDockWidget)
-        
+    def initialiseLogDockWidget(self):
+        ldw = QDockWidget("Log", self)
+        ldw.setObjectName("LogDockWidget")
+        ldw.setAllowedAreas(Qt.BottomDockWidgetArea)
+        ldw.setWidget(self.listWidget)
+        ldw.setMaximumSize(ldw.maximumSize())
+        self.addDockWidget(Qt.BottomDockWidgetArea, ldw)
 
     def loadInitialFile(self):
         qSettings = QSettings()
@@ -747,12 +746,12 @@ class MainWindow(QMainWindow):
         self.updateStatus("Done" if completed else "Stopped")
         self.dirty = True
         if completed:
-            self.refreshDiskAndArtistViewDiskWidgets()
+            self.refreshDiskAndArtistsView()
         self.libraryScanner.wait()
 
     def finishedLoadingLibrary(self, completed):
         if completed:
-            self.refreshDiskAndArtistViewDiskWidgets()
+            self.refreshDiskAndArtistsView()
             self.dirty = False
             self.addRecentFile(settings.savefile)
         else:
