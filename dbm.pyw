@@ -117,6 +117,7 @@ class MainWindow(QMainWindow):
 
         self.listWidget = QListWidget()
         self.mainWidget = QWidget()
+        self.mainWidget.hide()
         self.setCentralWidget(self.mainWidget)
 
         self.diskTreeWidget = DiskTreeWidget()
