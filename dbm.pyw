@@ -354,7 +354,9 @@ class MainWindow(QMainWindow):
         # logDockWidget.setWidget(self.listWidget)
         logDockWidget.setAllowedAreas(Qt.BottomDockWidgetArea)
         logDockWidget.setWidget(self.listWidget)
+        logDockWidget.setMaximumSize(logDockWidget.maximumSize())
         self.addDockWidget(Qt.BottomDockWidgetArea, logDockWidget)
+        
 
     def loadInitialFile(self):
         qSettings = QSettings()
