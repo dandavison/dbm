@@ -1124,9 +1124,9 @@ def write_biographies_linkfile(artists, filepath, metadata={}):
     # for a in artists:
     #     if not hasattr(a, 'biography'):
     #         a.biography = Biography(a)
-    if os.path.exists(filepath): return
     biographies = [a.biography for a in artists]
-    for b in biographies: b.update(metadata)
+    if metadata:
+        for b in biographies: b.merge_metadata(metadata)
     links = [b.make_link() for b in biographies]
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
