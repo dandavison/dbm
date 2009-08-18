@@ -117,18 +117,16 @@ class MainWindow(QMainWindow):
 
         self.listWidget = QListWidget()
         self.mainWidget = QWidget()
+        self.mainWidget.hide()
         self.setCentralWidget(self.mainWidget)
 
         self.diskTreeWidget = DiskTreeWidget()
         self.artistsTreeWidget = ArtistsTreeWidget()
+        self.initialiseDiskAndArtistsView()
+        self.refreshDiskAndArtistsView()
 
-        self.view = None
-        # self.setDiskViewDockWidget()
-        self.setLogDockWidget()
-
-        self.diskViewDockWidget = None
-        self.artistsViewDockWidget = None        
-
+        self.initialiseLogDockWidget()
+        
         status = self.statusBar()
         status.setSizeGripEnabled(False)
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
@@ -211,15 +209,15 @@ class MainWindow(QMainWindow):
             self.diskTreeWidget.toggleExpansion,
             None, None, "Expand / Hide all nodes in the disk tree view")
 
-        diskTreeWidgetAction = self.createAction(
-            "Disk view",
-            self.setDiskViewDockWidget,
-            None, None, "View the library as it is stored on disk, with tag information")
+        # diskTreeWidgetAction = self.createAction(
+        #     "Disk view",
+        #     self.setDiskViewDockWidget,
+        #     None, None, "View the library as it is stored on disk, with tag information")
 
-        artistsTreeWidgetAction = self.createAction(
-            "Artists view",
-            self.setArtistsViewDockWidget,
-            None, None, "View the library by artists")
+        # artistsTreeWidgetAction = self.createAction(
+        #     "Artists view",
+        #     self.setArtistsViewDockWidget,
+        #     None, None, "View the library by artists")
 
         # Actions -- etc
         abortThreadAction = self.createAction(
@@ -244,12 +242,12 @@ class MainWindow(QMainWindow):
                                 fileQuitAction)
         self.connect(self.fileMenu, SIGNAL("aboutToShow()"), self.updateFileMenu)
 
-        # Menus -- view
-        viewMenu = self.menuBar().addMenu("&View")
-        self.addActions(viewMenu,
-                        (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
-                         None,
-                         artistsTreeWidgetAction))
+        # # Menus -- view
+        # viewMenu = self.menuBar().addMenu("&View")
+        # self.addActions(viewMenu,
+        #                 (diskTreeWidgetAction, diskTreeWidgetToggleExpansionAction,
+        #                  None,
+        #                  artistsTreeWidgetAction))
 
         # Menus -- actions
         self.libMenu = self.menuBar().addMenu("&Tasks")
@@ -328,41 +326,33 @@ class MainWindow(QMainWindow):
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
             self.connect(thread, SIGNAL("finished(bool)"), finisher)
 
-    def setDiskViewDockWidget(self):
-        if self.view == 'Disk':
-            return
-        # if self.view == 'Artists':
-        #     self.removeDockWidget(self.viewDockWidget)
-        self.removeDockWidget(self.diskViewDockWidget)
-        self.diskViewDockWidget = QDockWidget("Disk view", self)
-        self.diskViewDockWidget.setObjectName("DiskViewDockWidget")
-        self.diskViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.diskViewDockWidget.setWidget(self.diskTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.diskViewDockWidget)
-        self.view = 'Disk'
-
-    def setArtistsViewDockWidget(self):
-        if self.view == 'Artists':
-            return
-        # if self.view == 'Disk':
-        #     self.removeDockWidget(self.viewDockWidget)
-        self.removeDockWidget(self.artistsViewDockWidget)
-        self.artistsViewDockWidget = QDockWidget("Artists view", self)
-        self.artistsViewDockWidget.setObjectName("ArtistsViewDockWidget")
-        self.artistsViewDockWidget.setAllowedAreas(Qt.TopDockWidgetArea)
+    def refreshDiskAndArtistsView(self):
+        if dbm.root is not None:
+            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
+            self.diskTreeWidget.populate(dbm.root)
         self.artistsViewDockWidget.setWidget(self.artistsTreeWidget)
-        self.addDockWidget(Qt.TopDockWidgetArea, self.artistsViewDockWidget)
-        self.view = 'Artists'
+        self.diskViewDockWidget.setWidget(self.diskTreeWidget)
+        
+    def initialiseDiskAndArtistsView(self):
+        self.diskViewDockWidget = dvdw = QDockWidget("Disk view", self)
+        dvdw.setObjectName("DiskViewDockWidget")
+        dvdw.setAllowedAreas(Qt.TopDockWidgetArea)
+        dvdw.setMaximumSize(dvdw.maximumSize())
+        self.addDockWidget(Qt.TopDockWidgetArea, dvdw)
 
-    def setLogDockWidget(self):
-        logDockWidget = QDockWidget("Log", self)
-        logDockWidget.setObjectName("LogDockWidget")
-        # logDockWidget.setAllowedAreas(Qt.TopDockWidgetArea|
-        #                               Qt.BottomDockWidgetArea)
-        # logDockWidget.setWidget(self.listWidget)
-        logDockWidget.setAllowedAreas(Qt.BottomDockWidgetArea)
-        logDockWidget.setWidget(self.listWidget)
-        self.addDockWidget(Qt.BottomDockWidgetArea, logDockWidget)
+        self.artistsViewDockWidget = avdw = QDockWidget("Artists view", self)
+        avdw.setObjectName("ArtistsViewDockWidget")
+        avdw.setAllowedAreas(Qt.TopDockWidgetArea)
+        avdw.setMaximumSize(avdw.maximumSize())
+        self.addDockWidget(Qt.TopDockWidgetArea, avdw)
+
+    def initialiseLogDockWidget(self):
+        ldw = QDockWidget("Log", self)
+        ldw.setObjectName("LogDockWidget")
+        ldw.setAllowedAreas(Qt.BottomDockWidgetArea)
+        ldw.setWidget(self.listWidget)
+        ldw.setMaximumSize(ldw.maximumSize())
+        self.addDockWidget(Qt.BottomDockWidgetArea, ldw)
 
     def loadInitialFile(self):
         qSettings = QSettings()
@@ -511,6 +501,17 @@ class MainWindow(QMainWindow):
             dbm.root.biographies, dbm.root.similar_artists, dbm.root.tags_by_artist)
         self.libraryScanner.start()
 
+    def libraryAdd(self):
+        if not self.okToContinue(): return
+        if self.alertIfNoLibrary(): return
+        path = QFileDialog.getExistingDirectory(self,
+                   "%s - Choose a music folder to add to the library" % __progname__,
+                                                dbm.root.path)
+        if path.isEmpty(): return
+        path = processPath(path)
+        self.libraryGrafter.initialize(path)
+        self.libraryGrafter.start()
+
     def libraryOpen(self):
         if not self.okToContinue():
             return
@@ -621,17 +622,6 @@ class MainWindow(QMainWindow):
             os.mkdir(settings.albumartdir)
         self.albumArtDownloader.initialize()
         self.albumArtDownloader.start()
-
-    def libraryAdd(self):
-        if not self.okToContinue(): return
-        if self.alertIfNoLibrary(): return
-        path = QFileDialog.getExistingDirectory(self,
-                   "%s - Choose a music folder to add to the library" % __progname__,
-                                                dbm.root.path)
-        if path.isEmpty(): return
-        path = processPath(path)
-        self.libraryGrafter.initialize(path)
-        self.libraryGrafter.start()
 
     def alertIfNoLibrary(self):
         if dbm.root is None:
@@ -757,18 +747,12 @@ class MainWindow(QMainWindow):
         self.updateStatus("Done" if completed else "Stopped")
         self.dirty = True
         if completed:
-            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
-            self.setArtistsViewDockWidget()
-            self.diskTreeWidget.populate(dbm.root)
-            self.setDiskViewDockWidget()
+            self.refreshDiskAndArtistsView()
         self.libraryScanner.wait()
 
     def finishedLoadingLibrary(self, completed):
         if completed:
-            self.diskTreeWidget.populate(dbm.root)
-            self.artistsTreeWidget.populate(sorted(dbm.root.artists.values()))
-            self.setArtistsViewDockWidget()
-            self.setDiskViewDockWidget()
+            self.refreshDiskAndArtistsView()
             self.dirty = False
             self.addRecentFile(settings.savefile)
         else:
@@ -776,6 +760,13 @@ class MainWindow(QMainWindow):
         self.updateStatus("Loaded library with %d artists" % len(dbm.root.artists) \
                               if completed else "Stopped")
         self.libraryLoader.wait()
+
+    def finishedGraftingLibrary(self, completed):
+        if completed:
+            self.refreshDiskAndArtistsView()
+        self.updateStatus("Done" if completed else "Stopped")
+        self.dirty = True
+        self.libraryGrafter.wait()
 
     def finishedSavingLibrary(self, completed):
         if completed:
@@ -789,11 +780,6 @@ class MainWindow(QMainWindow):
     def finishedDownloadingAlbumArt(self, completed):
         self.updateStatus("Done" if completed else "Stopped")
         self.albumArtDownloader.wait()
-
-    def finishedGraftingLibrary(self, completed):
-        self.updateStatus("Done" if completed else "Stopped")
-        self.dirty = True
-        self.libraryGrafter.wait()
 
     def finishedSettingLastfmSimilarArtists(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
@@ -1028,7 +1014,7 @@ class Settings(dbm.Settings):
 
         if self.output_dir is None:
             self.output_dir = self.path_to_rockbox \
-                or process_path(QDir.homePath())
+                or processPath(QDir.homePath())
 
         self.links_path = os.path.join(self.output_dir, 'Links')
         self.playlists_path = os.path.join(self.output_dir, 'Playlists')
