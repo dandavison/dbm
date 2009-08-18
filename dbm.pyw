@@ -1461,6 +1461,9 @@ class LinksCreator(NewThread):
         self.dbm.root.write_similar_but_absent_biographies(
             self.dirs['lastfm_recommended'])
 
+        self.log('Updating biographies on disk')
+        self.dbm.root.update_biographies_on_disk()
+
         self.finishUp()
 
 
