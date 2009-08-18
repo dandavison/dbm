@@ -494,7 +494,7 @@ class Root(Node):
             i += 1
 
     def update_biographies_on_disk(self):
-        artists = (a for a in self.all_artists.values() if a.biography.metadata)
+        artists = [a for a in self.all_artists.values() if a.biography.metadata]
         n = len(artists)
         i = 1
         for artist in artists:
