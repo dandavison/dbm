@@ -1397,6 +1397,10 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
+        # TMP
+        if not hasattr(self.dbm.root, 'all_artists'):
+            self.dbm.root.all_artists = self.dbm.root.artists.copy()
+        
         self.log('Writing artist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
         self.dbm.root.write_present_artist_biographies(f)
