@@ -493,6 +493,16 @@ class Root(Node):
                 elog('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
 
+    def update_biographies_on_disk(self):
+        artists = (a for a in self.all_artists.values() if a.biography.metadata)
+        n = len(artists)
+        i = 1
+        for artist in artists
+            artist.biography.update()
+            if i % 10 == 0:
+                log('Recommended artist biographies : \t%d / %d' % (i, n))
+            i += 1
+
     def write_present_artist_biographies(self, filepath):
         artists = (a for a in self.artists.values() if a.is_present())
         for artist in artists:
