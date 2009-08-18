@@ -944,10 +944,9 @@ class Biography(object):
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
             if self.metadata.has_key(k):
-                self.metadata[k].extend(new_metadata[k])
-                self.metadata[k] = sorted(unique(self.metadata[k]))
+                self.metadata[k].add(new_metadata[k])
             else:
-                self.metadata[k] = sorted(new_metadata[k])
+                self.metadata[k] = set(new_metadata[k])
     
     def parse_metadata(self, text):
         # Doesn't actually access any instance data, because biography
