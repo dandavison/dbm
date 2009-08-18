@@ -516,26 +516,13 @@ class Root(Node):
 
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
-        seed_artists = filter(ok, sorted(self.artists.values()))
-        all_artists = []
-        for seed_artist in seed_artists:
-            sim_artists = a.lastfm_similar_but_absent_artists(n)
-            for sim_artist in sim_artists:
-                sim_artist.biography.metadata['Similar_to'].append(seed_artist.name)
-
-        nseeds = len(seed_artists)
-        all_artists = unique(flatten([a.lastfm_similar_but_absent_artists()[0:n] \
-                                      for a in seed_artists]))
-        i = 1
-        for artist in artists:
-            if i % 10 == 0 or i == nseeds:
-                log('Recommended artist biographies : \t%d / %d' % (i, nseeds))
+        artists = filter(ok, self.artists.values())
+        for a in artists:
             write_biographies_linkfile(
-                artist.lastfm_similar_but_absent_artists()[0:n],
-                os.path.join(direc, artist.clean_name() + '.link'),
-                metadata=dict(Similar_to=[artist.name]))
-            i += 1
-
+                a.lastfm_similar_but_absent_artists(n),
+                os.path.join(direc, a.clean_name() + '.link'),
+                metadata=dict(Similar_to=a.name, Present='No'))
+        
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
