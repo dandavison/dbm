@@ -519,7 +519,7 @@ class Root(Node):
         seed_artists = filter(ok, sorted(self.artists.values()))
         all_artists = []
         for seed_artist in seed_artists:
-            sim_artists = a.lastfm_similar_but_absent_artists()[0:n]
+            sim_artists = a.lastfm_similar_but_absent_artists(n)
             for sim_artist in sim_artists:
                 sim_artist.biography.metadata['Similar_to'].append(seed_artist.name)
 
@@ -804,19 +804,19 @@ class Artist(object):
         artists = filter(lambda a: a and a.is_present(), artists)
         return [self] + artists
 
-    def lastfm_similar_but_absent_artists(self):
-        """Create list of Artist objects for similar but absent
-        artists."""
+    def lastfm_similar_but_absent_artists(self, n):
+        """Create Artist objects for similar but absent artists."""
         # Note that artist.similar_artists is a list of (mbid,name)
         # tuples, as returned by artist.query_lastfm_similar()
         similar_artists = filter(lambda x: x[1], self.similar_artists)
-        dbm_aids = [root.make_dbm_artistid(*x) for x in sa_artists]
-        names = [x[1] for x in similar_artists]
-        for dbm_aid, name in zip(dbm_aids, names):
+        similar_artists = [(root.make_dbm_artistid(*x), x[1]) for x in similar_artists]
+        similar_artists = filter(lambda x: not root.artists.has_key(x[0]), similar_artists)
+        similar_artists = similar_artists[0:n]
+        for dbm_aid, name in similar_artists:
             if not root.all_artists.has_key(dbm_aid):
                 root.all_artists[dbm_aid] = Artist(dbm_aid=dbm_aid, name=name)
         
-        return [root.all_artists[dbm_aid] for dbm_aid in dbm_aids]
+        return [root.all_artists[x[0]] for x in similar_artists]
         
     def unite_spuriously_separated_subtrees(self):
         """This is a bit of a hack / heuristic. If an artist has a
