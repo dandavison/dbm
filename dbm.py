@@ -920,20 +920,19 @@ class Biography(object):
                             self.artist.clean_name()[0],
                             self.artist.clean_name() + '.txt')
 
-    def update(self, metadata={}):
-        """Download the biography if lacking, and update the
-        metadata. The updated biography is written to disk."""
+    def update(self):
+        """Write the biography with updated metadata to disk, if
+        necessary.  Download the biography if lacking."""
         self.path = self.make_path() # due to old Artist objects
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
-            self.metadata = metadata
             self.write(strip_html_tags(self.biography))
             self.biography = ''
-        elif metadata:
-            (biography, self.metadata) = self.read()
-            self.merge_metadata(metadata)
-            self.write(biography)
+        elif self.metadata:
+            (biography, old_metadata) = self.read()
+            if self.metadata != old_metadata:
+                self.write(biography)
 
     def read(self):
         """Read biography (and metadata, if any) from disk and return
