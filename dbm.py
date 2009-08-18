@@ -802,10 +802,15 @@ class Artist(object):
         artists."""
         # Note that artist.similar_artists is a list of (mbid,name)
         # tuples, as returned by artist.query_lastfm_similar()
-        return [Artist(dbm_aid=root.make_dbm_artistid(*x), name=x[1]) \
-                    for x in self.similar_artists \
-                    if x[1] and not root.lookup_dbm_artistid(x)]
-
+        similar_artists = filter(lambda x: x[1], self.similar_artists)
+        dbm_aids = [root.make_dbm_artistid(*x) for x in sa_artists]
+        names = [x[1] for x in similar_artists]
+        for dbm_aid, name in zip(dbm_aids, names):
+            if not root.artists.has_key(dbm_aid):
+                root.artists[dbm_aid] = Artist(dbm_aid=dbm_aid, name=name)
+        
+        return [root.artists[dbm_aid] for dbm_aid in dbm_aids]
+        
     def unite_spuriously_separated_subtrees(self):
         """This is a bit of a hack / heuristic. If an artist has a
         number of supposedly pure subtrees that all share the same
