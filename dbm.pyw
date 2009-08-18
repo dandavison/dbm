@@ -1435,7 +1435,7 @@ class LinksCreator(NewThread):
             linkfiles[name] = os.path.join(d, 'Absent.link')
             self.dbm.write_biographies_linkfile(
                 user.listened_but_absent_artists(), linkfiles[name],
-                metadata=dict(Listened_to_by=[name]))
+                metadata=dict(Listened_to_by=name))
 
         self.dbm.make_rockbox_linkfile(
             targets=linkfiles.values(),
