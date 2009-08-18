@@ -497,7 +497,7 @@ class Root(Node):
         artists = (a for a in self.all_artists.values() if a.biography.metadata)
         n = len(artists)
         i = 1
-        for artist in artists
+        for artist in artists:
             artist.biography.update()
             if i % 10 == 0:
                 log('Recommended artist biographies : \t%d / %d' % (i, n))
