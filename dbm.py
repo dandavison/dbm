@@ -564,6 +564,11 @@ class Root(Node):
             except:
                 elog('Failed to create linkfile for index letter %s' % c)
 
+    def present_artists(self):
+        """Return a filtered version of self.artists, containing only
+        the artists present in the library"""
+        return dict([(k, v) for k, v in self.artists.iteritems() if v.is_present()])
+
     def show_artists(self):
         for a in self.artists.values():
             print('%s\t%s' % (
