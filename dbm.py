@@ -508,7 +508,7 @@ class Root(Node):
         for artist in artists:
             if not hasattr(artist, 'biography'): # TMP
                 artist.biography = Biography(artist)
-        write_biographies_linkfile(artists, filepath, dict(In_library=['Yes']))
+        write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
             
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
