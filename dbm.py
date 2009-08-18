@@ -266,6 +266,7 @@ class Root(Node):
         self.artistnames = {}
         # artists is a dict of Artist instances, keyed by dbm_artistid
         self.artists = {}
+        self.all_artists = {}
         self.subtree_tracks = []
         self.similar_artists = {}
         self.tags_by_artist = {}
@@ -285,6 +286,7 @@ class Root(Node):
         dbm_artistids = self.artistnames.keys()
         self.artists = dict(zip(dbm_artistids,
                                 map(Artist, dbm_artistids)))
+        self.all_artists = self.artists.copy()
         self.set_track_artists()
         self.set_artist_subtrees_and_tracks()
         self.sanitise_artists()
@@ -811,10 +813,10 @@ class Artist(object):
         dbm_aids = [root.make_dbm_artistid(*x) for x in sa_artists]
         names = [x[1] for x in similar_artists]
         for dbm_aid, name in zip(dbm_aids, names):
-            if not root.artists.has_key(dbm_aid):
-                root.artists[dbm_aid] = Artist(dbm_aid=dbm_aid, name=name)
+            if not root.all_artists.has_key(dbm_aid):
+                root.all_artists[dbm_aid] = Artist(dbm_aid=dbm_aid, name=name)
         
-        return [root.artists[dbm_aid] for dbm_aid in dbm_aids]
+        return [root.all_artists[dbm_aid] for dbm_aid in dbm_aids]
         
     def unite_spuriously_separated_subtrees(self):
         """This is a bit of a hack / heuristic. If an artist has a
