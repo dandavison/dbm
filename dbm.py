@@ -902,9 +902,13 @@ class Biography(object):
         if not os.path.exists(self.path):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
-            self.write(strip_html_tags(self.biography))
+            try:
+                self.write(strip_html_tags(self.biography))
+            except Exception, e:
+                elog('Failed to write biography for artist %s: %s' % (self.artist.name, e))
+
             self.biography = ''
-        elif self.metadata:
+        elif settings.update_biography_metadata and self.metadata:
             (biography, old_metadata) = self.read()
             if self.metadata != old_metadata:
                 self.write(biography)
@@ -920,14 +924,11 @@ class Biography(object):
 
     def write(self, biography):
         """Write instance attributes to disk"""
-        try:
-            mkdirp(os.path.dirname(self.path))
-            with codecs.open(self.path, 'w', 'utf-8') as f:
-                f.write('\n'.join([biography,
-                                   self.metadata_marker,
-                                   self.deparse_metadata()]) + '\n')
-        except Exception, e:
-            elog('Failed to write biography for artist %s: %s' % (self.artist.name, e))
+        mkdirp(os.path.dirname(self.path))
+        with codecs.open(self.path, 'w', 'utf-8') as f:
+            f.write('\n'.join([biography,
+                               self.metadata_marker,
+                               self.deparse_metadata()]) + '\n')
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:

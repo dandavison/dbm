@@ -976,6 +976,7 @@ class Settings(dbm.Settings):
         self.playlists_path = None
         self.biographies_dir = None
         self.all_biographies_dir = None
+        self.update_biography_metadata = False
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
