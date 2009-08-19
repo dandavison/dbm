@@ -497,14 +497,15 @@ class Root(Node):
             i += 1
 
     def update_biographies_on_disk(self):
-        artists = [a for a in self.all_artists.values() if a.biography.metadata]
+        artists = [a for a in self.all_artists.values()]
         n = len(artists)
-        i = 1
+        i = success = 0
         for artist in artists:
-            artist.biography.update()
-            if i % 10 == 0 or i == 1 or i == n:
-                log('Updating artist biographies : \t%d / %d' % (i, n))
-            i += 1
+            if artist.biography.update():
+                success += 1
+            if i % 10 == 0 or i == 0 or i == n-1:
+                logi('Updating artist biographies :\t%d/%d' % (i, n))
+        log('%d/%d successful artist biography updates' % (success, n))
 
     def write_present_artist_biographies(self, filepath):
         artists = [a for a in self.artists.values() if a.is_present()]
@@ -908,16 +909,16 @@ class Biography(object):
         if not os.path.exists(self.make_path()):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
-            try:
+            if self.biography:
                 self.write(strip_html_tags(self.biography))
-            except Exception, e:
-                elog('Failed to write biography for artist %s: %s' % (self.artist.name, e))
-
-            self.biography = ''
+                self.biography = ''
+                return True
+            return False
         elif settings.update_biography_metadata and self.metadata:
             (biography, old_metadata) = self.read()
             if self.metadata != old_metadata:
                 self.write(biography)
+            return True
 
     def read(self):
         """Read biography (and metadata, if any) from disk and return
@@ -930,11 +931,14 @@ class Biography(object):
 
     def write(self, biography):
         """Write instance attributes to disk"""
-        mkdirp(os.path.dirname(self.make_path()))
-        with codecs.open(self.make_path(), 'w', 'utf-8') as f:
-            f.write('\n'.join([biography,
-                               self.metadata_marker,
-                               self.deparse_metadata()]) + '\n')
+        try:
+            mkdirp(os.path.dirname(self.make_path()))
+            with codecs.open(self.make_path(), 'w', 'utf-8') as f:
+                f.write('\n'.join([biography,
+                                   self.metadata_marker,
+                                   self.deparse_metadata()]) + '\n')
+        except Exception, e:
+            elog('Failed to write biography for artist %s: %s' % (artist.name, e))
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
