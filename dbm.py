@@ -86,7 +86,8 @@ class Node(object):
         paths = [os.path.join(self.path, x) for x in paths]
 
         if not os.path.exists(os.path.join(self.path, '.ignore')):
-            if not settings.quiet: log(self.path)
+            if not settings.quiet:
+                log(library_relative_path(self.path))
             musicpaths = filter(track.is_music, paths)
             self.tracks = filter(lambda(t): t.valid, [track.Track(p) for p in musicpaths])
         for d in filter(os.path.isdir, paths):
