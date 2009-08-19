@@ -46,6 +46,7 @@ import track
 from util import *
 __version__ = '0.9.3'
 __progname__ = 'dbm'
+__root_path__ = None
 
 def elog(msg):
     # logfile is an object created by codecs.open(<path>, 'utf-8', <mode>)
@@ -259,7 +260,9 @@ class Root(Node):
     """The root node has and does certain things that the internal
     nodes don't."""
     def __init__(self, path, parent):
+        __root_path__ = path
         Node.__init__(self, path, parent)
+        __root_path__ = None
         # artistids is a dict of artist MBIDs, keyed by dbm_artistid
         self.artistids = {}
         # artistnames is a dict of artist names, keyed by dbm_artistid
@@ -1107,6 +1110,11 @@ def write_biographies_linkfile(artists, filepath, metadata={}):
 def artist_nodes(artists):
     return flatten([sorted(list(artist.subtrees)) for artist in artists])
 
+def library_relative_path(path):
+    "Return path relative to root path"
+    if __root_path__:
+        return path.replace(__root_path__ + os.path.sep, '')
+    
 def make_rockbox_path(path):
     """Form path to music on rockboxed player from path on computer.
 
