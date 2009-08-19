@@ -87,7 +87,7 @@ class Node(object):
 
         if not os.path.exists(os.path.join(self.path, '.ignore')):
             if not settings.quiet:
-                logi("     \t%s" % library_relative_path(self.path))
+                logi("\t\t%s" % library_relative_path(self.path))
             musicpaths = filter(track.is_music, paths)
             self.tracks = filter(lambda(t): t.valid, [track.Track(p) for p in musicpaths])
         for d in filter(os.path.isdir, paths):
@@ -344,7 +344,7 @@ class Root(Node):
                 for attr, pdict in zip(attrs, persistent_dicts):
                     setattr(artist, attr, pdict[artist.id])
             else:
-                artist.download_lastfm_data(msg_prefix="[%d / %d]\t" % (i, n))
+                artist.download_lastfm_data(msg_prefix="\t\t[%d / %d]\t" % (i, n))
             i += 1
         
     def tabulate_tags(self):
@@ -750,7 +750,7 @@ class Artist(object):
             #         else 'no MusicBrainz ID',
             #     len(self.similar_artists))
         else:
-            msg = "%s\tFailed"
+            msg = "%s\tFailed" % name
             # msg = '%s last.fm query: %s name %s (%s) FAILED: %s' % (
             #     timenow(),
             #     'validated' if self.lastfm_name else 'unvalidated',
