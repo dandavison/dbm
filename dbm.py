@@ -1122,7 +1122,9 @@ def artist_nodes(artists):
 def library_relative_path(path):
     "Return path relative to root path"
     if __root_path__:
-        return path.replace(__root_path__ + os.path.sep, '')
+        return path.replace(__root_path__, '')
+    else:
+        return path
     
 def make_rockbox_path(path):
     """Form path to music on rockboxed player from path on computer.
