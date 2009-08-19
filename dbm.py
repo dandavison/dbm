@@ -87,7 +87,7 @@ class Node(object):
 
         if not os.path.exists(os.path.join(self.path, '.ignore')):
             if not settings.quiet:
-                logi(library_relative_path(self.path))
+                logi("     \t%s" % library_relative_path(self.path))
             musicpaths = filter(track.is_music, paths)
             self.tracks = filter(lambda(t): t.valid, [track.Track(p) for p in musicpaths])
         for d in filter(os.path.isdir, paths):
@@ -285,7 +285,7 @@ class Root(Node):
         self.set_dbm_artistids()
         self.create_artists()
         log('Downloading Last.fm data')
-        logi('')
+        log('')
         self.download_artist_lastfm_data_maybe()
         self.tabulate_tags()
 
@@ -344,7 +344,7 @@ class Root(Node):
                 for attr, pdict in zip(attrs, persistent_dicts):
                     setattr(artist, attr, pdict[artist.id])
             else:
-                artist.download_lastfm_data(msg_prefix="%4d/%4d\t" % (i, n))
+                artist.download_lastfm_data(msg_prefix="[%d / %d]\t" % (i, n))
             i += 1
         
     def tabulate_tags(self):
@@ -353,7 +353,6 @@ class Root(Node):
         artists = [a for a in self.artists.values() if self.tags_by_artist.has_key(a.id)]
         for artist in artists:
             tags = self.tags_by_artist[artist.id][0:4]
-            log('tt: %s %s' % (artist.name, tags))
             for tagname in [t.name for t in tags]:
                 if not self.tags.has_key(tagname.lower()):
                     self.tags[tagname.lower()] = Tag(tagname)

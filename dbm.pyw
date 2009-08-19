@@ -675,7 +675,8 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
 
-        self.log('Creating rockbox library navigation links...')
+        self.log('')
+        self.log('Creating links')
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
@@ -745,6 +746,7 @@ class MainWindow(QMainWindow):
         # descended from Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
         settings.savefile = None
+        self.log('')
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
         self.dirty = True
@@ -1288,7 +1290,7 @@ class LibraryScanner(NewThread):
         self.log('Scanning library at %s' % self.path)
         self.log('')
         self.dbm.root = dbm.Root(self.path, None)
-        self.logi('Done')
+        self.log('')
         self.dbm.root.biographies = self.biographies
         self.dbm.root.similar_artists = self.similar_artists
         self.dbm.root.tags_by_artist = self.tags_by_artist
@@ -1407,10 +1409,6 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
-        self.log('Writing artist biographies')
-        f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
-        self.dbm.root.write_present_artist_biographies(f)
-
         self.log('Creating last.fm user links')
         linkfiles = {}
         for name in settings.lastfm_user_names:
@@ -1435,26 +1433,30 @@ class LinksCreator(NewThread):
             names=linkfiles.keys(),
             filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
-        self.log('Creating last.fm tag links')
+        self.log('') ; self.log('Last.fm artist tag links')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
 
-        self.log('Creating alphabetical index')
-        self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
-
         if settings.musicspace_ready:
-            self.log('Creating links to musicspace similar artists')
+            self.log('') ; self.log('Creating links to musicspace similar artists')
             self.dbm.root.write_musicspace_similar_artists_linkfiles(
                 self.dirs['musicspace_similar'])
 
-        self.log('Creating links to lastfm similar artists')
+        self.log('') ; self.log('Creating links to lastfm similar artists')
         self.dbm.root.write_lastfm_similar_and_present_linkfiles(
             self.dirs['lastfm_similar'])
 
-        self.log('Recommended artists biographies')
+        self.log('') ; self.log('Alphabetical index')
+        self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
+
+        self.log('') ; self.log('Artist biographies')
+        f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
+        self.dbm.root.write_present_artist_biographies(f)
+
+        self.log('') ; self.log('Recommended artists biographies')
         self.dbm.root.write_similar_but_absent_biographies(
             self.dirs['lastfm_recommended'])
 
-        self.log('Updating biographies on disk')
+        self.log('') ; self.log('Updating biographies on disk')
         self.dbm.root.update_biographies_on_disk()
 
         self.finishUp()
