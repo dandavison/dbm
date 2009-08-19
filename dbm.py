@@ -720,20 +720,9 @@ class Artist(object):
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
-                    logi('%s last.fm query: %s name %s (%s) got %d artists' %
-                         (timenow(),
-                          'validated' if self.lastfm_name else 'unvalidated',
-                          name,
-                          self.id if settings.mbid_regexp.match(self.id) \
-                              else 'no MusicBrainz ID',
-                          len(self.similar_artists)))
+                    logi(self.download_message(name, True))
                 else:
-                    logi('%s last.fm query: %s name %s (%s) got biography' %
-                         (timenow(),
-                          'validated' if self.lastfm_name else 'unvalidated',
-                          name,
-                          self.id if settings.mbid_regexp.match(self.id) \
-                              else 'no MusicBrainz ID'))
+                    logi(self.biography_download_message(name, True))
                 waiting = False
                 
             # except pylast.ServiceException:
@@ -742,15 +731,42 @@ class Artist(object):
                 if not isinstance(name, basestring):
                     elog('self.lastfm_name = %s, self.name = %s' %
                          (repr(dir(self.lastfm_name)), repr(dir(self.name))))
-                elog('%s last.fm query: %s name %s (%s) FAILED: %s' %
-                    (timenow(),
-                     'validated' if self.lastfm_name else 'unvalidated',
-                     name,
-                     self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
-                     e))
+                elog(self.download_message(False))
                 i = i+1
                 time.sleep(.1)
         return not waiting
+
+    def download_message(self, name, successful):
+        if successful:
+            msg = '%s last.fm query: %s name %s (%s) got %d artists' % (
+                timenow(),
+                'validated' if self.lastfm_name else 'unvalidated',
+                name,
+                self.id if settings.mbid_regexp.match(self.id) \
+                    else 'no MusicBrainz ID',
+                len(self.similar_artists))
+        else:
+            msg = '%s last.fm query: %s name %s (%s) FAILED: %s' % (
+                timenow(),
+                'validated' if self.lastfm_name else 'unvalidated',
+                name,
+                self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
+                e)
+
+        return msg
+
+    def biography_download_message(self, name, successful):
+        if successful:
+            msg = '%s last.fm query: %s name %s (%s) got biography' % (
+                timenow(),
+                'validated' if self.lastfm_name else 'unvalidated',
+                name,
+                self.id if settings.mbid_regexp.match(self.id) \
+                    else 'no MusicBrainz ID')
+        else:
+            msg = 'Biography download failed'
+
+        return msg
 
     def set_lastfm_name(self):
         if settings.mbid_regexp.match(self.id):
