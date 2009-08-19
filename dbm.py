@@ -336,13 +336,16 @@ class Root(Node):
         persistent_dicts_exist = all([hasattr(self, attr) for attr in attrs])
         if persistent_dicts_exist:
             persistent_dicts = [getattr(self, attr) for attr in attrs]
+        n = len(artists)
+        i = 1
         for artist in sorted(artists):
             persistent_dicts_contain_artist = [d.has_key(artist.id) for d in persistent_dicts]
             if persistent_dicts_exist and all(persistent_dicts_contain_artist):
                 for attr, pdict in zip(attrs, persistent_dicts):
                     setattr(artist, attr, pdict[artist.id])
             else:
-                artist.download_lastfm_data()
+                artist.download_lastfm_data(msg_prefix="%4d/%4d\t" % (i, n))
+            i += 1
         
     def tabulate_tags(self):
         self.tags = {}
@@ -696,7 +699,7 @@ class Artist(object):
         self.tags = []
         self.biography = Biography(self)
 
-    def download_lastfm_data(self, biography_only=False):
+    def download_lastfm_data(self, biography_only=False, msg_prefix=''):
         if not settings.query_lastfm: return
         waiting = True
         i = 0
@@ -720,9 +723,9 @@ class Artist(object):
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
-                    logi(self.download_message(name, True))
+                    logi(msg_prefix + self.download_message(name, True))
                 else:
-                    logi(self.biography_download_message(name, True))
+                    logi(msg_prefix + self.biography_download_message(name, True))
                 waiting = False
                 
             # except pylast.ServiceException:
@@ -731,27 +734,30 @@ class Artist(object):
                 if not isinstance(name, basestring):
                     elog('self.lastfm_name = %s, self.name = %s' %
                          (repr(dir(self.lastfm_name)), repr(dir(self.name))))
-                elog(self.download_message(False))
+                elog(msg_prefix + self.download_message(name, False))
                 i = i+1
                 time.sleep(.1)
         return not waiting
 
     def download_message(self, name, successful):
         if successful:
-            msg = '%s last.fm query: %s name %s (%s) got %d artists' % (
-                timenow(),
-                'validated' if self.lastfm_name else 'unvalidated',
-                name,
-                self.id if settings.mbid_regexp.match(self.id) \
-                    else 'no MusicBrainz ID',
-                len(self.similar_artists))
+            msg = "%s\t%s" % (name, self.tags[0:5])
+
+            # msg = '%s last.fm query: %s name %s (%s) got %d artists' % (
+            #     timenow(),
+            #     'validated' if self.lastfm_name else 'unvalidated',
+            #     name,
+            #     self.id if settings.mbid_regexp.match(self.id) \
+            #         else 'no MusicBrainz ID',
+            #     len(self.similar_artists))
         else:
-            msg = '%s last.fm query: %s name %s (%s) FAILED: %s' % (
-                timenow(),
-                'validated' if self.lastfm_name else 'unvalidated',
-                name,
-                self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
-                e)
+            msg = "%s\tFailed"
+            # msg = '%s last.fm query: %s name %s (%s) FAILED: %s' % (
+            #     timenow(),
+            #     'validated' if self.lastfm_name else 'unvalidated',
+            #     name,
+            #     self.id if settings.mbid_regexp.match(self.id) else 'no MusicBrainz ID',
+            #     e)
 
         return msg
 
