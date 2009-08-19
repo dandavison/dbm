@@ -1,24 +1,14 @@
-* x Biographies
-*** Aims
-***** x Recommended artists as Biographies
-******* x Break up main Biography dir by first letter
-***** x Linkfile of present artist biographies
-***** x Append to bottom of biography info on why this biography present
-      Similar to ... or Listened to by ...
-*** Detailed tasks
-***** x write_biographies_linkfile
-* x What's with the is_present() calls?
-  Surely an artist is necessarily present (atm) if in root.artists?
-* x Finalise arrangement of output folders
-* x Finalise visual output
-  print tags along with names, no MBIDs
-  Alignment?
-* o sort out GUI listwidgets after refresh/graft
-  delete old ones before displaying new ones
-* x Does graft tree work properly?
-*** x Get it to refresh file view and artists view
-*** x It downloads last.fm data for other artists that it shouldn't have to
-*** x graft_tree error
+* Immediate [1/6]
+*** x Finalise visual output
+    print tags along with names, no MBIDs
+    Alignment?
+*** x Finalise arrangement of output folders
+*** o sort out GUI listwidgets after refresh/graft
+    delete old ones before displaying new ones
+*** x Does graft tree work properly?
+***** x Get it to refresh file view and artists view
+***** x It downloads last.fm data for other artists that it shouldn't have to
+***** x graft_tree error
     dbm.py: ERROR: Caught exception
 Traceback (most recent call last):
   File "/home/dan/src/dbm/cmdline.py", line 163, in run
@@ -28,20 +18,13 @@ Traceback (most recent call last):
   File "./dbm.py", line 694, in graft_subtree
     subtree.parent = node[0]
 UnboundLocalError: local variable 'node' referenced before assignment
-*** x Add Folder To Library bug
-    Adding Decks, EFX & 909 resulted in (a) an entry for All under
-    Richie Hawtin in Artist View (All contained entries for Artists View
-    entrie for all the artists), and (b) in File View there was an entry
-    for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
-    level.
-* x Tag similarity
-*** x Form clusters of artist tags according to overlap
-*** x What should be done with tag.get_similar?
-* x Unify my Tag class with that in pylast?
-* x Make Lastfm User playlists operate at track a.o.t. artist level
-* x Links to tracks/albums split by letter
-* x Is Lua scripting going to be useful for dbm?
-* x (ogg?) mbid parsing going wrong
+***** x Add Folder To Library bug
+      Adding Decks, EFX & 909 resulted in (a) an entry for All under
+      Richie Hawtin in Artist View (All contained entries for Artists View
+      entrie for all the artists), and (b) in File View there was an entry
+      for Decks, EFX & 909 but it appeared after Richie Hawtin, at the top
+      level.
+*** x (ogg?) mbid parsing going wrong
 artistname "The Carter Family" associated with multiple artist IDs: "http://musicbrainz.org/artist/29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1" "29c5b1fb-5dcc-4499-b225-4ceeeb8a73d1"
 
 artistname "Buell Kazee" associated with multiple artist IDs: "http://musicbrainz.org/artist/7b472532-06dd-428e-8049-3bf73b119c5e" "7b472532-06dd-428e-8049-3bf73b119c5e"
@@ -56,66 +39,101 @@ uniting 3 subtrees for Jarboe
 [...]
 uniting 3 subtrees for Einojuhani Rautavaara
 Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
-* x correcting missing tags & reporting on library tag status
-* x Qvariant load/save error
-  At start
-  QVariant::load: unable to load type 307.
-  At end:
-  QVariant::save: unable to save type 307.
-* x [[file:~/src/dbm/dbm.py::FIXME%20hack%20artists%20a%20for%20a%20in%20self%20artists%20values%20if%20self%20tags_by_artist%20has_key%20a%20id][hack]]
-* x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
-* x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
-* x What's going on with [[file:~/src/dbm/dbm.py::def%20musicspace_similar_artists_playlist%20self%20n%201000%20artists%20sample%20n%20self%20artists_weights%20TMP%20while%20pickling%20problems%20otherwise%20I%20would%20use%20artist%20instance%20referencves%20rather%20than%20dbm_aids][this TMP comment]]?
-* o lastfm user name dirs in top level of Links output dir
-* o tree update bugs
-*** o refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
-    SCHEDULED: <2009-07-18 Sat> At least, it seems that Artist
-    Tags/{links,playlists} are being generated only for Tags for
-    recently added music, and the entries are restricted to
-    recently-added artists.
-*** Reverse analysis
-    1. These are written by
-       self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
-       self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
-    2. In both cases, the tags are selected with
-       tags = filter(ok, self.tags.values()) i.e. root.tags
-    3. root.tags is created by tabulate_tags() which is called by analyse_library()
-    4. The artists are those in root.artists
-    5. This is created in create_artists, using root.artistnames
+*** x Choose name
+ - rbiter, rbitr8, rbitrate, rbitrary, arbiter
+ - rblink rblinkz rblinks
+ - rblast
+ - rblist
+ - rocklike
+ - lastbox
+ - rboreal, rboriole
 
-    OK. I think the problem here lies in the following classes in dbm.pyw
-    - class LibraryScanner(NewThread)
-    - class LibraryGrafter(NewThread):
-    - class LastfmSimilarArtistSetter(NewThread):
+  music audio
+  library
+  navigation traversal
 
-    At least the first two. They inherit root.simartists from the
-    pre-exisiting root, but then they have to do all sorts of other
-    stuff, eventually leading to creating root.artists. In the course
-    of which, they end up creating root.artists using only those
-    artists for which tracks were encountered, i.e. the new ones. Or
-    something l ike that. Anyway, to fix the bug, review and clean up
-    those 3 classes in dbm.pyw.
-* o use generate_playlist function for lastfm_similar_artists_playlist and elsewhere
-* o stuff like [[file:~/src/dbm/dbm.py::def%20write_unlistened_but_present_linkfile%20self%20path%20write_linkfile%20artist_nodes%20self%20unlistened_but_present_artists%20path][this]] can be done away with
-  We have the function to generate the relevant list of artists. So
-  clients can call write_linkfile(artist_nodes(artists)). In fact,
-  write_linkfile should probably contain the call to artist_nodes.
-* o [[file:~/src/dbm/dbm.py::def%20lastfm_similar_artists_nodes%20self%20artists%20artist%20for%20artist%20in%20map%20root%20lookup_dbm_artist%20self%20similar_artists][Here]] can be simplified.
-  We just need functions similar_but_absent_artists() and
-  similar_and_present_artists().  The mechanisms for judging
-  absence/presence should be made consistent across functions or
-  perhaps better abstracted into a separate function: artist.is_present
-* o Last.fm user playlists
-* o Last.fm user window restricted to recent weeks
-* o single output directory
-* o download album art
-* o clean up code in create_similar_artists_playlist
-* o refactor create_similar_artists_linkfile
-* o link to single artist all tracks
-* n Recent music
+
+* Future
+*** s Append biography metadata to bottom of biography
+    Append to bottom of biography info on why this biography present
+    Similar to ... or Listened to by ...
+*** x Tag similarity
+*** x Form clusters of artist tags according to overlap
+*** x What should be done with tag.get_similar?
+*** x Make Lastfm User playlists operate at track a.o.t. artist level
+*** x Links to tracks/albums split by letter
+*** x Is Lua scripting going to be useful for dbm?
+*** x correcting missing tags & reporting on library tag status
+* x Code issues without phenotypic effect [0/7]
+*** x [[file:~/src/dbm/dbm.py::FIXME%20hack%20artists%20a%20for%20a%20in%20self%20artists%20values%20if%20self%20tags_by_artist%20has_key%20a%20id][hack]]
+*** x What's with the is_present() calls?
+    Surely an artist is necessarily present (atm) if in root.artists?
+*** x Fix [[file:~/src/dbm/dbm.pyw::TODO%20hack%20biographies%20have%20no%20place%20with%20Links%20code%20really][Biography code hack]]
+*** x What's going on with [[file:~/src/dbm/dbm.py::Bjork%20and%20Sigur%20Ros%20are%20not%20unicode%20despite%20self%20path%20being%20unicode%20paths%20filter%20lambda%20x%20isinstance%20x%20unicode%20paths][this unicode hackery]]?
+*** x What's going on with [[file:~/src/dbm/dbm.py::def%20musicspace_similar_artists_playlist%20self%20n%201000%20artists%20sample%20n%20self%20artists_weights%20TMP%20while%20pickling%20problems%20otherwise%20I%20would%20use%20artist%20instance%20referencves%20rather%20than%20dbm_aids][this TMP comment]]?
+*** x Qvariant load/save error
+    At start
+    QVariant::load: unable to load type 307.
+    At end:
+    QVariant::save: unable to save type 307.
+*** x Unify my Tag class with that in pylast?
+* Done
+*** o Biographies
+***** Aims
+******* o Recommended artists as Biographies
+********* o Break up main Biography dir by first letter
+******* o Linkfile of present artist biographies
+*** o lastfm user name dirs in top level of Links output dir
+*** o tree update bugs
+***** o refresh bug: [[gnus:a-new#5858665f0907072317s6e06b03fl54acc845d06bc4f5@mail.gmail.com][Email from Sadurní Font: Re: DBM Feature Request]]
+      SCHEDULED: <2009-07-18 Sat> At least, it seems that Artist
+      Tags/{links,playlists} are being generated only for Tags for
+      recently added music, and the entries are restricted to
+      recently-added artists.
+***** Reverse analysis
+      1. These are written by
+       	 self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
+       	 self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
+      2. In both cases, the tags are selected with
+       	 tags = filter(ok, self.tags.values()) i.e. root.tags
+      3. root.tags is created by tabulate_tags() which is called by analyse_library()
+      4. The artists are those in root.artists
+      5. This is created in create_artists, using root.artistnames
+
+      OK. I think the problem here lies in the following classes in dbm.pyw
+      - class LibraryScanner(NewThread)
+      - class LibraryGrafter(NewThread):
+      - class LastfmSimilarArtistSetter(NewThread):
+
+      At least the first two. They inherit root.simartists from the
+      pre-exisiting root, but then they have to do all sorts of other
+      stuff, eventually leading to creating root.artists. In the course
+      of which, they end up creating root.artists using only those
+      artists for which tracks were encountered, i.e. the new ones. Or
+      something l ike that. Anyway, to fix the bug, review and clean up
+      those 3 classes in dbm.pyw.
+*** o use generate_playlist function for lastfm_similar_artists_playlist and elsewhere
+*** o stuff like [[file:~/src/dbm/dbm.py::def%20write_unlistened_but_present_linkfile%20self%20path%20write_linkfile%20artist_nodes%20self%20unlistened_but_present_artists%20path][this]] can be done away with
+    We have the function to generate the relevant list of artists. So
+    clients can call write_linkfile(artist_nodes(artists)). In fact,
+    write_linkfile should probably contain the call to artist_nodes.
+*** o [[file:~/src/dbm/dbm.py::def%20lastfm_similar_artists_nodes%20self%20artists%20artist%20for%20artist%20in%20map%20root%20lookup_dbm_artist%20self%20similar_artists][Here]] can be simplified.
+    We just need functions similar_but_absent_artists() and
+    similar_and_present_artists().  The mechanisms for judging
+    absence/presence should be made consistent across functions or
+    perhaps better abstracted into a separate function: artist.is_present
+*** o Last.fm user playlists
+*** o Last.fm user window restricted to recent weeks
+*** o single output directory
+*** o download album art
+*** o clean up code in create_similar_artists_playlist
+*** o refactor create_similar_artists_linkfile
+*** o link to single artist all tracks
+* Postponed
+*** n Recent music
 *** n links
 *** n playlists
-* n if we are only saving the tree then make artists etc attributes of dbm, not root
+*** n if we are only saving the tree then make artists etc attributes of dbm, not root
 *** n allow libdir to be script arg in addition to -i option
 * Building windows executable
   1. commit-dbm
@@ -127,26 +145,6 @@ Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no
   7. cd dist
   8. zip dbm.exe.zip dbm.exe
   9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
-     
-* names
-  music audio
-library
-navigation traversal
-
- - rblink rblinkz rblinks
- - rblast
- - rblist
- - rocklike
- - lastbox
- - rbiter, rbitr8, rbitrate, rbitrary, arbiter
- - rboreal, rboriole
-* paths
-  - in dbmg there is settings.savefile, which needs to always be kept
-    up-to-date, and consistent with dbm.root
-  - set during loadLibrary
-  - but not by finishedScanningLibrary()
-* on windows create links choose dir defaults to root.path rather than parent
-  (should be path_to_rockbox)
 * Etc
 *** x understand process_path stuff
 *** x unite_spurious...() should use os.path.commonprefix()
@@ -432,3 +430,10 @@ program, for ideas.
 ***** o implement artist_path properly
 ***** n make job control file
 ***** n make playlists based on BPM
+*** paths
+    - in dbmg there is settings.savefile, which needs to always be kept
+      up-to-date, and consistent with dbm.root
+    - set during loadLibrary
+    - but not by finishedScanningLibrary()
+*** on windows create links choose dir defaults to root.path rather than parent
+    (should be path_to_rockbox)
