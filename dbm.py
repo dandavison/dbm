@@ -510,11 +510,16 @@ class Root(Node):
     def write_similar_but_absent_biographies(self, direc, n=10):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, self.artists.values())
+        n = len(artists)
+        i = 1
         for a in artists:
             write_biographies_linkfile(
                 a.lastfm_similar_but_absent_artists(n),
                 os.path.join(direc, a.clean_name() + '.link'),
                 metadata=dict(Similar_to=a.name, Present='No'))
+            if i % 10 == 0 or i == 1 or i == n:
+                log('Similar but absent biography links : \t%d / %d' % (i, n))
+            i += 1
         
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
