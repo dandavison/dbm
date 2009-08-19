@@ -893,7 +893,6 @@ class Biography(object):
         self.artist = artist
         self.biography = ''
         self.metadata = {}
-        self.path = self.make_path()
 
     def make_path(self):
         return os.path.join(settings.all_biographies_dir,
@@ -903,8 +902,7 @@ class Biography(object):
     def update(self):
         """Write the biography with updated metadata to disk, if
         necessary.  Download the biography if lacking."""
-        self.path = self.make_path() # due to old Artist objects
-        if not os.path.exists(self.path):
+        if not os.path.exists(self.make_path()):
             if not self.biography:
                 self.artist.download_lastfm_data(biography_only=True)
             try:
@@ -921,7 +919,7 @@ class Biography(object):
     def read(self):
         """Read biography (and metadata, if any) from disk and return
         a (biography, metadata) tuple."""
-        with codecs.open(self.path, 'r', 'utf-8') as f:
+        with codecs.open(self.make_path(), 'r', 'utf-8') as f:
             x = f.read().split(self.metadata_marker, 1)
         biography = unicode(x[0]).strip()
         metadata = self.parse_metadata(unicode(x[1])) if len(x) == 2 else {}
@@ -929,8 +927,8 @@ class Biography(object):
 
     def write(self, biography):
         """Write instance attributes to disk"""
-        mkdirp(os.path.dirname(self.path))
-        with codecs.open(self.path, 'w', 'utf-8') as f:
+        mkdirp(os.path.dirname(self.make_path()))
+        with codecs.open(self.make_path(), 'w', 'utf-8') as f:
             f.write('\n'.join([biography,
                                self.metadata_marker,
                                self.deparse_metadata()]) + '\n')
@@ -966,7 +964,7 @@ class Biography(object):
 
     def make_link(self):
         """Construct rockbox format link to this node"""
-        return make_rockbox_path(self.path) + '\t' + self.artist.name
+        return make_rockbox_path(self.make_path()) + '\t' + self.artist.name
 
 class Tag(object):
     def __init__(self, name):
@@ -1148,7 +1146,7 @@ def make_rockbox_path(path):
         return path
 
 def make_rockbox_link(target, name):
-    return target + '\t' + name
+    return make_rockbox_path(target) + '\t' + name
 
 def make_rockbox_linkfile(targets, names, filepath):
     links = [make_rockbox_link(*tn) for tn in zip(targets, names)]
