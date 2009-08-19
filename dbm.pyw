@@ -185,6 +185,10 @@ class MainWindow(QMainWindow):
             "Generate Rockbox &links",
             self.createLinks,
             None, 'rockbox', "Create system of links for navigating the library on a Rockbox player")
+        fetchBiographiesAction = self.createAction(
+            "Update artist biographies",
+            self.fetchBiographies,
+            None, 'None', "Update artist biographies")
         generatePlaylistsAction = self.createAction(
             "Generate &playlists",
             self.generatePlaylists,
@@ -253,9 +257,12 @@ class MainWindow(QMainWindow):
         # Menus -- actions
         self.libMenu = self.menuBar().addMenu("&Tasks")
         self.addActions(self.libMenu,
-                        (setSimilarArtistsAction, None,
-                         createLinksAction, generatePlaylistsAction, None,
-                         albumArtDownloadAction, None,
+                        (setSimilarArtistsAction,
+                         None,
+                         createLinksAction, generatePlaylistsAction, fetchBiographiesAction,
+                         None,
+                         albumArtDownloadAction,
+                         None,
                          setSettingsAction))
 
         # # Menus -- settings
@@ -318,6 +325,7 @@ class MainWindow(QMainWindow):
             ('lastfmSimilarArtistSetter', LastfmSimilarArtistSetter,
              self.finishedSettingLastfmSimilarArtists),
             ('linksCreator', LinksCreator, self.finishedCreatingLinks),
+            ('biographiesFetcher', BiographiesFetcher, self.finishedFetchingBiographies),
             ('playlistGenerator', PlaylistGenerator, self.finishedGeneratingPLaylists)]
 
         for attr_name, constructor, finisher in self.threads:
@@ -701,6 +709,39 @@ class MainWindow(QMainWindow):
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
         
+    def fetchBiographies(self):
+        if self.alertIfNoLibrary(): return
+        if not self.ensure_output_dir_exists(): return
+        if not self.okToContinue(): return
+        
+        if settings.path_to_rockbox is None:
+            QMessageBox.information(self,
+              "%s - Set location of Rockbox player." % __progname__,
+              "Please set the location of your Rockbox music player (Tasks -> Settings).")
+            return
+
+        self.log('')
+        self.log('Fetching biographies')
+
+        util.mkdirp(settings.links_path)
+        util.mkdirp(settings.biographies_dir)
+        util.mkdirp(settings.all_biographies_dir)
+
+        dirs = {}
+        if settings.lastfm_user_names:
+            dirs['lastfm_users'] = 'Last.fm Users'
+
+        dirs = dict(zip(dirs.keys(), [os.path.join(settings.links_path, d) \
+                                          for d in dirs.values()]))
+
+        dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
+                                                  'Last.fm Recommended Artists')
+        for d in dirs.values():
+            util.mkdirp(d)
+
+        self.biographiesFetcher.initialize(dirs)
+        self.biographiesFetcher.start()
+        
     def generatePlaylists(self):
         if self.alertIfNoLibrary(): return
         if not self.ensure_output_dir_exists(): return
@@ -804,6 +845,13 @@ class MainWindow(QMainWindow):
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
         self.linksCreator.wait()
+
+    def finishedFetchingBiographies(self, completed):
+        # amalgamation of Form.finished() and Form.finishedIndexing()
+        # rgpwpyqt/chap19/pageindexer.pyw
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
+        self.biographiesFetcher.wait()
 
     def finishedGeneratingPLaylists(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
@@ -1422,9 +1470,6 @@ class LinksCreator(NewThread):
             self.dbm.write_linkfile(user.unlistened_but_present_artists(),
                                     os.path.join(d, 'Unlistened.link'))
             linkfiles[name] = os.path.join(d, 'Absent.link')
-            self.dbm.write_biographies_linkfile(
-                user.listened_but_absent_artists(), linkfiles[name],
-                metadata=dict(Listened_to_by=name))
 
         self.dbm.make_rockbox_linkfile(
             targets=linkfiles.values(),
@@ -1445,6 +1490,35 @@ class LinksCreator(NewThread):
 
         self.log('') ; self.log('Alphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
+
+        self.finishUp()
+
+
+class BiographiesFetcher(NewThread):
+    def initialize(self, dirs):
+        NewThread.initialize(self)
+        self.dirs = dirs
+
+    def run(self):
+        self.log('') ; self.log('Updating artist biographies')
+        linkfiles = {}
+        for name in settings.lastfm_user_names:
+            if not self.dbm.root.lastfm_users.has_key(name) and \
+                    not self.dbm.root.create_lastfm_user(name):
+                continue
+            user = self.dbm.root.lastfm_users[name]
+            self.log(name)
+            d = os.path.join(self.dirs['lastfm_users'], name)
+            util.mkdirp(d)
+            linkfiles[name] = os.path.join(d, 'Absent.link')
+            self.dbm.write_biographies_linkfile(
+                user.listened_but_absent_artists(), linkfiles[name],
+                metadata=dict(Listened_to_by=name))
+
+        self.dbm.make_rockbox_linkfile(
+            targets=linkfiles.values(),
+            names=linkfiles.keys(),
+            filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
         self.log('') ; self.log('Artist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
