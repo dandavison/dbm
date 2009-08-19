@@ -499,15 +499,12 @@ class Root(Node):
         i = 1
         for artist in artists:
             artist.biography.update()
-            if i % 10 == 0:
-                log('Recommended artist biographies : \t%d / %d' % (i, n))
+            if i % 10 == 0 or i == 1 or i == n:
+                log('Updating artist biographies : \t%d / %d' % (i, n))
             i += 1
 
     def write_present_artist_biographies(self, filepath):
-        artists = (a for a in self.artists.values() if a.is_present())
-        for artist in artists:
-            if not hasattr(artist, 'biography'): # TMP
-                artist.biography = Biography(artist)
+        artists = [a for a in self.artists.values() if a.is_present()]
         write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
             
     def write_similar_but_absent_biographies(self, direc, n=10):
@@ -844,11 +841,6 @@ class Artist(object):
             '"%s",%s,' % (self.name,
                           self.id if settings.mbid_regexp.match(self.id) else ''))
 
-        # TMP: library may have been pickled prior to addition of musicspace_location
-        # to Artist.__init__
-        if not hasattr(self, 'musicspace_location'):
-            self.musicspace_location = []
-
         fileobj.write(
             ','.join(map(str, self.musicspace_location)) + \
                 ',' * (settings.musicspace_dimension - len(self.musicspace_location)) + '\n')
@@ -1101,14 +1093,11 @@ def write_linkfile(artists, filepath):
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
-    # TMP hack to deal with old Artist objects
-    for a in artists:
-        if not hasattr(a, 'biography'):
-            a.biography = Biography(a)
     biographies = [a.biography for a in artists]
     if metadata:
         for b in biographies: b.merge_metadata(metadata)
     links = [b.make_link() for b in biographies]
+
     with codecs.open(filepath, 'w', 'utf-8') as lfile:
         lfile.write('\n'.join(links) + '\n')
         
@@ -1170,6 +1159,24 @@ def rockbox_clean_name(s):
         s = s.replace(c, '_')
     s = s.replace('"', "'")
     return s
+
+def patch_out_of_date_data_structures():
+    if isinstance(root.path, str):
+        root.decode_strings()
+    if not hasattr(root, 'all_artists'):
+        root.all_artists = root.artists.copy()
+    if not hasattr(root, 'lastfm_users'):
+            root.lastfm_users = {}
+
+    for artist in root.all_artists.values():
+        if not hasattr(artist, 'biography'):
+            artist.biography = Biography(a)
+        m = artist.biography.metadata
+        for k in m: m[k] = set(m[k])
+
+        if not hasattr(artist, 'musicspace_location'):
+            artist.musicspace_location = []
+
 
 class Dbm(CommandLineApp):
 

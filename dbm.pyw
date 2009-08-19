@@ -994,7 +994,7 @@ class Settings(dbm.Settings):
         self.target = 'rockbox'
         self.quiet = False
         self.albumartdir = None
-
+        self.patch_out_of_date_data_structures = True
         ## This is fairly obscure.
         ## See the code [[for%20setting%20in%20settings%20persistent_settings][here]]
         self.persistent_settings = \
@@ -1291,9 +1291,10 @@ class LibraryLoader(NewThread):
     def run(self):
         try:
             self.dbm.root = util.load_pickled_object(self.path)
-            if isinstance(self.dbm.root.path, str):
-                self.log('Converting from old %s format...' % __progname__)
-                self.dbm.root.decode_strings()
+            if settings.patch_out_of_date_data_structures:
+                self.log("Fixing old library file...")
+                dbm.root.patch_out_of_date_data_structures()
+                self.log("Done")
             self.settings.savefile = self.path
         except:
             self.log('Failed to load library at %s' % self.path)
@@ -1350,9 +1351,6 @@ class PlaylistGenerator(NewThread):
 
     def run(self):
         self.log('Generating last.fm user playlists')
-        ## A hack to deal with saved Root objects that predate this attribute
-        if not hasattr(self.dbm.root, 'lastfm_users'):
-            self.dbm.root.lastfm_users = {}
 
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
@@ -1397,18 +1395,11 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
-        # TMP
-        if not hasattr(self.dbm.root, 'all_artists'):
-            self.dbm.root.all_artists = self.dbm.root.artists.copy()
-        
         self.log('Writing artist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
         self.dbm.root.write_present_artist_biographies(f)
 
         self.log('Creating last.fm user links')
-        ## A hack to deal with saved Root objects that predate this attribute
-        if not hasattr(self.dbm.root, 'lastfm_users'):
-            self.dbm.root.lastfm_users = {}
         linkfiles = {}
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
