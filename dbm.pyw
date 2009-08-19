@@ -1294,7 +1294,7 @@ class LibraryLoader(NewThread):
             self.dbm.root = util.load_pickled_object(self.path)
             if settings.patch_out_of_date_data_structures:
                 self.log("Fixing old library file...")
-                dbm.root.patch_out_of_date_data_structures()
+                self.dbm.patch_out_of_date_data_structures()
                 self.log("Done")
             self.settings.savefile = self.path
         except:
