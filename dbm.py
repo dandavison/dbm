@@ -747,6 +747,7 @@ class Artist(object):
                      e))
                 i = i+1
                 time.sleep(.1)
+        return not waiting
 
     def set_lastfm_name(self):
         if settings.mbid_regexp.match(self.id):
