@@ -87,7 +87,7 @@ class Node(object):
 
         if not os.path.exists(os.path.join(self.path, '.ignore')):
             if not settings.quiet:
-                log(library_relative_path(self.path))
+                logi(library_relative_path(self.path))
             musicpaths = filter(track.is_music, paths)
             self.tracks = filter(lambda(t): t.valid, [track.Track(p) for p in musicpaths])
         for d in filter(os.path.isdir, paths):
@@ -284,6 +284,8 @@ class Root(Node):
         self.create_artist_name_to_mbid_mapping()
         self.set_dbm_artistids()
         self.create_artists()
+        log('Downloading Last.fm data')
+        logi('')
         self.download_artist_lastfm_data_maybe()
         self.tabulate_tags()
 
@@ -718,20 +720,20 @@ class Artist(object):
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
-                    log('%s last.fm query: %s name %s (%s) got %d artists' %
-                        (timenow(),
-                         'validated' if self.lastfm_name else 'unvalidated',
-                         name,
-                         self.id if settings.mbid_regexp.match(self.id) \
-                             else 'no MusicBrainz ID',
-                         len(self.similar_artists)))
+                    logi('%s last.fm query: %s name %s (%s) got %d artists' %
+                         (timenow(),
+                          'validated' if self.lastfm_name else 'unvalidated',
+                          name,
+                          self.id if settings.mbid_regexp.match(self.id) \
+                              else 'no MusicBrainz ID',
+                          len(self.similar_artists)))
                 else:
-                    log('%s last.fm query: %s name %s (%s) got biography' %
-                        (timenow(),
-                         'validated' if self.lastfm_name else 'unvalidated',
-                         name,
-                         self.id if settings.mbid_regexp.match(self.id) \
-                             else 'no MusicBrainz ID'))
+                    logi('%s last.fm query: %s name %s (%s) got biography' %
+                         (timenow(),
+                          'validated' if self.lastfm_name else 'unvalidated',
+                          name,
+                          self.id if settings.mbid_regexp.match(self.id) \
+                              else 'no MusicBrainz ID'))
                 waiting = False
                 
             # except pylast.ServiceException:

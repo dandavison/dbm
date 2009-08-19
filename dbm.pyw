@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         dbm.settings = settings
         dbm.log = self.log
         dbm.root = None
-# ------------------------------------------------
+        
 
         self.dirty = False
 
@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
         status.setSizeGripEnabled(False)
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
         dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
+        self.log('')
 
         self.setUpActionsAndMenus()
         self.restoreSettings()
@@ -291,7 +292,7 @@ class MainWindow(QMainWindow):
 
         # persistent_settings is a list of
         # (setting_name, QVariant_cast_method) tuples
-        dbm.elog('Loading previous settings')
+        # dbm.elog('Loading previous settings')
         for setting in settings.persistent_settings:
             if qSettings.contains(setting[0]):
                 name = setting[0]
@@ -300,7 +301,7 @@ class MainWindow(QMainWindow):
                     print_val = str(val)
                 except:
                     val = 'Unprintable value'
-                dbm.elog('%s:  %s' % (name, print_val))
+                # dbm.elog('%s:  %s' % (name, print_val))
                 setattr(settings, name, val)
 
     def configureThreads(self):
@@ -360,8 +361,7 @@ class MainWindow(QMainWindow):
         if fname and QFile.exists(fname):
             self.libraryLoad(fname)
 
-    def updateStatus(self, message):
-        self.log(message)
+    def updateStatus(self):
         if dbm.root is not None:
             if settings.savefile is not None:
                 self.setWindowTitle("%s - %s[*]" %
@@ -420,7 +420,8 @@ class MainWindow(QMainWindow):
             return
         dialog = SettingsDlg(self)
         if dialog.exec_():
-            self.updateStatus("New settings recorded")
+            self.log("New settings recorded")
+            self.updateStatus()
 
     def updateFileMenu(self):
         self.fileMenu.clear()
@@ -744,7 +745,8 @@ class MainWindow(QMainWindow):
         # descended from Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
         settings.savefile = None
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.dirty = True
         if completed:
             self.refreshDiskAndArtistsView()
@@ -757,14 +759,16 @@ class MainWindow(QMainWindow):
             self.addRecentFile(settings.savefile)
         else:
             self.dirty = True
-        self.updateStatus("Loaded library with %d artists" % len(dbm.root.artists) \
-                              if completed else "Stopped")
+        self.log("Loaded library with %d artists" % len(dbm.root.artists) \
+                     if completed else "Stopped")
+        self.updateStatus()
         self.libraryLoader.wait()
 
     def finishedGraftingLibrary(self, completed):
         if completed:
             self.refreshDiskAndArtistsView()
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.dirty = True
         self.libraryGrafter.wait()
 
@@ -774,30 +778,36 @@ class MainWindow(QMainWindow):
             self.addRecentFile(settings.savefile)
         else:
             self.dirty = True
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.librarySaver.wait()
 
     def finishedDownloadingAlbumArt(self, completed):
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.albumArtDownloader.wait()
 
     def finishedSettingLastfmSimilarArtists(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
+        self.log('')
         self.dirty = True
         self.lastfmSimilarArtistSetter.wait()
 
     def finishedCreatingLinks(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.linksCreator.wait()
 
     def finishedGeneratingPLaylists(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
-        self.updateStatus("Done" if completed else "Stopped")
+        self.log("Done" if completed else "Stopped")
+        self.updateStatus()
         self.playlistGenerator.wait()
 
     def abortNewThread(self):
@@ -1228,9 +1238,8 @@ class NewThread(QThread):
         self.completed = False
         self.settings = settings
         self.dbm = dbm
-        # Text output during dbm activity is logged to the listWidget,
-        # rather than stdout or whatever as it would be under the CLI
         dbm.log = self.log
+        dbm.logi = self.logi
 
     def stop(self):
         try:
@@ -1276,8 +1285,10 @@ class LibraryScanner(NewThread):
         self.tags_by_artist = tags_by_artist
         
     def run(self):
-        self.log('Scanning library rooted at %s' % self.path)
+        self.log('Scanning library at %s' % self.path)
+        self.log('')
         self.dbm.root = dbm.Root(self.path, None)
+        self.logi('Done')
         self.dbm.root.biographies = self.biographies
         self.dbm.root.similar_artists = self.similar_artists
         self.dbm.root.tags_by_artist = self.tags_by_artist
