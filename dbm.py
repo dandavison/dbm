@@ -261,6 +261,7 @@ class Root(Node):
     """The root node has and does certain things that the internal
     nodes don't."""
     def __init__(self, path, parent):
+        global __root_path__
         __root_path__ = path
         Node.__init__(self, path, parent)
         __root_path__ = None
