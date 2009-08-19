@@ -1,14 +1,20 @@
+* x Biographies
+*** Aims
+***** x Recommended artists as Biographies
+******* x Break up main Biography dir by first letter
+***** x Linkfile of present artist biographies
+***** x Append to bottom of biography info on why this biography present
+      Similar to ... or Listened to by ...
+*** Detailed tasks
+***** x write_biographies_linkfile
+* x What's with the is_present() calls?
+  Surely an artist is necessarily present (atm) if in root.artists?
 * x Finalise arrangement of output folders
 * x Finalise visual output
   print tags along with names, no MBIDs
   Alignment?
 * o sort out GUI listwidgets after refresh/graft
   delete old ones before displaying new ones
-* x Recommended artists as Biographies
-*** x Break up main Biography dir by first letter
-* x Linkfile of present artist biographies
-* x Append to bottom of biography info on why this biography present
-  Similar to ... or Listened to by ...
 * x Does graft tree work properly?
 *** x Get it to refresh file view and artists view
 *** x It downloads last.fm data for other artists that it shouldn't have to
