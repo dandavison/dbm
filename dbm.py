@@ -285,7 +285,7 @@ class Root(Node):
         self.set_dbm_artistids()
         self.create_artists()
         log('Downloading Last.fm data')
-        log('')
+        log('') ; log('')
         self.download_artist_lastfm_data_maybe()
         self.tabulate_tags()
 
@@ -396,6 +396,7 @@ class Root(Node):
         if user is None:
             elog('ERROR: Failed to find last.fm user %s' % name)
             return False
+        self.log('')
         user.get_artist_counts()
         self.lastfm_users[name] = user
         return True
@@ -730,10 +731,7 @@ class Artist(object):
             # except pylast.ServiceException:
             except Exception, e:
                 name = self.lastfm_name or self.name
-                if not isinstance(name, basestring):
-                    elog('self.lastfm_name = %s, self.name = %s' %
-                         (repr(dir(self.lastfm_name)), repr(dir(self.name))))
-                elog(msg_prefix + self.download_message(name, False))
+                elog('%s: %s' % (msg_prefix + self.download_message(name, False), e))
                 i = i+1
                 time.sleep(.1)
         return not waiting
@@ -1036,10 +1034,9 @@ class LastFmUser(pylast.User):
     def get_artist_counts(self):
         dates = self.get_weekly_chart_dates()
         dates = dates[-settings.lastfm_user_history_nweeks:]
-        log('Collecting listening data from %d weekly charts' % len(dates))
         progress = ''
         for i in range(settings.lastfm_user_history_nweeks):
-            log("%s week %d/%d" % (self.name, i+1, settings.lastfm_user_history_nweeks))
+            logi("\t\t[week %d/%d]\t%s" % (i+1, settings.lastfm_user_history_nweeks, self.name))
             try:
                 chart = self.get_weekly_artist_charts_as_dict(*dates[i])
             except:

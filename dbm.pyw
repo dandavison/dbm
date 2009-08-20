@@ -1336,7 +1336,7 @@ class LibraryScanner(NewThread):
         
     def run(self):
         self.log('Scanning library at %s' % self.path)
-        self.log('')
+        self.log('') ; self.log('')
         self.dbm.root = dbm.Root(self.path, None)
         self.log('')
         self.dbm.root.biographies = self.biographies
@@ -1502,12 +1502,13 @@ class BiographiesFetcher(NewThread):
     def run(self):
         self.log('') ; self.log('Updating artist biographies')
         linkfiles = {}
+        self.log('') ; self.log('Collecting last.fm user listening data')
+        self.log('') ; self.log('')
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
                 continue
             user = self.dbm.root.lastfm_users[name]
-            self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
             util.mkdirp(d)
             linkfiles[name] = os.path.join(d, 'Absent.link')
