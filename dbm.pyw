@@ -1394,9 +1394,16 @@ class LibraryGrafter(NewThread):
 
 class LastfmSimilarArtistSetter(NewThread):
     def run(self):
-        self.log('Retrieving similar artist lists from last.fm')
+        self.log('Downloading artist data from last.fm')
         self.dbm.root.download_artist_lastfm_data_maybe()
         self.finishUp()
+        
+        self.log('Downloading user data from last.fm')
+        for name in settings.lastfm_user_names:
+            self.log('\t%s' % name)
+            if not self.dbm.root.lastfm_users.has_key(name) and \
+                    not self.dbm.root.create_lastfm_user(name):
+                continue
 
 class PlaylistGenerator(NewThread):
     def initialize(self, dirs):
@@ -1450,40 +1457,33 @@ class LinksCreator(NewThread):
         dbm.log = self.logi
 
     def run(self):
-        self.log('Creating last.fm user links')
-        linkfiles = {}
+        self.log('\tMusic listened to by last.fm users')
         for name in settings.lastfm_user_names:
+            self.log('\t\t%s' % name)
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
                 continue
             user = self.dbm.root.lastfm_users[name]
-            self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
             util.mkdirp(d)
             self.dbm.write_linkfile(user.listened_and_present_artists(),
                                     os.path.join(d, 'Listened.link'))
             self.dbm.write_linkfile(user.unlistened_but_present_artists(),
                                     os.path.join(d, 'Unlistened.link'))
-            linkfiles[name] = os.path.join(d, 'Absent.link')
 
-        self.dbm.make_rockbox_linkfile(
-            targets=linkfiles.values(),
-            names=linkfiles.keys(),
-            filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
-
-        self.log('') ; self.log('Last.fm artist tag links')
+        self.log('') ; self.log('\tMusic organised by artist tags')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
 
         if settings.musicspace_ready:
-            self.log('') ; self.log('Creating links to musicspace similar artists')
+            self.log('') ; self.log('\tMusic by musicspace similar artists')
             self.dbm.root.write_musicspace_similar_artists_linkfiles(
                 self.dirs['musicspace_similar'])
 
-        self.log('') ; self.log('Creating links to lastfm similar artists')
+        self.log('') ; self.log('\tMusic by lastfm similar artists')
         self.dbm.root.write_lastfm_similar_and_present_linkfiles(
             self.dirs['lastfm_similar'])
 
-        self.log('') ; self.log('Alphabetical index')
+        self.log('') ; self.log('\tAlphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.finishUp()
