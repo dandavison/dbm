@@ -142,8 +142,8 @@ class MainWindow(QMainWindow):
         # Actions -- file
         libraryScanAction = self.createAction(
             "Sca&n library...", self.libraryScan,
-            QKeySequence.New, "filenew",
-            "Scan a music library and download last.fm similar artist data")
+            QKeySequence.New, icon="filenew",
+            tip="Scan a music library and download last.fm similar artist data")
         libraryOpenAction = self.createAction(
             "&Open saved library...", self.libraryOpen,
             QKeySequence.Open, "fileopen",
@@ -177,6 +177,10 @@ class MainWindow(QMainWindow):
             "Ctrl+Q", "filequit", "Close %s" % __progname__)
 
         # Actions -- actions
+        createLinksPlaylistsBiographiesAction = self.createAction(
+            "Create links, playlists and biographies",
+            self.createLinksPlaylistsBiographies,
+            None, 'playlists', "Download data and create all links, playlists and biographies")
         setSimilarArtistsAction = self.createAction(
             "Retrieve Last.fm &similar artists",
             self.setLastfmSimilarArtists,
@@ -190,9 +194,9 @@ class MainWindow(QMainWindow):
             self.fetchBiographies,
             None, 'None', "Update artist biographies")
         generatePlaylistsAction = self.createAction(
-            "Generate &playlists",
+            "Create &playlists",
             self.generatePlaylists,
-            None, 'playlists', "Generate all playlists")
+            None, None, "Generate all playlists")
         albumArtDownloadAction = self.createAction(
             "Download album art", self.albumArtDownload,
             None, "None",
@@ -257,10 +261,10 @@ class MainWindow(QMainWindow):
         # Menus -- actions
         self.libMenu = self.menuBar().addMenu("&Tasks")
         self.addActions(self.libMenu,
-                        (setSimilarArtistsAction,
+                        (createLinksPlaylistsBiographiesAction,
                          None,
-                         createLinksAction, generatePlaylistsAction, fetchBiographiesAction,
-                         None,
+                         # createLinksAction, generatePlaylistsAction, fetchBiographiesAction,
+                         # None,
                          albumArtDownloadAction,
                          None,
                          setSettingsAction))
@@ -277,9 +281,8 @@ class MainWindow(QMainWindow):
         fileToolbar = self.addToolBar("File")
         fileToolbar.setObjectName("FileToolBar")
         self.addActions(fileToolbar,
-                        (libraryScanAction, libraryOpenAction, librarySaveAsAction,
-                         libraryAddAction, setSettingsAction,
-                         setSimilarArtistsAction, createLinksAction, generatePlaylistsAction))
+                        (libraryScanAction, libraryOpenAction, librarySaveAction,
+                         createLinksPlaylistsBiographiesAction, setSettingsAction))
 
     def restoreSettings(self):
         qSettings = QSettings()
