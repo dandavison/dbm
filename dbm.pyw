@@ -713,16 +713,6 @@ class MainWindow(QMainWindow):
         self.linksCreator.start()
         
     def fetchBiographies(self):
-        if self.alertIfNoLibrary(): return
-        if not self.ensure_output_dir_exists(): return
-        if not self.okToContinue(): return
-        
-        if settings.path_to_rockbox is None:
-            QMessageBox.information(self,
-              "%s - Set location of Rockbox player." % __progname__,
-              "Please set the location of your Rockbox music player (Tasks -> Settings).")
-            return
-
         self.log('')
         self.log('Fetching biographies')
 
