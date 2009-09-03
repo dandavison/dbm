@@ -760,14 +760,15 @@ class Artist(object):
 
     def biography_download_message(self, name, successful):
         if successful:
-            msg = '%s last.fm query: %s name %s (%s) got biography' % (
-                timenow(),
-                'validated' if self.lastfm_name else 'unvalidated',
-                name,
-                self.id if settings.mbid_regexp.match(self.id) \
-                    else 'no MusicBrainz ID')
+            msg = name
+            # '%s last.fm query: %s name %s (%s) got biography' % (
+            #     timenow(),
+            #     'validated' if self.lastfm_name else 'unvalidated',
+            #     name,
+            #     self.id if settings.mbid_regexp.match(self.id) \
+            #         else 'no MusicBrainz ID')
         else:
-            msg = 'Biography download failed'
+            msg = '%s: Biography download failed' % name
 
         return msg
 
@@ -927,12 +928,12 @@ class Biography(object):
                             self.artist.clean_name()[0],
                             self.artist.clean_name() + '.txt')
 
-    def update(self):
+    def update(self, msg_prefix=''):
         """Write the biography with updated metadata to disk, if
         necessary.  Download the biography if lacking."""
         if not os.path.exists(self.make_path()):
             if not self.biography:
-                self.artist.download_lastfm_data(biography_only=True)
+                self.artist.download_lastfm_data(biography_only=True, msg_prefix=msg_prefix)
             if self.biography:
                 self.write(strip_html_tags(self.biography))
                 self.biography = ''
