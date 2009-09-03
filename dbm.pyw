@@ -665,24 +665,27 @@ class MainWindow(QMainWindow):
             settings.output_dir = processPath(path)
         return True
 
-    def setLastfmSimilarArtists(self):
-        if not self.okToContinue(): return
-        if self.alertIfNoLibrary(): return
-        self.lastfmSimilarArtistSetter.initialize()
-        self.lastfmSimilarArtistSetter.start()
-
-
-    def createLinks(self):
+    def createLinksPlaylistsBiographies(self):
         if self.alertIfNoLibrary(): return
         if not self.ensure_output_dir_exists(): return
-        if not self.okToContinue(): return
-        
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
               "%s - Set location of Rockbox player." % __progname__,
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
+        if not self.okToContinue(): return
 
+
+        self.setLastfmSimilarArtists()
+        self.createLinks()
+        self.generatePlaylists()
+        self.fetchBiographies()
+        
+    def setLastfmSimilarArtists(self):
+        self.lastfmSimilarArtistSetter.initialize()
+        self.lastfmSimilarArtistSetter.start()
+
+    def createLinks(self):
         self.log('')
         self.log('Creating links')
 
@@ -743,18 +746,10 @@ class MainWindow(QMainWindow):
         self.biographiesFetcher.start()
         
     def generatePlaylists(self):
-        if self.alertIfNoLibrary(): return
-        if not self.ensure_output_dir_exists(): return
-        if not self.okToContinue(): return
-        if settings.path_to_rockbox is None:
-            QMessageBox.information(self,
-              "%s - Set location of Rockbox player." % __progname__,
-              "Please set the location of your Rockbox music player (Tasks -> Settings).")
-            return
+        self.log('')
+        self.log('Generating playlists...')
 
         util.mkdirp(settings.playlists_path)
-
-        self.log('Generating playlists...')
         dirs = dict(lastfm_similar='Last.fm Similar',
                     single_artists='Single Artists',
                     all_artists='All Artists',
