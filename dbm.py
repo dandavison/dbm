@@ -505,11 +505,13 @@ class Root(Node):
         artists = [a for a in self.all_artists.values()]
         n = len(artists)
         i = success = 0
+        log('')
         for artist in artists:
-            if artist.biography.update():
+            # if i % 10 == 0 or i == 1 or i == n:
+            #     logi('\t\t[%d/%d]\t%s' % (i, n, artist.name))
+            if artist.biography.update(msg_prefix='\t\t[%d / %d]\t' % (i, n)):
                 success += 1
-            if i % 10 == 0 or i == 0 or i == n-1:
-                logi('Updating artist biographies :\t%d/%d' % (i, n))
+            i += 1
         log('%d/%d successful artist biography updates' % (success, n))
 
     def write_present_artist_biographies(self, filepath):
