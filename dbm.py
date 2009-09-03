@@ -285,10 +285,6 @@ class Root(Node):
         self.create_artist_name_to_mbid_mapping()
         self.set_dbm_artistids()
         self.create_artists()
-        log('Downloading Last.fm data')
-        log('') ; log('')
-        self.download_artist_lastfm_data_maybe()
-        self.tabulate_tags()
 
     def create_artists(self):
         dbm_artistids = self.artistnames.keys()
@@ -347,7 +343,8 @@ class Root(Node):
             else:
                 artist.download_lastfm_data(msg_prefix="\t\t[%d / %d]\t" % (i, n))
             i += 1
-        
+        self.tabulate_tags()
+
     def tabulate_tags(self):
         self.tags = {}
         ## FIXME: hack
