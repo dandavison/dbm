@@ -669,16 +669,15 @@ class MainWindow(QMainWindow):
         return True
 
     def createLinksPlaylistsBiographies(self):
-        if self.alertIfNoLibrary(): return
+        if not self.okToContinue(): return
         if not self.ensure_output_dir_exists(): return
         if settings.path_to_rockbox is None:
             QMessageBox.information(self,
               "%s - Set location of Rockbox player." % __progname__,
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
-        if not self.okToContinue(): return
-
-
+        if dbm.root is None:
+            self.libraryScan()
         self.setLastfmSimilarArtists()
         self.createLinks()
         self.generatePlaylists()
