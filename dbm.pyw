@@ -679,19 +679,15 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
         if dbm.root is None:
-            self.libraryScan(block=True)
-        self.setLastfmSimilarArtists(block=True)
-        self.createLinks(block=True)
-        self.generatePlaylists(block=True)
-        self.fetchBiographies(block=True)
+            self.libraryScan()
+        else:
+            self.setLastfmSimilarArtists()
         
-    def setLastfmSimilarArtists(self, block=False):
+    def setLastfmSimilarArtists(self):
         self.lastfmSimilarArtistSetter.initialize()
         self.lastfmSimilarArtistSetter.start()
-        if block:
-            self.lastfmSimilarArtistSetter.wait()
             
-    def createLinks(self, block=False):
+    def createLinks(self):
         self.log('')
         self.log('Creating links')
 
@@ -717,10 +713,41 @@ class MainWindow(QMainWindow):
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
-        if block:
-            self.linksCreator.wait()
 
-    def fetchBiographies(self, block=False):
+    def generatePlaylists(self):
+        self.log('')
+        self.log('Generating playlists...')
+
+        util.mkdirp(settings.playlists_path)
+        dirs = dict(lastfm_similar='Last.fm Similar',
+                    single_artists='Single Artists',
+                    all_artists='All Artists',
+                    tags = 'Artist Tags',
+                    lastfm_users = 'Last.fm Users')
+        if settings.musicspace_ready:
+            dirs['musicspace_similar'] = 'Musicspace Similar'
+        
+        dirs = dict(zip(dirs.keys(),
+                        [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
+        for d in dirs.values():
+            if not os.path.exists(d): os.mkdir(d)
+        self.playlistGenerator.initialize(dirs)
+        self.playlistGenerator.start()
+
+    # The following is an unsatisfactory arrangement because of the
+    # code duplication in the finishedDoingSomething()
+    # methods. However, I couldn't easily / be bothered to work out
+    # how to do it. The problem is I don't currently know how to make
+    # an signal connect to a slot and pass that slot multiple
+    # arguments, but I haven't really RTFM. So, it just gets passed
+    # the 'completed' flag. I tried passing the QThread instance
+    # (which would allow access to thread.completed and
+    # thread.wait()), but got an error message:
+
+    # QObject::connect: Cannot queue arguments of type 'QThread'
+    # (Make sure 'QThread' is registered using qRegisterMetaType().)
+            
+    def fetchBiographies(self):
         self.log('')
         self.log('Fetching biographies')
 
@@ -742,44 +769,7 @@ class MainWindow(QMainWindow):
 
         self.biographiesFetcher.initialize(dirs)
         self.biographiesFetcher.start()
-        if block:
-            self.biographiesFetcher.wait()
         
-    def generatePlaylists(self, block=False):
-        self.log('')
-        self.log('Generating playlists...')
-
-        util.mkdirp(settings.playlists_path)
-        dirs = dict(lastfm_similar='Last.fm Similar',
-                    single_artists='Single Artists',
-                    all_artists='All Artists',
-                    tags = 'Artist Tags',
-                    lastfm_users = 'Last.fm Users')
-        if settings.musicspace_ready:
-            dirs['musicspace_similar'] = 'Musicspace Similar'
-        
-        dirs = dict(zip(dirs.keys(),
-                        [os.path.join(settings.playlists_path, d) for d in dirs.values()]))
-        for d in dirs.values():
-            if not os.path.exists(d): os.mkdir(d)
-        self.playlistGenerator.initialize(dirs)
-        self.playlistGenerator.start()
-        if block:
-            self.playlistGenerator.wait()
-
-    # The following is an unsatisfactory arrangement because of the
-    # code duplication in the finishedDoingSomething()
-    # methods. However, I couldn't easily / be bothered to work out
-    # how to do it. The problem is I don't currently know how to make
-    # an signal connect to a slot and pass that slot multiple
-    # arguments, but I haven't really RTFM. So, it just gets passed
-    # the 'completed' flag. I tried passing the QThread instance
-    # (which would allow access to thread.completed and
-    # thread.wait()), but got an error message:
-
-    # QObject::connect: Cannot queue arguments of type 'QThread'
-    # (Make sure 'QThread' is registered using qRegisterMetaType().)
-
     def finishedScanningLibrary(self, completed):
         # descended from Form.finished() and Form.finishedIndexing()
         # rgpwpyqt/chap19/pageindexer.pyw
@@ -791,6 +781,7 @@ class MainWindow(QMainWindow):
         if completed:
             self.refreshDiskAndArtistsView()
         self.libraryScanner.wait()
+        self.setLastfmSimilarArtists()
 
     def finishedLoadingLibrary(self, completed):
         if completed:
@@ -835,6 +826,7 @@ class MainWindow(QMainWindow):
         self.log('')
         self.dirty = True
         self.lastfmSimilarArtistSetter.wait()
+        self.createLinks()
 
     def finishedCreatingLinks(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
@@ -842,6 +834,7 @@ class MainWindow(QMainWindow):
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
         self.linksCreator.wait()
+        self.generatePlaylists()
 
     def finishedFetchingBiographies(self, completed):
         # amalgamation of Form.finished() and Form.finishedIndexing()
@@ -856,6 +849,7 @@ class MainWindow(QMainWindow):
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
         self.playlistGenerator.wait()
+        self.fetchBiographies()
 
     def abortNewThread(self):
         # Form.reject() in pageindexer.pyw so accept method is Form
