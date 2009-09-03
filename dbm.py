@@ -730,8 +730,9 @@ class Artist(object):
                 
             # except pylast.ServiceException:
             except Exception, e:
+                self.biography = 'No biography available'
                 name = self.lastfm_name or self.name
-                elog('%s: %s' % (msg_prefix + self.download_message(name, False), e))
+                elog('%s: %s' % (msg_prefix + self.download_message(name, False), e), gui=False)
                 i = i+1
                 time.sleep(.1)
         return not waiting
