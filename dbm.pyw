@@ -1313,6 +1313,11 @@ class NewThread(QThread):
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
+    def waitWithoutBlocking(self):
+        """Return True once the thread has finished executing, but
+        allow other threads (e.g. main GUI loop) to continue."""
+        while not self.isStopped():
+            time.sleep(5)
 class LibraryScanner(NewThread):
     def initialize(self, path, biographies={}, similar_artists={}, tags_by_artist={}):
         NewThread.initialize(self)
