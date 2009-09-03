@@ -241,7 +241,7 @@ class MainWindow(QMainWindow):
 
         # Menus -- file
         self.fileMenu = self.menuBar().addMenu("&File")
-        self.fileMenuActions = (libraryScanAction, libraryOpenAction,
+        self.fileMenuActions = (libraryOpenAction,
                                 librarySaveAction, librarySaveAsAction,
                                 None,
                                 libraryAddAction, libraryRefreshAction,
