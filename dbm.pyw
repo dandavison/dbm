@@ -689,7 +689,7 @@ class MainWindow(QMainWindow):
             
     def createLinks(self):
         self.log('')
-        self.log('Creating links')
+        self.log('Creating links', colour=Qt.red)
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
@@ -748,8 +748,7 @@ class MainWindow(QMainWindow):
     # (Make sure 'QThread' is registered using qRegisterMetaType().)
             
     def fetchBiographies(self):
-        self.log('')
-        self.log('Fetching biographies')
+        self.log('') ; self.log('Updating artist biographies')
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
@@ -1395,7 +1394,7 @@ class LibraryGrafter(NewThread):
 
 class LastfmSimilarArtistSetter(NewThread):
     def run(self):
-        self.log('Downloading artist data from last.fm')
+        self.log('Downloading artist data from last.fm', colour=Qt.red)
         self.dbm.root.download_artist_lastfm_data_maybe()
         self.finishUp()
         
@@ -1496,9 +1495,8 @@ class BiographiesFetcher(NewThread):
         self.dirs = dirs
 
     def run(self):
-        self.log('') ; self.log('Updating artist biographies')
         linkfiles = {}
-        self.log('') ; self.log('Collecting last.fm user listening data')
+        self.log('') ; self.log('\tCollecting last.fm user listening data')
         self.log('') ; self.log('')
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
@@ -1517,15 +1515,15 @@ class BiographiesFetcher(NewThread):
             names=linkfiles.keys(),
             filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
-        self.log('') ; self.log('Artist biographies')
+        self.log('') ; self.log('\tArtist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
         self.dbm.root.write_present_artist_biographies(f)
 
-        self.log('') ; self.log('Recommended artists biographies')
+        self.log('') ; self.log('\tRecommended artists biographies')
         self.dbm.root.write_similar_but_absent_biographies(
             self.dirs['lastfm_recommended'])
 
-        self.log('') ; self.log('Updating biographies on disk')
+        self.log('') ; self.log('\tUpdating biographies on disk')
         self.dbm.root.update_biographies_on_disk()
 
         self.finishUp()

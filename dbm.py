@@ -527,7 +527,7 @@ class Root(Node):
                 os.path.join(direc, a.clean_name() + '.link'),
                 metadata=dict(Similar_to=a.name, Present='No'))
             if i % 10 == 0 or i == 1 or i == n:
-                log('Similar but absent biography links : \t%d / %d' % (i, n))
+                logi('\tSimilar but absent biography links : \t%d / %d' % (i, n))
             i += 1
         
     def write_musicspace_similar_artists_linkfiles(self, direc):
