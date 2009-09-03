@@ -490,7 +490,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, block=False):
+    def libraryScan(self):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
@@ -504,8 +504,6 @@ class MainWindow(QMainWindow):
 
         self.libraryScanner.initialize(path)
         self.libraryScanner.start()
-        if block:
-            self.libraryScanner.wait()
 
     def libraryRefresh(self):
         # descended from libraryScan()
@@ -679,19 +677,17 @@ class MainWindow(QMainWindow):
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
         if dbm.root is None:
-            self.libraryScan(block=True)
-        self.setLastfmSimilarArtists(block=True)
-        self.createLinks(block=True)
-        self.generatePlaylists(block=True)
-        self.fetchBiographies(block=True)
+            self.libraryScan()
+        self.setLastfmSimilarArtists()
+        self.createLinks()
+        self.generatePlaylists()
+        self.fetchBiographies()
         
-    def setLastfmSimilarArtists(self, block=False):
+    def setLastfmSimilarArtists(self):
         self.lastfmSimilarArtistSetter.initialize()
         self.lastfmSimilarArtistSetter.start()
-        if block:
-            self.lastfmSimilarArtistSetter.wait()
-            
-    def createLinks(self, block=False):
+
+    def createLinks(self):
         self.log('')
         self.log('Creating links')
 
@@ -717,10 +713,8 @@ class MainWindow(QMainWindow):
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
-        if block:
-            self.linksCreator.wait()
-
-    def fetchBiographies(self, block=False):
+        
+    def fetchBiographies(self):
         self.log('')
         self.log('Fetching biographies')
 
@@ -742,10 +736,8 @@ class MainWindow(QMainWindow):
 
         self.biographiesFetcher.initialize(dirs)
         self.biographiesFetcher.start()
-        if block:
-            self.biographiesFetcher.wait()
         
-    def generatePlaylists(self, block=False):
+    def generatePlaylists(self):
         self.log('')
         self.log('Generating playlists...')
 
@@ -764,8 +756,6 @@ class MainWindow(QMainWindow):
             if not os.path.exists(d): os.mkdir(d)
         self.playlistGenerator.initialize(dirs)
         self.playlistGenerator.start()
-        if block:
-            self.playlistGenerator.wait()
 
     # The following is an unsatisfactory arrangement because of the
     # code duplication in the finishedDoingSomething()

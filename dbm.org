@@ -1,40 +1,8 @@
-* Immediate [1/7]
+* Immediate [1/6]
 *** x Finalise visual output
     print tags along with names, no MBIDs
     Alignment?
 *** x Finalise arrangement of output folders
-    Links/
-    ├── A-Z
-    ├── Artist Tags
-    ├── Last.fm Similar
-    └── Last.fm Users
-        ├── Myrmornis
-	├── davisonio
-	└── willyd99
-
-    Playlists/
-    ├── All Artists
-    ├── Artist Tags
-    ├── Last.fm Similar
-    ├── Last.fm Users
-    │   ├── Myrmornis
-    │   ├── davisonio
-    │   └── willyd99
-    └── Single Artists
-
-Biographies/
-├── All
-│   ├── 1
-│   ├── 2
-│   ├── 3
-...
-│   ├── A
-│   ├── B
-│   ├── C
-...
-│   └── Z
-└── Last.fm Recommended Artists
-
 *** o sort out GUI listwidgets after refresh/graft
     delete old ones before displaying new ones
 *** x Does graft tree work properly?
@@ -84,8 +52,8 @@ Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no
   library
   navigation traversal
 
-*** x clean up tags
-* Future [0/8]
+
+* Future
 *** s Append biography metadata to bottom of biography
     Append to bottom of biography info on why this biography present
     Similar to ... or Listened to by ...
