@@ -396,7 +396,7 @@ class Root(Node):
         if user is None:
             elog('ERROR: Failed to find last.fm user %s' % name)
             return False
-        self.log('')
+        log('')
         user.get_artist_counts()
         self.lastfm_users[name] = user
         return True
@@ -851,7 +851,7 @@ class Artist(object):
                 if len(set(parents)) == 1: # collection of siblings with parent
                     parent = parents[0]
             if parent:
-                if not settings.quiet:
+                if False and not settings.quiet:
                     elog('uniting %d subtrees for %s' % (len(pure_anodes), self.name))
                 anodes = [v for v in self.subtrees if v not in pure_anodes]
                 anodes.append(ArtistNode(parent, self, self, None))
@@ -1036,7 +1036,7 @@ class LastFmUser(pylast.User):
         dates = dates[-settings.lastfm_user_history_nweeks:]
         progress = ''
         for i in range(settings.lastfm_user_history_nweeks):
-            logi("\t\t[week %d/%d]\t%s" % (i+1, settings.lastfm_user_history_nweeks, self.name))
+            logi("\t\t%s\t[week %d/%d]" % (self.name, i+1, settings.lastfm_user_history_nweeks))
             try:
                 chart = self.get_weekly_artist_charts_as_dict(*dates[i])
             except:
