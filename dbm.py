@@ -48,13 +48,14 @@ __version__ = '0.9.3'
 __progname__ = 'dbm'
 __root_path__ = None
 
-def elog(msg):
+def elog(msg, gui=True):
     # logfile is an object created by codecs.open(<path>, 'utf-8', <mode>)
     # under GUI, stdout is also an object created by codecs.open(<path>, 'utf-8', <mode>)
-    try:
-        log(msg)
-    except:
-        log('ERROR: Failed to log error message!')
+    if gui:
+        try:
+            log(msg)
+        except:
+            log('ERROR: Failed to log error message!')
     try:
         settings.logfile.write(msg + '\n')
     except:
