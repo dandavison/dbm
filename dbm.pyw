@@ -684,12 +684,14 @@ class MainWindow(QMainWindow):
             self.setLastfmSimilarArtists()
         
     def setLastfmSimilarArtists(self):
+        self.log('Downloading artist data from last.fm', colour=settings.colour1)
+        self.log('')
         self.lastfmSimilarArtistSetter.initialize()
         self.lastfmSimilarArtistSetter.start()
             
     def createLinks(self):
         self.log('')
-        self.log('Creating links', colour=Qt.red)
+        self.log('Creating links', colour=settings.colour1)
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
@@ -716,7 +718,7 @@ class MainWindow(QMainWindow):
 
     def generatePlaylists(self):
         self.log('')
-        self.log('Generating playlists...')
+        self.log('Generating playlists', colour=settings.colour1)
 
         util.mkdirp(settings.playlists_path)
         dirs = dict(lastfm_similar='Last.fm Similar',
@@ -748,7 +750,8 @@ class MainWindow(QMainWindow):
     # (Make sure 'QThread' is registered using qRegisterMetaType().)
             
     def fetchBiographies(self):
-        self.log('') ; self.log('Updating artist biographies')
+        self.log('')
+        self.log('Updating artist biographies', colour=settings.colour1)
 
         util.mkdirp(settings.links_path)
         util.mkdirp(settings.biographies_dir)
@@ -1330,7 +1333,7 @@ class LibraryScanner(NewThread):
         self.tags_by_artist = tags_by_artist
         
     def run(self):
-        self.log('Scanning library at %s' % self.path)
+        self.logc('Scanning library at %s' % self.path)
         self.log('') ; self.log('')
         self.dbm.root = dbm.Root(self.path, None)
         self.log('')
@@ -1394,13 +1397,12 @@ class LibraryGrafter(NewThread):
 
 class LastfmSimilarArtistSetter(NewThread):
     def run(self):
-        self.log('Downloading artist data from last.fm', colour=Qt.red)
         self.dbm.root.download_artist_lastfm_data_maybe()
         self.finishUp()
         
-        self.log('Downloading user data from last.fm')
+        self.log('\tDownloading user data from last.fm')
         for name in settings.lastfm_user_names:
-            self.log('\t%s' % name)
+            self.log('\t\t%s' % name)
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
                 continue
@@ -1412,7 +1414,7 @@ class PlaylistGenerator(NewThread):
         dbm.log = self.logi
 
     def run(self):
-        self.log('Generating last.fm user playlists')
+        self.log('\tLast.fm user playlists')
 
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
@@ -1431,21 +1433,21 @@ class PlaylistGenerator(NewThread):
                 self.dbm.generate_playlist(user.unlistened_but_present_artists()),
                 os.path.join(d, 'unlistened.m3u'))
 
-        self.log('Generating Last.fm tag playlists...')
+        self.log('\tLast.fm tag playlists...')
         self.dbm.root.write_lastfm_tag_playlists(self.dirs['tags'])
 
         if self.settings.musicspace_ready:
-            self.log('Generating musicspace similar artists playlists...')
+            self.log('\tMusicspace similar artists playlists...')
             self.dbm.root.write_musicspace_similar_artists_playlists(
                 self.dirs['musicspace_similar'])
 
-        self.log('Generating Last.fm similar artists playlists...')
+        self.log('\tLast.fm similar artists playlists...')
         self.dbm.root.write_lastfm_similar_and_present_playlists(self.dirs['lastfm_similar'])
 
-        self.log('Generating single artist random playlists...')
+        self.log('\tSingle artist random playlists...')
         self.dbm.root.write_single_artists_playlists(self.dirs['single_artists'])
 
-        self.log('Generating whole-library random playlists...')
+        self.log('\tWhole-library random playlists...')
         self.dbm.root.write_all_artists_playlist(self.dirs['all_artists'])
 
         self.finishUp()

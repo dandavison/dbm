@@ -406,7 +406,7 @@ class Root(Node):
         i = 1
         for artist in artists:
             if i % 10 == 0 or i == nok:
-                log('Last.fm similar artists playlists: \t%d / %d' % (i, nok))
+                log('Last.fm similar artists playlists: \t[%d / %d]' % (i, nok))
             tracks = generate_playlist(artist.lastfm_similar_and_present_artists())
             try:
                 write_playlist(tracks,
@@ -424,7 +424,7 @@ class Root(Node):
         i = 1
         for artist in artists:
             if i % 10 == 0 or i == nok:
-                log('Musicspace similar artists playlists \t%d / %d' % (i, nok))
+                log('\tMusicspace similar artists playlists \t[%d / %d]' % (i, nok))
             tracks = artist.musicspace_similar_artists_playlist()
             if tracks:
                 write_playlist(tracks, os.path.join(direc, artist.clean_name() + '.m3u'))
@@ -437,7 +437,7 @@ class Root(Node):
         i = 1
         for artist in artists:
             if i % 10 == 0 or i == nok:
-                log('Single artist playlists: \t%d / %d' % (i, nok))
+                log('\tSingle artist playlists: \t[%d / %d]' % (i, nok))
             write_playlist(generate_playlist([artist]),
                            os.path.join(direc, artist.clean_name() + '.m3u'))
             i += 1
@@ -464,7 +464,7 @@ class Root(Node):
         i = 1
         for artist in artists:
             if i % 10 == 0 or i == nok:
-                log('Last.fm similar artists link files: \t%d / %d' % (i, nok))
+                log('\tLast.fm similar artists link files: \t[%d / %d]' % (i, nok))
             try:
                 write_linkfile(artist.lastfm_similar_and_present_artists(),
                                os.path.join(direc, artist.clean_name() + '.link'))
@@ -479,7 +479,7 @@ class Root(Node):
         i = 1
         for tag in tags:
             if i % 10 == 0 or i == n:
-                log('Last.fm tag link files: \t%d / %d' % (i, n))
+                log('\tLast.fm tag link files: \t[%d / %d]' % (i, n))
             try:
                 write_linkfile(tag.artists, os.path.join(direc, tag.name + '.link'))
             except:
@@ -493,7 +493,7 @@ class Root(Node):
         i = 1
         for tag in tags:
             if i % 10 == 0 or i == n:
-                log('Last.fm tag playlists: \t%d / %d' % (i, n))
+                log('\tLast.fm tag playlists: \t[%d / %d]' % (i, n))
             try:
                 write_playlist(generate_playlist(tag.artists),
                                os.path.join(direc, tag.name + '.m3u'))
@@ -710,8 +710,9 @@ class Artist(object):
                 name = self.lastfm_name or self.name
                 self.pylast = pylast.Artist(name, **settings.lastfm)
                 
-                self.biography.biography = self.pylast.get_bio_content()
-                    
+                self.biography.biography = self.pylast.get_bio_content() \
+                    or 'No biography available'
+                
                 if not biography_only:
                     # This implies that we are working on an artist in
                     # the library. Note that we only store biographies
@@ -779,7 +780,7 @@ class Artist(object):
                 self.lastfm_name = \
                     pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
             except pylast.ServiceException:
-                elog('pylast.ServiceException occurred with artist %s' % self.id)
+                elog('pylast.ServiceException occurred with artist %s' % self.id, gui=False)
         else:
             self.lastfm_name = self.name
 
