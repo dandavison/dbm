@@ -676,6 +676,8 @@ class MainWindow(QMainWindow):
                 settings.path_to_rockbox)
             if path.isEmpty(): return False
             settings.output_dir = processPath(path)
+        elif not os.path.exists(settings.output_dir):
+            os.mkdir(settings.output_dir)
         return True
 
     def createLinksPlaylistsBiographies(self):
