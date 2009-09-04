@@ -335,7 +335,9 @@ class MainWindow(QMainWindow):
             thread = constructor()
             setattr(self, attr_name, thread)
             self.connect(thread, SIGNAL("log(QString)"), self.log)
+            self.connect(thread, SIGNAL("logc(QString)"), self.logc)
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
+            self.connect(thread, SIGNAL("logic(QString)"), self.logic)
             self.connect(thread, SIGNAL("finished(bool)"), finisher)
 
     def refreshDiskAndArtistsView(self):
@@ -399,6 +401,12 @@ class MainWindow(QMainWindow):
 
     def logi(self, message, colour=None):
         self.log(message, colour, inplace=True)
+
+    def logc(self, message):
+        self.log(message, colour=settings.colour1)
+
+    def logic(self, message):
+        self.logi(message, colour=settings.colour1)
 
     def okToContinue(self):
         if self.libraryScanner.isRunning() or \
@@ -1037,6 +1045,7 @@ class Settings(dbm.Settings):
             self.logfile = codecs.open('dbmlog.txt', 'w', 'utf-8')
         else:
             self.logfile = sys.stderr
+        self.colour1 = Qt.red
         self.query_lastfm = True
         self.lastfm_user_names = []
         self.lastfm_user_history_nweeks = 4
@@ -1313,9 +1322,21 @@ class NewThread(QThread):
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
+    def logc(self, message):
+        try:
+            self.emit(SIGNAL('logc(QString)'), message)
+        except:
+            sys.stderr.write(message + '\n' if message else 'Empty message!\n')
+
     def logi(self, message):
         try:
             self.emit(SIGNAL('logi(QString)'), message)
+        except:
+            sys.stderr.write(message + '\n' if message else 'Empty message!\n')
+
+    def logic(self, message):
+        try:
+            self.emit(SIGNAL('logic(QString)'), message)
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
