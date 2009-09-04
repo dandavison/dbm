@@ -902,7 +902,6 @@ class MainWindow(QMainWindow):
         form = helpform.HelpForm("index.html", self)
         form.show()
 
-
     def createAction(self, text, slot=None, shortcut=None, icon=None, tip=None,
                      checkable=False, signal="triggered()"):
         action = QAction(text, self)

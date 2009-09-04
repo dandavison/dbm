@@ -506,9 +506,8 @@ class Root(Node):
         n = len(artists)
         i = success = 0
         log('')
+
         for artist in artists:
-            # if i % 10 == 0 or i == 1 or i == n:
-            #     logi('\t\t[%d/%d]\t%s' % (i, n, artist.name))
             if artist.biography.update(msg_prefix='\t\t[%d / %d]\t' % (i, n)):
                 success += 1
             i += 1
@@ -1068,7 +1067,6 @@ class Settings(object):
                   api_secret = '680457c03625980f61e88c319c218d53',
 #                  session_key = 'b9815e428303086842b14822296e5cff')
                   session_key = '')
-
     mbid_regexp = re.compile('[0-9a-fA-F]'*8 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
