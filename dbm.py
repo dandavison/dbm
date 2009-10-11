@@ -1208,6 +1208,8 @@ def patch_out_of_date_data_structures():
         root.all_artists = root.artists.copy()
     if not hasattr(root, 'lastfm_users'):
             root.lastfm_users = {}
+    if not hasattr(root, 'biographies'):
+            root.biographies = {}
 
     for artist in root.all_artists.values():
         if not hasattr(artist, 'biography'):
