@@ -44,7 +44,7 @@ from cmdline import CommandLineApp
 import pylast
 import track
 from util import *
-__version__ = '0.9.3'
+__version__ = '0.9.4'
 __progname__ = 'dbm'
 __root_path__ = None
 
