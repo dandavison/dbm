@@ -517,14 +517,14 @@ class Root(Node):
         artists = [a for a in self.artists.values() if a.is_present()]
         write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
             
-    def write_similar_but_absent_biographies(self, direc, n=10):
+    def write_similar_but_absent_biographies(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
         artists = filter(ok, self.artists.values())
         n = len(artists)
         i = 1
         for a in artists:
             write_biographies_linkfile(
-                a.lastfm_similar_but_absent_artists(n),
+                a.lastfm_similar_but_absent_artists(settings.num_simartist_biographies),
                 os.path.join(direc, a.clean_name() + '.link'),
                 metadata=dict(Similar_to=a.name, Present='No'))
             if i % 10 == 0 or i == 1 or i == n:

@@ -1039,6 +1039,7 @@ class Settings(dbm.Settings):
         self.biographies_dir = None
         self.all_biographies_dir = None
         self.update_biography_metadata = False
+        self.num_simartist_biographies = 1
         self.musicspace_ready = False
         self.musicspace_file = None
         self.musicspace_dropoff_param = 3.0
