@@ -1099,6 +1099,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         self.lastfmQueriesComboBox.addItems(map(str, range(1, 11)))
         self.minArtistTracksComboBox.addItems(map(str, range(1, 11)))
         self.minTagArtistsComboBox.addItems(map(str, range(1, 20)))
+        self.numSimArtBiogsComboBox.addItems(map(str, range(1, 100)))
 
         self.update()
         
@@ -1120,6 +1121,9 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
             ('minTagArtistsComboBox', 'currentIndexChanged(int)', 'setMinTagArtists'),
             ('minTagArtistsHelpButton', '', 'minTagArtistsHelp'),
+
+            ('numSimArtBiogsComboBox', 'currentIndexChanged(int)', 'setNumSimArtBiogs'),
+            ('numSimArtBiogsHelpButton', '', 'numSimArtBiogsHelp'),
 
             ('lastfmUsersLineEdit', 'editingFinished()', 'setLastfmUsers'),
             ('lastfmUsersHelpButton', '', 'lastfmUsersHelp'),
@@ -1210,6 +1214,10 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
         settings.minTagArtists = int(self.minTagArtistsComboBox.currentText())
         self.parent.log('Set minimum artists for tag to get links/lists to %d' \
                             % settings.minTagArtists)
+    def setNumSimArtBiogs(self):
+        settings.num_simartist_biographies = int(self.numSimArtBiogsComboBox.currentText())
+        self.parent.log('Set number of similar artist biographies per artist to %d' \
+                            % settings.num_simartist_biographies)
 
     def setMusicspaceDropoff(self):
         settings.musicspace_dropoff_param = float(self.musicspaceDropoffSpinBox.value())
@@ -1244,6 +1252,12 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
             self,
             "%s - help" % __progname__,
             "How many artists must have been tagged with tag X in order for links and playlists to be created for tag X? A tag might only have been given to one artist in your collection, or it might group together many artists in your collection. This option allows you to cut down the number of tags for which links and playlists are created.")
+
+    def numSimArtBiogsHelp(self):
+        QMessageBox.information(
+            self,
+            "%s - help" % __progname__,
+            "How many similar artist biographies do you want to download for each artist? Increasing this can result in thousands of artist biographies being downloaded, which may take several hours. However, the biographies take up little disk space compared to music files, and the point is to learn about new artists after all.")
 
     def lastfmQueriesHelp(self):
         QMessageBox.information(
