@@ -44,7 +44,7 @@ from cmdline import CommandLineApp
 import pylast
 import track
 from util import *
-__version__ = '0.9.4'
+__version__ = '0.9.45'
 __progname__ = 'dbm'
 __root_path__ = None
 
@@ -390,11 +390,13 @@ class Root(Node):
         return None
 
     def create_lastfm_user(self, name):
-        user = LastFmUser(name, settings.lastfm)
-        if user is None:
+        log('')
+        try:
+            user = LastFmUser(name, settings.lastfm)
+            user.get_artist_counts()
+        except:
             elog('ERROR: Failed to find last.fm user %s' % name)
             return False
-        log('')
         user.get_artist_counts()
         self.lastfm_users[name] = user
         return True
