@@ -1,1 +1,0 @@
-/usr/local/src/python/cmdline/cmdline.py

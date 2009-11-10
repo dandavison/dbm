@@ -40,7 +40,6 @@ from __future__ import with_statement
 import sys, os, re, time, urllib, codecs
 import random, csv, math
 import optparse, logging
-from cmdline import CommandLineApp
 import pylast
 import track
 from dedpy.ded import *
