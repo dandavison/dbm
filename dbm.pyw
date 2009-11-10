@@ -336,6 +336,7 @@ class MainWindow(QMainWindow):
             setattr(self, attr_name, thread)
             self.connect(thread, SIGNAL("log(QString)"), self.log)
             self.connect(thread, SIGNAL("logc(QString)"), self.logc)
+            self.connect(thread, SIGNAL("elog(QString)"), self.elog)
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
             self.connect(thread, SIGNAL("logic(QString)"), self.logic)
             self.connect(thread, SIGNAL("finished(bool)"), finisher)
@@ -404,10 +405,10 @@ class MainWindow(QMainWindow):
 
     def logc(self, message):
         self.log(message, colour=settings.colour1)
-
+    def elog(self, message):
+        self.log(message, colour=settings.errorcol)
     def logic(self, message):
         self.logi(message, colour=settings.colour1)
-
     def okToContinue(self):
         if self.libraryScanner.isRunning() or \
                 self.lastfmSimilarArtistSetter.isRunning() or \
@@ -608,7 +609,7 @@ class MainWindow(QMainWindow):
             settings.musicspace_ready = True
             self.log('Loaded %d-dimensional music space' % settings.musicspace_dimension)
         except:
-            self.log('Failed!')
+            self.elog('Failed!')
             raise
 
     def musicspaceSave(self):
@@ -628,7 +629,7 @@ class MainWindow(QMainWindow):
                 settings.musicspace_file = path
                 self.log('Done')
             except:
-                self.log('Failed!')
+                self.elog('Failed!')
                 raise
 
     def albumArtDownload(self):
@@ -879,7 +880,7 @@ class MainWindow(QMainWindow):
         for attr_name, constructor, finisher in self.threads:
             thread = getattr(self, attr_name)
             if thread.isRunning():
-                self.log("Aborting %s" % attr_name)
+                self.elog("Aborting %s" % attr_name)
                 thread.stop()
                 thread.terminate()
                 # thread.wait()
@@ -1047,7 +1048,8 @@ class Settings(dbm.Settings):
             self.logfile = codecs.open('dbmlog.txt', 'w', 'utf-8')
         else:
             self.logfile = sys.stderr
-        self.colour1 = Qt.red
+        self.colour1 = Qt.blue
+        self.errorcol = Qt.red
         self.query_lastfm = True
         self.lastfm_user_names = []
         self.lastfm_user_history_nweeks = 4
@@ -1344,6 +1346,12 @@ class NewThread(QThread):
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
+    def elog(self, message):
+        try:
+            self.emit(SIGNAL('elog(QString)'), message)
+        except:
+            sys.stderr.write(message + '\n' if message else 'Empty message!\n')
+
     def logi(self, message):
         try:
             self.emit(SIGNAL('logi(QString)'), message)
@@ -1391,8 +1399,8 @@ class LibraryLoader(NewThread):
             if settings.patch_out_of_date_data_structures:
                 self.dbm.patch_out_of_date_data_structures()
             self.settings.savefile = self.path
-        except:
-            self.log('Failed to load library at %s' % self.path)
+        except Exception, e:
+            self.elog('Failed to load library at %s: %s' % (self.path, e))
             raise
         self.finishUp()
 
@@ -1407,7 +1415,7 @@ class LibrarySaver(NewThread):
             ded.pickle_object(self.dbm.root, self.path)
             self.settings.savefile = self.path
         except:
-            self.log('Failed to save library to %s' % self.path)
+            self.elog('Failed to save library to %s' % self.path)
             raise
         self.finishUp()
 
@@ -1595,3 +1603,4 @@ if __name__ == '__main__':
     except Exception, e:
         print 'Caught exception in app.exec()'
         mainWindow.log(e)
+        dbm.elog(e)
