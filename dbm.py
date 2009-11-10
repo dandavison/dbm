@@ -43,7 +43,7 @@ import optparse, logging
 from cmdline import CommandLineApp
 import pylast
 import track
-from util import *
+from dedpy.ded import *
 __version__ = '0.9.45'
 __progname__ = 'dbm'
 __root_path__ = None

@@ -71,7 +71,7 @@ from PyQt4.QtGui import *
 import ui_settings_dlg
 import qrc_resources
 import dbm
-import util
+import dedpy.ded
 
 __version__ = dbm.__version__
 __progname__ = dbm.__progname__
@@ -703,9 +703,9 @@ class MainWindow(QMainWindow):
         self.log('')
         self.log('Creating links', colour=settings.colour1)
 
-        util.mkdirp(settings.links_path)
-        util.mkdirp(settings.biographies_dir)
-        util.mkdirp(settings.all_biographies_dir)
+        ded.mkdirp(settings.links_path)
+        ded.mkdirp(settings.biographies_dir)
+        ded.mkdirp(settings.all_biographies_dir)
 
         dirs = dict(lastfm_similar='Last.fm Similar',
                     AtoZ='A-Z',
@@ -721,7 +721,7 @@ class MainWindow(QMainWindow):
         dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
                                                   'Last.fm Recommended Artists')
         for d in dirs.values():
-            util.mkdirp(d)
+            ded.mkdirp(d)
 
         self.linksCreator.initialize(dirs)
         self.linksCreator.start()
@@ -730,7 +730,7 @@ class MainWindow(QMainWindow):
         self.log('')
         self.log('Generating playlists', colour=settings.colour1)
 
-        util.mkdirp(settings.playlists_path)
+        ded.mkdirp(settings.playlists_path)
         dirs = dict(lastfm_similar='Last.fm Similar',
                     single_artists='Single Artists',
                     all_artists='All Artists',
@@ -763,9 +763,9 @@ class MainWindow(QMainWindow):
         self.log('')
         self.log('Updating artist biographies', colour=settings.colour1)
 
-        util.mkdirp(settings.links_path)
-        util.mkdirp(settings.biographies_dir)
-        util.mkdirp(settings.all_biographies_dir)
+        ded.mkdirp(settings.links_path)
+        ded.mkdirp(settings.biographies_dir)
+        ded.mkdirp(settings.all_biographies_dir)
 
         dirs = {}
         if settings.lastfm_user_names:
@@ -777,7 +777,7 @@ class MainWindow(QMainWindow):
         dirs['lastfm_recommended'] = os.path.join(settings.biographies_dir,
                                                   'Last.fm Recommended Artists')
         for d in dirs.values():
-            util.mkdirp(d)
+            ded.mkdirp(d)
 
         self.biographiesFetcher.initialize(dirs)
         self.biographiesFetcher.start()
@@ -1387,7 +1387,7 @@ class LibraryLoader(NewThread):
 
     def run(self):
         try:
-            self.dbm.root = util.load_pickled_object(self.path)
+            self.dbm.root = ded.load_pickled_object(self.path)
             if settings.patch_out_of_date_data_structures:
                 self.dbm.patch_out_of_date_data_structures()
             self.settings.savefile = self.path
@@ -1404,7 +1404,7 @@ class LibrarySaver(NewThread):
     def run(self):
         try:
             self.dbm.root.delete_attributes(['diskTreeWidgetItem'])
-            util.pickle_object(self.dbm.root, self.path)
+            ded.pickle_object(self.dbm.root, self.path)
             self.settings.savefile = self.path
         except:
             self.log('Failed to save library to %s' % self.path)
@@ -1460,7 +1460,7 @@ class PlaylistGenerator(NewThread):
 
             self.log(name)
             d = os.path.join(self.dirs['lastfm_users'], name)
-            util.mkdirp(d)
+            ded.mkdirp(d)
 
             user = self.dbm.root.lastfm_users[name]
             self.dbm.write_playlist(
@@ -1504,7 +1504,7 @@ class LinksCreator(NewThread):
                 continue
             user = self.dbm.root.lastfm_users[name]
             d = os.path.join(self.dirs['lastfm_users'], name)
-            util.mkdirp(d)
+            ded.mkdirp(d)
             self.dbm.write_linkfile(user.listened_and_present_artists(),
                                     os.path.join(d, 'Listened.link'))
             self.dbm.write_linkfile(user.unlistened_but_present_artists(),
@@ -1543,7 +1543,7 @@ class BiographiesFetcher(NewThread):
                 continue
             user = self.dbm.root.lastfm_users[name]
             d = os.path.join(self.dirs['lastfm_users'], name)
-            util.mkdirp(d)
+            ded.mkdirp(d)
             linkfiles[name] = os.path.join(d, 'Absent.link')
             self.dbm.write_biographies_linkfile(
                 user.listened_but_absent_artists(), linkfiles[name],
