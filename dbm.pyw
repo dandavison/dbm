@@ -71,7 +71,7 @@ from PyQt4.QtGui import *
 import ui_settings_dlg
 import qrc_resources
 import dbm
-import dedpy.ded
+import dedpy.ded as ded
 
 __version__ = dbm.__version__
 __progname__ = dbm.__progname__
