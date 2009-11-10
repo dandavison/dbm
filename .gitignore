@@ -1,0 +1,5 @@
+*.pyc
+/.junk.py
+/dbm.bat
+zzz/
+/pylast.pyc.renamed
