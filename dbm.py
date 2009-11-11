@@ -1091,6 +1091,7 @@ class Settings(object):
 class DbmError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
@@ -1118,9 +1119,8 @@ def write_playlist(tracks, filepath):
             plfile.write('\n'.join(paths) + '\n')
     except:
         elog('write_playlist: write to file failed')
-        log('Character encoding problem while writing playlist, destination file is %s.'
-            'Please report to Dan: davison@stats.ox.ac.uk.' % filepath)
-
+        log('Character encoding problem while writing playlist, destination file is %s.' % filepath)
+        
 def write_linkfile(artists, filepath):
     if os.path.exists(filepath): return
     nodes = artist_nodes(artists)

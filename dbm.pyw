@@ -41,20 +41,20 @@
 # Summerfield. Specifically, the MainWindow class is based on class
 # MainWindow in chap06/imagechanger.pyw; the NewThread class is based
 # on class Walker in chap19/walker.py, and the communication between
-# the two follows class Form in chap19/pageindexer.pyw. I highly
-# recommend that book.
+# the two follows class Form in chap19/pageindexer.pyw. I found that
+# book extremely helpful.
 
 # Notes
 
-# The code in this file (the 'dbmg' module) implements a GUI for the
-# core dbm code in module 'dbm'. dbm itself can be run as a command
-# line program without this GUI.
+# The code in this file implements a GUI for the core dbm code in
+# module 'dbm'. It used to be possible to run dbm itself as a command
+# line program without this GUI. That would require a bit of work now.
 
 # Program options are kept in a global Settings instance called
 # settings. This class inherits from dbm.Settings, which in practice
 # just means it inherits some static variables. dbm also works with a
 # global variable called 'settings'; when running under the GUI,
-# dbm.settings is a reference to dbmg.settings. When running alone,
+# dbm.settings is a reference to settings. When running alone,
 # dbm.settings receives the command line options.
 
 # Important variables
