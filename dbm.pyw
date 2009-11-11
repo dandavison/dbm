@@ -130,7 +130,7 @@ class MainWindow(QMainWindow):
         status = self.statusBar()
         status.setSizeGripEnabled(False)
         status.showMessage("%s version %s" % (__progname__,__version__), 5000)
-        dbm.elog('dbm version %s\t%s' % (__version__, time.ctime()))
+        dbm.log('dbm version %s\t%s' % (__version__, time.ctime()))
         self.log('')
 
         self.setUpActionsAndMenus()
@@ -336,7 +336,6 @@ class MainWindow(QMainWindow):
             setattr(self, attr_name, thread)
             self.connect(thread, SIGNAL("log(QString)"), self.log)
             self.connect(thread, SIGNAL("logc(QString)"), self.logc)
-            self.connect(thread, SIGNAL("elog(QString)"), self.elog)
             self.connect(thread, SIGNAL("error(QString)"), self.error)
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
             self.connect(thread, SIGNAL("logic(QString)"), self.logic)
@@ -406,10 +405,10 @@ class MainWindow(QMainWindow):
 
     def logc(self, message):
         self.log(message, colour=settings.colour1)
-    def elog(self, message):
-        self.log(message, colour=settings.errorcol)
+
     def logic(self, message):
         self.logi(message, colour=settings.colour1)
+
     def error(self, message):
         self.log(message, colour=settings.errorcol)
     
@@ -1350,12 +1349,6 @@ class NewThread(QThread):
     def logc(self, message):
         try:
             self.emit(SIGNAL('logc(QString)'), message)
-        except:
-            sys.stderr.write(message + '\n' if message else 'Empty message!\n')
-
-    def elog(self, message):
-        try:
-            self.emit(SIGNAL('elog(QString)'), message)
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
