@@ -47,19 +47,6 @@ __version__ = '0.9.45'
 __progname__ = 'dbm'
 __root_path__ = None
 
-def elog(msg, gui=True):
-    # logfile is an object created by codecs.open(<path>, 'utf-8', <mode>)
-    # under GUI, stdout is also an object created by codecs.open(<path>, 'utf-8', <mode>)
-    if gui:
-        try:
-            log(msg)
-        except:
-            log('ERROR: Failed to log error message!')
-    try:
-        settings.logfile.write(msg + '\n')
-    except:
-        settings.logfile.write('ERROR: Failed to write elog message\n')
-
 class Node(object):
     """A tree representation of a music library."""
     def __init__(self, path, parent):
