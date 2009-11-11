@@ -409,11 +409,12 @@ class MainWindow(QMainWindow):
     def logic(self, message):
         self.logi(message, colour=settings.colour1)
 
-    def error(self, message):
-        self.log(message, colour=settings.errorcol)
+    def error(self, message, level=3):
+        colour = settings.errorcol if level > 2 else settings.warncol
+        self.log(message, colour=colour)
     
     def warn(self, message):
-        self.log(message, colour=settings.warncol)
+        self.error(message, level=1)
 
     def okToContinue(self):
         if self.libraryScanner.isRunning() or \
