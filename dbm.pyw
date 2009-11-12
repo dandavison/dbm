@@ -445,13 +445,27 @@ class MainWindow(QMainWindow):
         return True
 
     def setSettings(self):
-        if not self.okToContinue():
-            return
+        if not self.okToContinue(): return
         dialog = SettingsDlg(self)
         if dialog.exec_():
             self.log("New settings recorded")
             self.updateStatus()
+            return True
+        return False
 
+    def setSettingsWithExplanation(self):
+        reply = QMessageBox.question(
+            self,
+            "%s - Review settings" % __progname__,
+            "Downloading data from last.fm may take some time. " + \
+                "You are about to be given a final opportunity to review " + \
+                "your settings.",
+            QMessageBox.Ok|QMessageBox.Abort)
+        if reply == QMessageBox.Abort:
+            return False
+        elif reply == QMessageBox.Ok:
+            return self.setSettings()
+        
     def updateFileMenu(self):
         self.fileMenu.clear()
         self.addActions(self.fileMenu, self.fileMenuActions[:-1])
@@ -508,7 +522,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, block=False):
+    def libraryScan(self, block=False, download_after='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
@@ -525,6 +539,26 @@ class MainWindow(QMainWindow):
               "%s - Set location of Rockbox player." % __progname__,
               "Please set the location of your Rockbox music player (Tasks -> Settings).")
             return
+
+        if download_after == 'Ask':
+            reply = QMessageBox.question(
+                self,
+                "%s - Proceed to downloads after scan?" % __progname__,
+                "In addition to scanning the library, downloading the necessary data " +\
+                    "from last.fm may take some time. Do you want the downloads to " +\
+                    "start automatically as soon as the scan is finished? " + \
+                    "If you select Yes, then " +\
+                    "all links, playlists and biographies will be created when the downloads " +\
+                    "are complete.",
+                QMessageBox.Yes|QMessageBox.No)
+            download_after = 'Yes' if reply == QMessageBox.Yes else 'No'
+
+        if download_after == 'Yes':
+            settings.proceed_to_download_after_scan = True
+            if not self.setSettingsWithExplanation():
+                return False
+        else:
+            settings.proceed_to_download_after_scan = False
 
         self.libraryScanner.initialize(path)
         self.libraryScanner.start()
@@ -705,10 +739,12 @@ class MainWindow(QMainWindow):
 
     def createLinksPlaylistsBiographies(self):
         if dbm.root is None:
-            self.libraryScan()
+            self.libraryScan(download_after = 'Yes')
         else:
-            self.setLastfmSimilarArtists()
-        
+            if self.setSettingsWithExplanation():
+                self.setLastfmSimilarArtists()
+        return True
+
     def setLastfmSimilarArtists(self):
         self.log('Downloading artist data from last.fm', colour=settings.colour1)
         self.log('')
@@ -809,7 +845,8 @@ class MainWindow(QMainWindow):
         if completed:
             self.refreshDiskAndArtistsView()
         self.libraryScanner.wait()
-        self.setLastfmSimilarArtists()
+        if settings.proceed_to_download_after_scan:
+            self.setLastfmSimilarArtists()
 
     def finishedLoadingLibrary(self, completed):
         if completed:
@@ -1078,6 +1115,7 @@ class Settings(dbm.Settings):
         self.quiet = False
         self.albumartdir = None
         self.patch_out_of_date_data_structures = True
+        self.proceed_to_download_after_scan = False
         ## This is fairly obscure.
         ## See the code [[for%20setting%20in%20settings%20persistent_settings][here]]
         self.persistent_settings = \
