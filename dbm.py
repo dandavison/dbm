@@ -503,9 +503,12 @@ class Root(Node):
         log('')
 
         for artist in artists:
-            if artist.biography.update(msg_prefix='\t\t[%d / %d]\t' % (i, n)):
-                success += 1
-            i += 1
+            try:
+                if artist.biography.update(msg_prefix='\t\t[%d / %d]\t' % (i, n)):
+                    success += 1
+                i += 1
+            except Exception, e:
+                error('Error updating biography for %s: %s' % (artist.name, e))
         log('%d/%d successful artist biography updates' % (success, n))
 
     def write_present_artist_biographies(self, filepath):
