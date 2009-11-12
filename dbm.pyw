@@ -419,7 +419,8 @@ class MainWindow(QMainWindow):
         self.error(message, level=1)
 
     def okToContinue(self):
-        if any(getattr(self, thread[0]).isRunning() for thread in self.threads):
+        threads = [getattr(self, thread[0]) for thread in self.threads]
+        if any(thread.isRunning() for thread in threads):
             reply = QMessageBox.question(
                 self,
                 "%s - Warning" % __progname__,
@@ -428,9 +429,8 @@ class MainWindow(QMainWindow):
             if reply == QMessageBox.Ok:
                 return False
             elif reply == QMessageBox.Abort:
-                for thread in self.threads:
-                    t = getattr(self, thread[0])
-                    if t.isRunning(): t.stop()
+                for thread in threads:
+                    if thread.isRunning(): thread.stop()
         if self.dirty:
             reply = QMessageBox.question(self,
                             "%s - Unsaved Changes" % __progname__,
