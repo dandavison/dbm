@@ -331,7 +331,10 @@ class Root(Node):
                 for attr, pdict in zip(attrs, persistent_dicts):
                     setattr(artist, attr, pdict[artist.id])
             else:
-                artist.download_lastfm_data(msg_prefix="\t\t[%d / %d]\t" % (i, n))
+                try:
+                    artist.download_lastfm_data(msg_prefix="\t\t[%d / %d]\t" % (i, n))
+                except Exception, e:
+                    error('Failed to download last.fm data for %s: %s' % (artist.name, e))
             i += 1
         self.tabulate_tags()
 
