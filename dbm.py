@@ -104,7 +104,7 @@ class Node(object):
                     if not root.artistids.has_key(dbm_aname):
                         root.artistids[dbm_aname] = aid
                     elif root.artistids[dbm_aname] != aid:
-                        elog('artistname "%s" associated with multiple artist IDs: "%s" "%s"\n' %
+                        warn('artistname "%s" associated with multiple artist IDs: "%s" "%s"\n' %
                             (aname, aid, root.artistids[dbm_aname]))
 
         for subtree in self.subtrees:
@@ -182,17 +182,17 @@ class Node(object):
                 url = album.get_image_url() # it's unicode
             except pylast.ServiceException, e:
                 msg = 'Error obtaining album art URL for %s: %s' % (unicode(ar), e)
-                elog(msg)
+                error(msg)
             except:
                 msg = 'Error obtaining album art URL for %s' % unicode(ar)
-                elog(msg)
+                error(msg)
             if url:
                 try:
                     urllib.urlretrieve(url, dest)
                     gotit = True
                 except:
                     msg = 'Error downloading album art from %s' % url
-                    elog(msg)
+                    error(msg)
             log("%s: %s %s" % (ar[0], ar[1], '' if gotit else '     Failed'))
 
         for subtree in self.subtrees:
@@ -287,17 +287,17 @@ class Root(Node):
         for dbm_aid in self.artists:
             a = self.artists[dbm_aid]
             if not a.id:
-                elog('Artist %s has no id: deleting\n' % \
+                warn('Artist %s has no id: deleting\n' % \
                          a.name if a.name else '?')
                 bad.append(dbm_aid)
                 continue
             if not a.name:
-                elog('Artist %s has no name: deleting\n' % a.id)
+                warn('Artist %s has no name: deleting\n' % a.id)
                 bad.append(dbm_aid)
                 continue
             if not a.tracks and not a.tracks_as_albumartist:
                 msg = "Artist %s has no tracks (shouldn't happen!): deleting\n" % a.name
-                elog(msg)
+                error(msg)
                 bad.append(dbm_aid)
                 continue
             a.unite_spuriously_separated_subtrees()
@@ -381,7 +381,7 @@ class Root(Node):
             user = LastFmUser(name, settings.lastfm)
             user.get_artist_counts()
         except:
-            elog('ERROR: Failed to find last.fm user %s' % name)
+            error('Failed to find last.fm user %s' % name, level=2)
             return False
         user.get_artist_counts()
         self.lastfm_users[name] = user
@@ -400,7 +400,7 @@ class Root(Node):
                 write_playlist(tracks,
                                os.path.join(direc, artist.clean_name() + '.m3u'))
             except:
-                elog('Failed to create last.fm similar playlist for artist %s' % artist.name)
+                error('Failed to create last.fm similar playlist for artist %s' % artist.name)
             i += 1
 
     def write_musicspace_similar_artists_playlists(self, direc):
@@ -457,7 +457,7 @@ class Root(Node):
                 write_linkfile(artist.lastfm_similar_and_present_artists(),
                                os.path.join(direc, artist.clean_name() + '.link'))
             except:
-                elog('Failed to create last.fm similar link file for artist %s' % artist.name)
+                error('Failed to create last.fm similar link file for artist %s' % artist.name)
             i += 1
 
     def write_lastfm_tag_linkfiles(self, direc):
@@ -471,7 +471,7 @@ class Root(Node):
             try:
                 write_linkfile(tag.artists, os.path.join(direc, tag.name + '.link'))
             except:
-                elog('Failed to create link file for tag %s' % tag.name)
+                error('Failed to create link file for tag %s' % tag.name)
             i += 1
 
     def write_lastfm_tag_playlists(self, direc):
@@ -486,7 +486,7 @@ class Root(Node):
                 write_playlist(generate_playlist(tag.artists),
                                os.path.join(direc, tag.name + '.m3u'))
             except:
-                elog('Failed to create tag playlist for tag %s' % tag.name)
+                error('Failed to create tag playlist for tag %s' % tag.name)
             i += 1
 
     def update_biographies_on_disk(self):
@@ -547,7 +547,7 @@ class Root(Node):
                 write_linkfile(sorted(artists),
                                os.path.join(direc, c + '.link'))
             except:
-                elog('Failed to create linkfile for index letter %s' % c)
+                error('Failed to create linkfile for index letter %s' % c)
 
     def present_artists(self):
         """Return a filtered version of self.artists, containing only
@@ -720,7 +720,7 @@ class Artist(object):
             except Exception, e:
                 self.biography.biography = 'No biography available'
                 name = self.lastfm_name or self.name
-                elog('%s: %s' % (msg_prefix + self.download_message(name, False), e), gui=False)
+                error('%s: %s' % (msg_prefix + self.download_message(name, False), e))
                 i = i+1
                 time.sleep(.1)
         return not waiting
@@ -767,7 +767,7 @@ class Artist(object):
                 self.lastfm_name = \
                     pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
             except pylast.ServiceException:
-                elog('pylast.ServiceException occurred with artist %s' % self.id, gui=False)
+                error('pylast.ServiceException occurred with artist %s' % self.id)
         else:
             self.lastfm_name = self.name
 
@@ -842,7 +842,7 @@ class Artist(object):
                     parent = parents[0]
             if parent:
                 if False and not settings.quiet:
-                    elog('uniting %d subtrees for %s' % (len(pure_anodes), self.name))
+                    warn('uniting %d subtrees for %s' % (len(pure_anodes), self.name))
                 anodes = [v for v in self.subtrees if v not in pure_anodes]
                 anodes.append(ArtistNode(parent, self, self, None))
                 self.subtrees = set(anodes)
@@ -952,7 +952,7 @@ class Biography(object):
                                    self.metadata_marker,
                                    self.deparse_metadata()]) + '\n')
         except Exception, e:
-            elog('Failed to write biography for artist %s: %s' % (artist.name, e))
+            error('Failed to write biography for artist %s: %s' % (artist.name, e))
 
     def merge_metadata(self, new_metadata):
         for k in new_metadata:
@@ -1105,7 +1105,7 @@ def write_playlist(tracks, filepath):
         with codecs.open(filepath, 'w', 'utf-8') as plfile:
             plfile.write('\n'.join(paths) + '\n')
     except:
-        elog('write_playlist: write to file failed')
+        error('write_playlist: write to file failed')
         log('Character encoding problem while writing playlist, destination file is %s.' % filepath)
         
 def write_linkfile(artists, filepath):
@@ -1180,7 +1180,7 @@ def make_rockbox_linkfile(targets, names, filepath):
         with codecs.open(filepath, 'w', 'utf-8') as lfile:
             lfile.write('\n'.join(links) + '\n')
     except:
-        elog('Failed to write linkfile %s' % filepath)
+        error('Failed to write linkfile %s' % filepath)
 
 def rockbox_clean_name(s):
     bad = '\/:<>?*|'
