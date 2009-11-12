@@ -1618,8 +1618,8 @@ if __name__ == '__main__':
         __log_to_file__ = False
 
     mainWindow = MainWindow()
-    mainWindow.show()
     try:
+        mainWindow.show()
         # import pycallgraph
         # pycallgraph.start_trace()
         app.exec_()
