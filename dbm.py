@@ -711,7 +711,7 @@ class Artist(object):
                     # for artists in the library, in order that the
                     # .dbm file stays a reasonable size.
                     self.similar_artists = self.query_lastfm_similar()
-                    self.tags = self.pylast.get_top_tags()
+                    self.tags = map(canonicalise_tag_name, self.pylast.get_top_tags())
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
@@ -1090,6 +1090,12 @@ def canonicalise_name(name):
     r1 = re.compile('^the +')
     r2 = re.compile(' +')
     return r2.sub('_', r1.sub('', name.lower()))
+
+def canonicalise_tag_name(name):
+    """CamelCase with no hyphens"""
+    n = name.replace('-', ' ').replace("'", '')
+    n = n.lower().split()
+    return ''.join([w[0].upper() + w[1:] for w in n])
 
 def generate_playlist(artists, n=1000):
     artists = filter(lambda a: len(a.tracks) > 0, artists)
