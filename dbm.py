@@ -103,7 +103,7 @@ class Node(object):
             for aid, aname in [(t.artistid,     t.artistname),
                                (t.albumartistid, t.albumartistname)]:
                 if aid and aname:
-                    dbm_aname = canonicalise_name(aname)
+                    dbm_aname = canonicalise_artist_name(aname)
                     if not root.artistids.has_key(dbm_aname):
                         root.artistids[dbm_aname] = aid
                     elif root.artistids[dbm_aname] != aid:
@@ -353,7 +353,7 @@ class Root(Node):
         associated with the name, elsewhere in the library. If not,
         then the name is used as the dbm id."""
         if mbid: return mbid
-        dbm_name = canonicalise_name(name)
+        dbm_name = canonicalise_artist_name(name)
         if self.artistids.has_key(dbm_name):
             return self.artistids[dbm_name]
         return dbm_name
@@ -363,7 +363,7 @@ class Root(Node):
         for this (mbid, name) pair."""
         if mbid and self.artists.has_key(mbid): # ! added mbid 090512
             return mbid
-        dbm_name = canonicalise_name(name)
+        dbm_name = canonicalise_artist_name(name)
         if self.artists.has_key(dbm_name):
             return dbm_name
         return None
@@ -374,7 +374,7 @@ class Root(Node):
         to use tuple indexing somehow, but it's not totally trivial."""
         if mbid and self.artists.has_key(mbid): # ! added mbid 090512
             return self.artists[mbid]
-        dbm_name = canonicalise_name(name)
+        dbm_name = canonicalise_artist_name(name)
         if self.artists.has_key(dbm_name):
             return self.artists[dbm_name]
         return None
@@ -1086,7 +1086,7 @@ class DbmError(Exception):
     def __str__(self):
         return repr(self.value)
 
-def canonicalise_name(name):
+def canonicalise_artist_name(name):
     r1 = re.compile('^the +')
     r2 = re.compile(' +')
     return r2.sub('_', r1.sub('', name.lower()))
