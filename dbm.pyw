@@ -337,6 +337,7 @@ class MainWindow(QMainWindow):
             self.connect(thread, SIGNAL("log(QString)"), self.log)
             self.connect(thread, SIGNAL("logc(QString)"), self.logc)
             self.connect(thread, SIGNAL("error(QString)"), self.error)
+            self.connect(thread, SIGNAL("warn(QString)"), self.warn)
             self.connect(thread, SIGNAL("logi(QString)"), self.logi)
             self.connect(thread, SIGNAL("logic(QString)"), self.logic)
             self.connect(thread, SIGNAL("finished(bool)"), finisher)
@@ -1056,6 +1057,7 @@ class Settings(dbm.Settings):
         else:
             self.logfile = sys.stderr
         self.colour1 = Qt.blue
+        self.warncol = Qt.darkRed
         self.errorcol = Qt.red
         self.query_lastfm = True
         self.lastfm_user_names = []
@@ -1316,7 +1318,9 @@ class NewThread(QThread):
         self.settings = settings
         self.dbm = dbm
         dbm.log = self.log
-        dbm.logi = self.logi
+        dbm.logi = self.log
+        dbm.error = self.error
+        dbm.warn = self.warn
 
     def stop(self):
         try:
@@ -1353,11 +1357,18 @@ class NewThread(QThread):
         except:
             sys.stderr.write(message + '\n' if message else 'Empty message!\n')
 
-    def error(self, message):
+    def error(self, message, level=3):
+        """level argument is currently unused"""
         try:
             self.emit(SIGNAL('error(QString)'), message)
         except:
             sys.stderr.write('Failed to display error message in GUI.\n' + message)
+
+    def warn(self, message):
+        try:
+            self.emit(SIGNAL('warn(QString)'), message)
+        except:
+            sys.stderr.write('Failed to display warning message in GUI.\n' + message)
 
     def logi(self, message):
         try:
@@ -1588,8 +1599,10 @@ def processPath(path):
     try:
         return os.path.abspath(unicode(QDir.toNativeSeparators(path)))
     except:
+        mainwindow.error('Error processing path %s' % path)
         print repr(path)
         raise
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setOrganizationName(__progname__)
