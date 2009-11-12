@@ -1405,7 +1405,6 @@ class LibraryScanner(NewThread):
         
     def run(self):
         self.logc('Scanning library at %s' % self.path)
-        self.log('') ;
         self.dbm.root = dbm.Root(self.path, None)
         self.log('')
         self.dbm.root.biographies = self.biographies
