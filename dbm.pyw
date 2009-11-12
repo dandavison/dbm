@@ -550,8 +550,7 @@ class MainWindow(QMainWindow):
         self.libraryGrafter.start()
 
     def libraryOpen(self):
-        if not self.okToContinue():
-            return
+        if not self.okToContinue(): return
         dir = os.path.dirname(settings.savefile) \
                 if settings.savefile is not None else "."
         formats = ['*.dbm']
@@ -565,6 +564,7 @@ class MainWindow(QMainWindow):
     def libraryLoad(self, savefile=None):
         """This is based, to some extent, on MainWindow.loadFile() in
         imagechanger.pyw. I don't really understand the initial stuff."""
+        if not self.okToContinue(): return
         if savefile is None:
             action = self.sender()
             if isinstance(action, QAction):
@@ -580,6 +580,7 @@ class MainWindow(QMainWindow):
         self.libraryLoader.start()
 
     def librarySave(self, fname=None):
+        if not self.okToContinue(): return
         if self.alertIfNoLibrary(): return
         fname = fname or settings.savefile
         if fname is None:
@@ -601,10 +602,8 @@ class MainWindow(QMainWindow):
         self.librarySave(fname)
 
     def musicspaceOpen(self):
-        if self.alertIfNoLibrary():
-            return
-        if not self.okToContinue():
-            return
+        if not self.okToContinue(): return
+        if self.alertIfNoLibrary(): return
         path = QFileDialog.getOpenFileName(
             self, "%s - Open musicspace csv file" % __progname__,
             os.path.dirname(settings.musicspace_file) \
@@ -615,6 +614,8 @@ class MainWindow(QMainWindow):
             self.populate_musicspace(path)
 
     def populate_musicspace(self, path):
+        if not self.okToContinue(): return
+        if self.alertIfNoLibrary(): return
         self.log('Opening musicspace file %s...' % path)
         try:
             with open(path, 'r') as f:
@@ -627,8 +628,8 @@ class MainWindow(QMainWindow):
             raise
 
     def musicspaceSave(self):
-        if not self.okToContinue():
-            return
+        if not self.okToContinue(): return
+        if self.alertIfNoLibrary(): return
         path = QFileDialog.getSaveFileName(
             self, "%s - Save musicspace to file" % __progname__,
             os.path.dirname(settings.musicspace_file) \
