@@ -1101,7 +1101,7 @@ class Settings(dbm.Settings):
         self.playlists_path = os.path.join(self.output_dir, 'Playlists')
         self.biographies_dir = os.path.join(self.output_dir, 'Biographies')
         self.all_biographies_dir = os.path.join(self.biographies_dir, 'All')
-
+        
 class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
     def __init__(self, parent=None):
@@ -1403,7 +1403,7 @@ class LibraryScanner(NewThread):
         
     def run(self):
         self.logc('Scanning library at %s' % self.path)
-        self.log('') ; self.log('')
+        self.log('') ;
         self.dbm.root = dbm.Root(self.path, None)
         self.log('')
         self.dbm.root.biographies = self.biographies
