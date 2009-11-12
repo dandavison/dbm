@@ -419,7 +419,7 @@ class MainWindow(QMainWindow):
         self.error(message, level=1)
 
     def okToContinue(self):
-        if any(thread.isRunning() for thread in self.threads):
+        if any(getattr(self, thread[0]).isRunning() for thread in self.threads):
             reply = QMessageBox.question(
                 self,
                 "%s - Warning" % __progname__,
