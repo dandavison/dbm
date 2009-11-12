@@ -430,7 +430,7 @@ class MainWindow(QMainWindow):
                 return False
             elif reply == QMessageBox.Abort:
                 for thread in threads:
-                    if thread.isRunning(): thread.stop()
+                    if thread.isRunning(): thread.quit()
         if self.dirty:
             reply = QMessageBox.question(self,
                             "%s - Unsaved Changes" % __progname__,
