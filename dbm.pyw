@@ -1610,9 +1610,7 @@ def processPath(path):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setOrganizationName(__progname__)
-#    app.setOrganizationDomain('')
     app.setApplicationName(__progname__)
-    app.setWindowIcon(QIcon(":/Python_reticulatus.png"))
 
     if len(sys.argv) > 1 and sys.argv[1] == '-e':
         __log_to_file__ = False
