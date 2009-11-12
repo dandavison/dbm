@@ -710,8 +710,15 @@ class Artist(object):
                     # in the .dbm file (i.e. in the root.XXX dicts)
                     # for artists in the library, in order that the
                     # .dbm file stays a reasonable size.
-                    self.similar_artists = self.query_lastfm_similar()
-                    self.tags = map(canonicalise_tag_name, self.pylast.get_top_tags())
+                    try:
+                        error('self.query_lastfm_similar(): %s' % self.name)
+                        self.similar_artists = self.query_lastfm_similar()
+                        error('done query')
+                    except Exception, e:
+                        error('query error: %s' % e)
+                    self.tags = self.pylast.get_top_tags()
+                    for t in self.tags:
+                        t.name = canonicalise_tag_name(t.name)
                     root.similar_artists[self.id] = self.similar_artists
                     root.tags_by_artist[self.id] = self.tags
                     root.biographies[self.id] = self.biography
