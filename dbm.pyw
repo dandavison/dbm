@@ -1620,9 +1620,6 @@ if __name__ == '__main__':
     mainWindow = MainWindow()
     try:
         mainWindow.show()
-        # import pycallgraph
-        # pycallgraph.start_trace()
         app.exec_()
-        # pycallgraph.make_dot_graph("callgraph.png")
     except Exception, e:
         mainWindow.error('Caught exception in app.exec(): %s' % e)
