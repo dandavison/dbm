@@ -771,7 +771,7 @@ class Artist(object):
                 self.lastfm_name = \
                     pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
             except pylast.ServiceException:
-                error('pylast.ServiceException occurred with artist %s' % self.id)
+                error('Last.fm error for artist %s' % (self.name or self.id))
         else:
             self.lastfm_name = self.name
 
