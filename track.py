@@ -13,13 +13,6 @@ mutagen_readtags_function = {'ogg'  : lambda(x): mutagen.oggvorbis.Open(x),
                              'm4a'  : lambda(x): mutagen.mp4.Open(x),
                              'flac' : lambda(x): mutagen.flac.Open(x)}
 
-def elog(msg, end='\n'):
-    try:
-        sys.stderr.write(msg.encode('utf-8') + end)
-    except:
-        sys.stderr.write('ERROR: Failed to write elog message\n')
-    
-
 def is_music(path):
     return (os.path.isfile(path) or os.path.islink(path)) \
         and os.path.splitext(path)[1] in ['.ogg','.flac','.mp3','.mpc','.m4a']
@@ -50,13 +43,13 @@ class Track:
         try:
             self.set_tags() # TMP
         except:
-            elog('failed to read tags for %s' % self.path)
+            error('failed to read tags for %s' % self.path)
 
         try:
             self.set_tags()
             ded.decode_strings(self)
         except:
-            elog('failed to read tags for %s' % self.path)
+            error('failed to read tags for %s' % self.path)
         self.valid = True if (self.artistid or self.artistname) else False
 
     def set_tags(self):
@@ -73,7 +66,7 @@ class Track:
             try:
                 self.parse_mutagen_tags_m4a(tags)
             except MP4StreamInfoError, msg:
-                elog('m4a tag read problem: %s', msg)
+                error('m4a tag read problem: %s', msg)
                 raise
         elif self.format in ['ogg', 'flac']:
             self.parse_mutagen_tags_ogg_flac(tags)

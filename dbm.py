@@ -253,6 +253,7 @@ class Root(Node):
     def __init__(self, path, parent):
         global __root_path__
         __root_path__ = path
+        track.error = error
         Node.__init__(self, path, parent)
         __root_path__ = None
         # artistids is a dict of artist MBIDs, keyed by dbm_artistid
