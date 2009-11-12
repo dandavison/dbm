@@ -110,8 +110,9 @@ class MainWindow(QMainWindow):
             dbm.sys.stderr = sys.stderr = settings.logfile
         dbm.settings = settings
         dbm.log = self.log
+        # dbm.warn = self.warn
+        # dbm.error = self.error
         dbm.root = None
-        
 
         self.dirty = False
 
