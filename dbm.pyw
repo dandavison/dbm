@@ -1155,10 +1155,11 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
                 self.connect(getattr(self, ui_element),
                              SIGNAL(signal or 'clicked()'),
                              getattr(self, action))
-            except:
-                print('%s %s %s\n' % (ui_element, signal, action))
+            except Exception, e:
+                error('Error setting up dialog box: %s %s %s: %s\n' % (
+                        ui_element, signal, action, e))
                 raise
-
+            
     def update(self):
         settings.update_output_directories()
 
@@ -1332,7 +1333,7 @@ class NewThread(QThread):
             self.mutex.lock()
             self.stopped = True
         except:
-            print('Exception in NewThread.stop()')
+            error('Exception in NewThread.stop()')
         finally:
             self.mutex.unlock()
 
@@ -1604,7 +1605,6 @@ def processPath(path):
         return os.path.abspath(unicode(QDir.toNativeSeparators(path)))
     except:
         mainwindow.error('Error processing path %s' % path)
-        print repr(path)
         raise
 
 if __name__ == '__main__':
@@ -1625,6 +1625,4 @@ if __name__ == '__main__':
         app.exec_()
         # pycallgraph.make_dot_graph("callgraph.png")
     except Exception, e:
-        print 'Caught exception in app.exec()'
-        mainWindow.error(e)
-        dbm.error(e)
+        mainWindow.error('Caught exception in app.exec(): %s' % e)
