@@ -683,7 +683,7 @@ class ArtistNode(object):
 class Artist(object):
     def __init__(self, dbm_aid, name=None):
         self.id = dbm_aid
-        self.name = name or most_frequent_element(root.artistnames[dbm_aid])
+        self.name = name or most_frequent_element(root.artistnames[dbm_aid]) or '<no name>'
         self.subtrees = set([])
         self.similar_artists = []
         self.tracks = []
