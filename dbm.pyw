@@ -1433,10 +1433,9 @@ class LibrarySaver(NewThread):
             self.dbm.root.delete_attributes(['diskTreeWidgetItem'])
             ded.pickle_object(self.dbm.root, self.path)
             self.settings.savefile = self.path
-        except:
-            self.error('Failed to save library to %s' % self.path)
-            raise
-        self.finishUp()
+            self.finishUp()
+        except Exception, e:
+            self.error('Failed to save library to %s: %s' % (self.path, e))
 
 class AlbumArtDownloader(NewThread):
     def run(self):
