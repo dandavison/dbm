@@ -55,7 +55,10 @@ class Node(object):
         self.subtrees = set([])
         self.tracks = []
         self.dbm_artistids = {}
-        self.grow()
+        try:
+            self.grow()
+        except Exception, e:
+            error('Failed to scan library: %s' % e)
         self.mtime = None
 
     def grow(self):
