@@ -419,14 +419,12 @@ class MainWindow(QMainWindow):
         self.error(message, level=1)
 
     def okToContinue(self):
-        if self.libraryScanner.isRunning() or \
-                self.lastfmSimilarArtistSetter.isRunning() or \
-                self.linksCreator.isRunning() or \
-                self.playlistGenerator.isRunning():
-            reply = QMessageBox.question(self,
-                                         "%s - Warning" % __progname__,
-                                         "%s is busy -- OK to continue?\n(Abort will quit the program)" % __progname__,
-                                         QMessageBox.Ok|QMessageBox.Abort)
+        if any(thread.isRunning() for thread in self.threads):
+            reply = QMessageBox.question(
+                self,
+                "%s - Warning" % __progname__,
+                "%s is busy -- OK to continue?\n(Abort will quit the program)" % __progname__,
+                QMessageBox.Ok|QMessageBox.Abort)
             if reply == QMessageBox.Ok:
                 return False
             elif reply == QMessageBox.Abort:
