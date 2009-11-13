@@ -1,3 +1,23 @@
+* x Choose name
+ - musipedia
+ - musipede
+ - zuneti
+ - musifer
+ - lateralus
+
+ - rbiter, rbitr8, rbitrate, rbitrary, arbiter
+ - rblink rblinkz rblinks
+ - rblast
+ - rblist
+ - rocklike
+ - lastbox
+ - rboreal, rboriole
+
+  music audio
+  library
+  navigation traversal
+
+*** x clean up tags
 * Immediate [1/7]
 *** x Finalise visual output
     print tags along with names, no MBIDs
@@ -71,20 +91,6 @@ uniting 3 subtrees for Jarboe
 [...]
 uniting 3 subtrees for Einojuhani Rautavaara
 Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no name: deleting
-*** x Choose name
- - rbiter, rbitr8, rbitrate, rbitrary, arbiter
- - rblink rblinkz rblinks
- - rblast
- - rblist
- - rocklike
- - lastbox
- - rboreal, rboriole
-
-  music audio
-  library
-  navigation traversal
-
-*** x clean up tags
 * Future [0/8]
 *** s Append biography metadata to bottom of biography
     Append to bottom of biography info on why this biography present
