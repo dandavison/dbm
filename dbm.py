@@ -37,7 +37,7 @@
 #    ---------------------------------------------------------------------
 
 from __future__ import with_statement
-import sys, os, re, time, urllib, codecs
+import sys, os, re, time, urllib, codecs, shutil
 import random, csv, math
 import optparse, logging
 import pylast
@@ -171,32 +171,50 @@ class Node(object):
         art_rel = set([(t.artistname, t.releasename) for t in tracks])
         # FIXME: should check if any of those tuples have different
         # artist but same releasename.
-
+        resolutions = ['.130x130','.200x200', '']
         # art_rel = filter(lambda(ar): ar[0] and ar[1], art_rel)
+
+        def pooled_path(ar, res):
+            return os.path.join(settings.albumartdir,
+                                rockbox_clean_name('-'.join(ar)) + res + '.jpg')
+
+        def target_path(path, ar, res):
+            return os.path.join(path,
+                                (ar[1] or 'cover') + res + '.jpg')
+
         for ar in art_rel:
-            dest = os.path.join(settings.albumartdir,
-                                rockbox_clean_name('-'.join(ar)) + '.jpg')
-            if os.path.exists(dest):
+            ## Check pool
+            for res in resolutions:
+                pooled = pooled_path(ar, res)
+                print 'Checking %s' % pooled
+                if os.path.exists(pooled):
+                    warn('Pool got %s' % pooled)
+                    shutil.move(pooled, target_path(self.path, ar, res))
+
+            ## Check whether already in place
+            targets = [target_path(self.path, ar, res) for res in resolutions]
+            targets = filter(os.path.exists, targets)
+            if len(targets) > 0:
+                warn('Already got %s!' % targets)
                 continue
+            
             url = None
             gotit = False
             album = pylast.Album(ar[0], ar[1], **settings.lastfm)
             try:
                 url = album.get_image_url() # it's unicode
             except pylast.ServiceException, e:
-                msg = 'Error obtaining album art URL for %s: %s' % (unicode(ar), e)
-                error(msg)
+                error('Error obtaining album art URL for %s: %s' % (unicode(ar), e))
             except:
-                msg = 'Error obtaining album art URL for %s' % unicode(ar)
-                error(msg)
+                error('Error obtaining album art URL for %s' % unicode(ar))
+            logi('Downloading: %s -> %s' % (url, target_path(self.path, ar, '')))
             if url:
                 try:
-                    urllib.urlretrieve(url, dest)
+                    urllib.urlretrieve(url, target_path(self.path, ar, ''))
                     gotit = True
-                except:
-                    msg = 'Error downloading album art from %s' % url
-                    error(msg)
-            log("%s: %s %s" % (ar[0], ar[1], '' if gotit else '     Failed'))
+                except Exception, e:
+                    error('Error downloading album art from %s: %s' % (url, e))
+            logi("%s: %s %s" % (ar[0], ar[1], '' if gotit else '     Failed'))
 
         for subtree in self.subtrees:
             subtree.download_albumart()
