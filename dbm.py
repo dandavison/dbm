@@ -1135,7 +1135,7 @@ def write_linkfile(artists, filepath):
         lfile.write('\n'.join([v.make_link() for v in nodes]) + '\n')
 
 def write_biographies_linkfile(artists, filepath, metadata={}):
-    biographies = [a.biography for a in artists]
+    biographies = [a.biography for a in sorted(artists)]
     if settings.update_biography_metadata and metadata:
         for b in biographies: b.merge_metadata(metadata)
     links = [b.make_link() for b in biographies]
