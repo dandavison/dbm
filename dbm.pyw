@@ -458,8 +458,7 @@ class MainWindow(QMainWindow):
             self,
             "%s - Review settings" % __progname__,
             "Downloading data from last.fm may take some time. " + \
-                "You are about to be given a final opportunity to review " + \
-                "your settings.",
+                "Please review your settings next.",
             QMessageBox.Ok|QMessageBox.Cancel)
         if reply == QMessageBox.Cancel:
             return False
