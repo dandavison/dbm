@@ -460,8 +460,8 @@ class MainWindow(QMainWindow):
             "Downloading data from last.fm may take some time. " + \
                 "You are about to be given a final opportunity to review " + \
                 "your settings.",
-            QMessageBox.Ok|QMessageBox.Abort)
-        if reply == QMessageBox.Abort:
+            QMessageBox.Ok|QMessageBox.Cancel)
+        if reply == QMessageBox.Cancel:
             return False
         elif reply == QMessageBox.Ok:
             return self.setSettings()
