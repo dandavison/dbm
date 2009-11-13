@@ -686,14 +686,6 @@ class MainWindow(QMainWindow):
     def albumArtDownload(self):
         if self.alertIfNoLibrary(): return
         if not self.okToContinue(): return
-        path = QFileDialog.getExistingDirectory(
-            self,
-            "%s - Choose a folder to receive the album art" % __progname__,
-            QDir.homePath())
-        if path.isEmpty(): return
-        settings.albumartdir = processPath(path)
-        if not os.path.exists(settings.albumartdir):
-            os.mkdir(settings.albumartdir)
         self.albumArtDownloader.initialize()
         self.albumArtDownloader.start()
 
@@ -1483,8 +1475,11 @@ class LibrarySaver(NewThread):
 
 class AlbumArtDownloader(NewThread):
     def run(self):
-        self.log('Downloading album art to %s' % self.settings.albumartdir)
-        self.dbm.root.download_albumart()
+        self.log('Downloading album art')
+        try:
+            self.dbm.root.download_albumart()
+        except Exception, e:
+            self.error('Error downloading album art: %s' % e)
         self.finishUp()
 
 class LibraryGrafter(NewThread):
