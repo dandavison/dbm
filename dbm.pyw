@@ -522,7 +522,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, block=False, download_after='Ask'):
+    def libraryScan(self, download_after='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
@@ -562,8 +562,6 @@ class MainWindow(QMainWindow):
 
         self.libraryScanner.initialize(path)
         self.libraryScanner.start()
-        if block:
-            self.libraryScanner.wait()
 
     def libraryRefresh(self):
         # descended from libraryScan()
