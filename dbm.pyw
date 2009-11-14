@@ -1571,6 +1571,10 @@ class LinksCreator(NewThread):
         self.log('') ; self.log('\tAlphabetical index')
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
+        self.log('') ; self.log('\tAll Artist links')
+        self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
+                                self.settings.links_path + 'All Artists.link')
+
         self.finishUp()
 
 
