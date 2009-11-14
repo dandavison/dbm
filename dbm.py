@@ -1149,13 +1149,7 @@ def write_playlist(tracks, filepath):
         
 def write_linkfile(artists, filepath):
     nodes = artist_nodes(artists)
-    chunks = split_into_chunks(nodes, settings.max_linkfile_entries)
-    if len(chunks) > 1:
-        warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
-    filepath = filepath.rsplit('.', 1)
-    chunk_labels = ['-%d' % (i+1) for i in range(len(chunks))]
-    chunk_labels[0] = ''
-    filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
+    chunks, filepaths = dbm_split_into_chunks(nodes, filepath)
     for i in range(len(chunks)):
         with codecs.open(filepaths[i], 'w', 'utf-8') as lfile:
             lfile.write('\n'.join([v.make_link() for v in chunks[i]]) + '\n')
@@ -1164,9 +1158,21 @@ def write_biographies_linkfile(artists, filepath, metadata={}):
     biographies = [a.biography for a in sorted(artists)]
     if settings.update_biography_metadata and metadata:
         for b in biographies: b.merge_metadata(metadata)
-    links = [b.make_link() for b in biographies]
-    with codecs.open(filepath, 'w', 'utf-8') as lfile:
-        lfile.write('\n'.join(links) + '\n')
+    chunks, filepaths = dbm_split_into_chunks(biographies, filepath)
+    for i in range(len(chunks)):
+        links = [b.make_link() for b in chunks[i]]
+        with codecs.open(filepaths[i], 'w', 'utf-8') as lfile:
+            lfile.write('\n'.join(links) + '\n')
+
+def dbm_split_into_chunks(objects, filepath):
+    chunks = split_into_chunks(objects, settings.max_linkfile_entries)
+    if len(chunks) > 1:
+        warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
+    filepath = filepath.rsplit('.', 1)
+    chunk_labels = ['-%d' % (i+1) for i in range(len(chunks))]
+    chunk_labels[0] = ''
+    filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
+    return objects, filepaths
         
 def artist_nodes(artists):
     return flatten([sorted(list(artist.subtrees)) for artist in artists])
