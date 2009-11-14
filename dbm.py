@@ -1152,11 +1152,11 @@ def write_linkfile(artists, filepath):
     chunks = split_into_chunks(nodes, settings.max_linkfile_entries)
     if len(chunks) > 1:
         warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
-    filepath = filepath.rsplit('.link', 1)
-    chunk_labels = ['-%d' for f in range(len(nodes))]
+    filepath = filepath.rsplit('.', 1)
+    chunk_labels = ['-%d' % (i+1) for i in range(len(nodes))]
     chunk_labels[0] = ''
-    filepaths = [filepath[0] + label + filepath[1] for label in chunk_labels]
-    for i in range(chunks):
+    filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
+    for i in range(len(chunks)):
         with codecs.open(filepaths[i], 'w', 'utf-8') as lfile:
             lfile.write('\n'.join([v.make_link() for v in chunks[i]]) + '\n')
 
