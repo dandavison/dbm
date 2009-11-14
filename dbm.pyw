@@ -564,7 +564,8 @@ class MainWindow(QMainWindow):
     def libraryRefresh(self):
         if not self.okToContinue(): return
         if self.alertIfNoLibrary(): return
-        self.libraryScan(dbm.root.path, dbm.root.biographies, dbm.root.similar_artists, dbm.root.tags_by_artist)
+        self.libraryScan(dbm.root.path, dbm.root.biographies, dbm.root.similar_artists, dbm.root.tags_by_artist,
+                         download_after_scan=False)
 
     def libraryAdd(self):
         if not self.okToContinue(): return
