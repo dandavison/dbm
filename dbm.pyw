@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self.fileMenuActions = (libraryOpenAction,
                                 librarySaveAction, librarySaveAsAction,
                                 None,
-                                libraryScanAction, libraryAddAction, libraryRefreshAction,
+                                libraryScanAction, libraryRefreshAction, libraryAddAction, 
                                 None,
                                 musicspaceOpenAction, musicspaceSaveAction,
                                 None,
