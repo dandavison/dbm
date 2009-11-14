@@ -430,18 +430,6 @@ class MainWindow(QMainWindow):
                 return False
             elif reply == QMessageBox.Abort:
                 self.close()
-
-        if self.dirty:
-            reply = QMessageBox.question(self,
-                            "%s - Unsaved Changes" % __progname__,
-                            "Save unsaved changes to library data?",
-                            QMessageBox.Yes|QMessageBox.No|
-                            QMessageBox.Cancel)
-            if reply == QMessageBox.Cancel:
-                return False
-            elif reply == QMessageBox.Yes:
-                self.librarySave()
-                return False
         return True
 
     def setSettings(self):
