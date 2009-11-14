@@ -592,6 +592,12 @@ class MainWindow(QMainWindow):
                 return
         if not savefile: return
         # end don't really understand
+
+        # TMP
+        if dbm.root is not None:
+            self.error("TMP: Saving metadata")
+            settings.oldroot = dbm.root
+
         self.log('Loading saved library file %s...' % savefile)
         self.libraryLoader.initialize(savefile)
         self.libraryLoader.start()
@@ -830,6 +836,12 @@ class MainWindow(QMainWindow):
             self.dirty = True
         self.log("Loaded library with %d artists" % len(dbm.root.artists) \
                      if completed else "Stopped")
+
+        self.error('TMP: restoring metadata')
+        dbm.root.biographies = settings.oldroot.zBiog
+        dbm.root.similar_artists = settings.oldroot.zSim
+        dbm.root.tags_by_artist = settings.oldroot.zTags
+
         self.updateStatus()
         self.libraryLoader.wait()
 
