@@ -1083,6 +1083,9 @@ class Settings(dbm.Settings):
         # FAT32 invalid chars in file/dir name
         # http://www.comentum.com/File-Systems-HFS-FAT-UFS.html
         self.fs_bad_chars = list('"/\*?<>|:')
+        
+        # Rockbox imposes a limit on the number of entries in a linkfile
+        self.max_linkfile_entries = 992
 
         self.minTagArtists = 1 # min artists per tag for tag to get links and lists
         self.minArtistTracks = 1 # min tracks per artist for artist to get links and lists
