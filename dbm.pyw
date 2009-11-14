@@ -1576,7 +1576,7 @@ class LinksCreator(NewThread):
 
         self.log('') ; self.log('\tAll Artist links')
         self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
-                                self.settings.links_path + 'All Artists.link')
+                                os.path.join(self.settings.links_path, 'All Artists.link'))
 
         self.finishUp()
 
