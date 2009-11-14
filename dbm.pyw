@@ -521,7 +521,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={}, download_after='Ask'):
+    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={}, download_after_scan='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
@@ -546,8 +546,8 @@ class MainWindow(QMainWindow):
             if path.isEmpty(): return
             path = processPath(path)
 
-        if download_after == 'Ask':
-            download_after = QMessageBox.question(
+        if download_after_scan == 'Ask':
+            download_after_scan = QMessageBox.question(
                 self,
                 "%s - Proceed to downloads after scan?" % __progname__,
                 "In addition to scanning the library, downloading the necessary data " +\
@@ -558,7 +558,7 @@ class MainWindow(QMainWindow):
                     "are complete.",
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
 
-        if download_after:
+        if download_after_scan:
             if not self.setSettingsWithExplanation():
                 return False
             if not self.ensure_output_dir_exists(): return
@@ -569,7 +569,7 @@ class MainWindow(QMainWindow):
                 if not self.setSettings():
                     return False
 
-        settings.proceed_to_download_after_scan = download_after
+        settings.download_after_scan = download_after_scan
         self.libraryScanner.initialize(path, biographies, similar_artists, tags_by_artist)
         self.libraryScanner.start()
 
@@ -845,7 +845,7 @@ class MainWindow(QMainWindow):
         if completed:
             self.refreshDiskAndArtistsView()
         self.libraryScanner.wait()
-        if settings.proceed_to_download_after_scan:
+        if settings.download_after_scan:
             self.setLastfmSimilarArtists()
 
     def finishedLoadingLibrary(self, completed):
@@ -1115,7 +1115,7 @@ class Settings(dbm.Settings):
         self.quiet = False
         self.albumartdir = None
         self.patch_out_of_date_data_structures = True
-        self.proceed_to_download_after_scan = False
+        self.download_after_scan = False
         ## This is fairly obscure.
         ## See the code [[for%20setting%20in%20settings%20persistent_settings][here]]
         self.persistent_settings = \
