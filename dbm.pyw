@@ -521,25 +521,33 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, download_after='Ask'):
+    def libraryScan(self, download_after='Ask', rescan=False, biographies={}, similar_artists={}, tags_by_artist={}):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
         # for ideas on doing that.
         if not self.okToContinue(): return
-        path = QFileDialog.getExistingDirectory(
-            self, "%s - Choose a music library to scan" % __progname__,
-            settings.path_to_rockbox or QDir.homePath())
-        if path.isEmpty(): return
-        path = processPath(path)
-        if not self.ensure_output_dir_exists(): return
-        if settings.path_to_rockbox is None:
-            QMessageBox.information(self,
-              "%s - Set location of Rockbox player." % __progname__,
-              "Please set the location of your Rockbox music player (Tasks -> Settings).")
-            return
+        if dbm.root is not None:
+            if rescan or QMessageBox.question(self,
+                                              "%s - Keep existing artist metadata?" % __progname__,
+                                              "Downloading artist metadata (similar artists, tags, biographies) " + \
+                                                  "can take some time. " +\
+                                                  "Do you want to re-use the metadata from the current library?",
+                                              QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
+                biographies = dbm.root.biographies
+                similar_artists = dbm.root.similar_artists
+                tags_by_artist = dbm.root.tags_by_artist
+            
+        if rescan:
+            path = dbm.root.path
+        else:
+            path = QFileDialog.getExistingDirectory(
+                self, "%s - Choose a music library to scan" % __progname__,
+                settings.path_to_rockbox or QDir.homePath())
+            if path.isEmpty(): return
+            path = processPath(path)
 
-        if download_after == 'Ask':
+        if not rescan and download_after == 'Ask':
             reply = QMessageBox.question(
                 self,
                 "%s - Proceed to downloads after scan?" % __progname__,
@@ -556,10 +564,17 @@ class MainWindow(QMainWindow):
             settings.proceed_to_download_after_scan = True
             if not self.setSettingsWithExplanation():
                 return False
+            if not self.ensure_output_dir_exists(): return
+            while settings.path_to_rockbox is None:
+                QMessageBox.information(self,
+                                        "%s - Set location of Rockbox player." % __progname__,
+                                        "Please set the location of your Rockbox music player.")
+                if not self.setSettings():
+                    return False
         else:
             settings.proceed_to_download_after_scan = False
 
-        self.libraryScanner.initialize(path)
+        self.libraryScanner.initialize(path, biographies, similar_artists, tags_by_artist)
         self.libraryScanner.start()
 
     def libraryRefresh(self):
