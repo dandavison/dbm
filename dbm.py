@@ -194,7 +194,10 @@ class Node(object):
                 try:
                     urllib.urlretrieve(url, target)
                     gotit = True
-                    logi("%s: %s" % ar)
+                    if ar[1] == albumart_releasename:
+                        logi("%s: %s" % ar)
+                    else:
+                        logi("%s: %s (Invalid filename: renamed as 'cover.jpg')" % ar)
                 except Exception, e:
                     logi("%s: %s      Failed: %s" % (ar[0], ar[1], e))
 
