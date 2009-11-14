@@ -183,6 +183,18 @@ Artist http://musicbrainz.org/artist/89ad4ac3-39f7-470e-963a-56509c546377 has no
   7. cd dist
   8. zip dbm.exe.zip dbm.exe
   9. scp ddavison@arizona.princeton.edu:lib/dbm/dist/dbm.exe.zip davison@$gate:pub_html/software/dbm/
+* Re-root
+#+begin_src sh 
+  find . -type f -name '*.m3u' -or -name '*.link' | while read f ; do
+      sed -i 's:/home/dan/Music::' "$f"
+  done
+#+end_src
+
+*** Why doesn't this work?
+#+begin_src sh 
+find . -type f -name '*.m3u' -or -name '*.link' -exec sed -i 's,/home/dan/Music/,/,' '{}' \;
+#+end_src
+
 * Etc
 *** x understand process_path stuff
 *** x unite_spurious...() should use os.path.commonprefix()
