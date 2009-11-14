@@ -4,3 +4,6 @@
 [submodule "cmdline"]
 	path = cmdline
 	url = /usr/local/src/cmdline
+[submodule "pylast"]
+	path = pylast
+	url = /usr/local/src/pylast

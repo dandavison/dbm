@@ -40,7 +40,7 @@ from __future__ import with_statement
 import sys, os, re, time, urllib, codecs, shutil
 import random, csv, math
 import optparse, logging
-import pylast
+import pylast.pylast as pylast
 import track
 from dedpy.ded import *
 __version__ = '0.9.45'
