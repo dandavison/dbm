@@ -173,7 +173,11 @@ class Node(object):
         # artist but same releasename.
 
         for ar in art_rel:
-            target = os.path.join(self.path, (ar[1] or 'cover') + '.jpg')
+            if not ar[1] or any([c in ar[1] for c in settings.fs_bad_chars]):
+                albumart_releasename = 'cover'
+            else:
+                albumart_releasename = ar[1]
+            target = os.path.join(self.path, albumart_releasename + '.jpg')
             if(os.path.exists(target)):
                 continue
 

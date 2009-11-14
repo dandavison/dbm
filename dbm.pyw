@@ -1080,6 +1080,9 @@ class Settings(dbm.Settings):
         self.lastfm_user_names = []
         self.lastfm_user_history_nweeks = 4
         self.numtries = 5
+        # FAT32 invalid chars in file/dir name
+        # http://www.comentum.com/File-Systems-HFS-FAT-UFS.html
+        self.fs_bad_chars = list('"/\*?<>|:')
 
         self.minTagArtists = 1 # min artists per tag for tag to get links and lists
         self.minArtistTracks = 1 # min tracks per artist for artist to get links and lists
