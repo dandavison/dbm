@@ -441,18 +441,6 @@ class MainWindow(QMainWindow):
             return True
         return False
 
-    def setSettingsWithExplanation(self):
-        reply = QMessageBox.question(
-            self,
-            "%s - Review settings" % __progname__,
-            "Downloading data from last.fm may take some time. " + \
-                "Please review your settings next.",
-            QMessageBox.Ok|QMessageBox.Cancel)
-        if reply == QMessageBox.Cancel:
-            return False
-        elif reply == QMessageBox.Ok:
-            return self.setSettings()
-        
     def updateFileMenu(self):
         self.fileMenu.clear()
         self.addActions(self.fileMenu, self.fileMenuActions[:-1])
@@ -547,7 +535,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
 
         if download_after_scan:
-            if not self.setSettingsWithExplanation():
+            if not self.setSettings():
                 return False
             if not self.ensure_output_dir_exists(): return
             while settings.path_to_rockbox is None:
@@ -726,7 +714,7 @@ class MainWindow(QMainWindow):
         if dbm.root is None:
             self.libraryScan(download_after = 'Yes')
         else:
-            if self.setSettingsWithExplanation():
+            if self.setSettings():
                 self.setLastfmSimilarArtists()
         return True
 
