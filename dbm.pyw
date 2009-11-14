@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         libraryScanAction = self.createAction(
             "Sca&n library...", self.libraryScan,
             QKeySequence.New, icon="filenew",
-            tip="Scan a music library and download last.fm similar artist data")
+            tip="Scan a music library and optionally download artist metadata")
         libraryOpenAction = self.createAction(
             "&Open saved library...", self.libraryOpen,
             QKeySequence.Open, "fileopen",
@@ -152,19 +152,19 @@ class MainWindow(QMainWindow):
         libraryAddAction = self.createAction(
             "Add &folder to library...", self.libraryAdd,
             None, "add-folder",
-            "Update the current library to reflect the addition of a new folder")
+            "Update the current library to reflect the addition of a new folder of music")
         libraryRefreshAction = self.createAction(
-            "&Refresh library...", self.libraryRefresh,
+            "&Re-scan library...", self.libraryRefresh,
             None, None,
-            "Re-scan the entire library, but keep any downloaded last.fm data")
+            "Re-scan the entire library, but keep downloaded artist metadata")
         librarySaveAction = self.createAction(
             "&Save library", self.librarySave,
             QKeySequence.Save, "filesave",
-            "Save the current library and associated similar artist data")
+            "Save the current library and artist metadata")
         librarySaveAsAction = self.createAction(
             "Save &As...",
             self.librarySaveAs, icon="filesaveas",
-            tip="Save the current library, and associated similar artist data, to a different file")
+            tip="Save the current library and artist metadata to a different file")
         musicspaceOpenAction = self.createAction(
             "Open &musicspace file...",
             self.musicspaceOpen,
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
         createLinksPlaylistsBiographiesAction = self.createAction(
             "Create links, playlists and biographies",
             self.createLinksPlaylistsBiographies,
-            None, 'playlists', "Download data and create all links, playlists and biographies")
+            None, 'playlists', "Download metadata and create all links, playlists and biographies")
         setSimilarArtistsAction = self.createAction(
             "Retrieve Last.fm &similar artists",
             self.setLastfmSimilarArtists,
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         albumArtDownloadAction = self.createAction(
             "Download album art", self.albumArtDownload,
             None, "None",
-            "Download all album art")
+            "Download all album art and save it in album folders")
 
         # Actions -- settings
         #         setPathToRockboxAction = self.createAction("Set path to &Rockbox player",
