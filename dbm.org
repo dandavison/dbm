@@ -1,3 +1,7 @@
+* exception handling [[git:~/src/dbm/dbm.py::master@{2009-11-14}][here]]
+* simplify update biography
+* move linkfile chunking to higher level?
+  and check whether filenames exist?
 * x Choose name
  - musipedia
  - musipede
