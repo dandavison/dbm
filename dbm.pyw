@@ -1079,7 +1079,7 @@ class Settings(dbm.Settings):
         self.query_lastfm = True
         self.lastfm_user_names = []
         self.lastfm_user_history_nweeks = 4
-        self.numtries = 5
+        self.numtries = 2
         # FAT32 invalid chars in file/dir name
         # http://www.comentum.com/File-Systems-HFS-FAT-UFS.html
         self.fs_bad_chars = list('"/\*?<>|:')
