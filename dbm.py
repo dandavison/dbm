@@ -1153,7 +1153,7 @@ def write_linkfile(artists, filepath):
     if len(chunks) > 1:
         warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
     filepath = filepath.rsplit('.', 1)
-    chunk_labels = ['-%d' % (i+1) for i in range(len(nodes))]
+    chunk_labels = ['-%d' % (i+1) for i in range(len(chunks))]
     chunk_labels[0] = ''
     filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
     for i in range(len(chunks)):
