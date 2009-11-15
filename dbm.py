@@ -43,7 +43,7 @@ import optparse, logging
 import pylast.pylast as pylast
 import track
 from dedpy.ded import *
-__version__ = '0.9.45'
+__version__ = '0.9.50'
 __progname__ = 'dbm'
 __root_path__ = None
 
