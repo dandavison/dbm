@@ -1178,9 +1178,9 @@ def dbm_split_into_chunks(objects, filepath):
         warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
     filepath = filepath.rsplit('.', 1)
     chunk_labels = ['-%d' % (i+1) for i in range(len(chunks))]
-    chunk_labels[0] = ''
+    if len(chunk_labels) > 0: chunk_labels[0] = ''
     filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
-    return objects, filepaths
+    return chunks, filepaths
         
 def artist_nodes(artists):
     return flatten([sorted(list(artist.subtrees)) for artist in artists])
