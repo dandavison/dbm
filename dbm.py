@@ -183,13 +183,11 @@ class Node(object):
 
             url = None
             gotit = False
-            album = pylast.Album(ar[0], ar[1], **settings.lastfm)
+            album = settings.network.get_album(*ar)
             try:
                 url = album.get_image_url() # it's unicode
-            except pylast.ServiceException, e:
+            except Exception, e:
                 error('Error obtaining album art URL for %s: %s' % (unicode(ar), e))
-            except:
-                error('Error obtaining album art URL for %s' % unicode(ar))
             if url:
                 try:
                     urllib.urlretrieve(url, target)
@@ -388,7 +386,7 @@ class Root(Node):
     def create_lastfm_user(self, name):
         log('')
         try:
-            user = LastFmUser(name, settings.lastfm)
+            user = LastFmUser(name)
             user.get_artist_counts()
         except:
             error('Failed to find last.fm user %s' % name, level=2)
@@ -722,7 +720,7 @@ class Artist(object):
                 if not self.lastfm_name:
                     self.set_lastfm_name()
                 name = self.lastfm_name or self.name
-                self.pylast = pylast.Artist(name, **settings.lastfm)
+                self.pylast = settings.network.get_artist(name)
                 
                 self.biography.biography = self.pylast.get_bio_content() \
                     or 'No biography available'
@@ -750,7 +748,6 @@ class Artist(object):
                     logi(msg_prefix + self.biography_download_message(name, True))
                 waiting = False
                 
-            # except pylast.ServiceException:
             except Exception, e:
                 self.biography.biography = 'No biography available'
                 name = self.lastfm_name or self.name
@@ -799,9 +796,9 @@ class Artist(object):
         if settings.mbid_regexp.match(self.id):
             try:
                 self.lastfm_name = \
-                    pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
-            except pylast.ServiceException:
-                error('Last.fm error for artist %s' % (self.name or self.id))
+                    pylast.get_artist_by_mbid(self.id, settings.network).get_name()
+            except Exception, e:
+                error('Last.fm error for artist %s: %s' % (self.name or self.id, e))
         else:
             self.lastfm_name = self.name
 
@@ -811,7 +808,7 @@ class Artist(object):
         a bit convoluted to do this with the pylast public API."""
 
         params = {'artist': self.lastfm_name or self.name}
-        doc = pylast._Request("artist.getSimilar", params, **settings.lastfm).execute(True)
+        doc = pylast._Request(settings.network, "artist.getSimilar", params).execute(True)
         simids = pylast._extract_all(doc, 'mbid')
         simnames = pylast._extract_all(doc, 'name')
         retval = zip(simids, simnames)
@@ -1030,8 +1027,8 @@ class Tag(object):
         return cmp(self.name, other.name)
 
 class LastFmUser(pylast.User):
-    def __init__(self, name, lastfm_auth_info):
-        pylast.User.__init__(self, name, **lastfm_auth_info)
+    def __init__(self, name):
+        pylast.User.__init__(self, name, settings.network)
         self.artist_counts = {}
 
     def get_weekly_artist_charts_as_dict(self, from_date = None, to_date = None):
@@ -1052,7 +1049,7 @@ class LastFmUser(pylast.User):
             for node in doc.getElementsByTagName("artist"):
                 mbids.append(pylast._extract(node, "mbid"))
                 names.append(pylast._extract(node, "name"))
-                counts.append(int(pylast._extract(node, "playcount")))
+                counts.append(pylast._number(pylast._extract(node, "playcount")))
             return dict(zip(zip(mbids, names), counts))
 
     def get_artist_counts(self):
@@ -1086,9 +1083,7 @@ class LastFmUser(pylast.User):
 class Settings(object):
     various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'
     lastfm = dict(api_key = 'a271d46d61c8e0960c50bec237c9941d',
-                  api_secret = '680457c03625980f61e88c319c218d53',
-#                  session_key = 'b9815e428303086842b14822296e5cff')
-                  session_key = '')
+                  api_secret = '680457c03625980f61e88c319c218d53')
     mbid_regexp = re.compile('[0-9a-fA-F]'*8 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
@@ -1100,7 +1095,7 @@ class Settings(object):
             attributes = [a for a in dir(options) if a[0] != '_']
             for attr in attributes:
                 setattr(self, attr, getattr(options, attr))
-
+        self.network = pylast.get_lastfm_network(**self.lastfm)
     def show(self):
         public = filter(lambda(x): x[0] != '_', dir(self))
         noshow = ['read_file', 'read_module', 'show', 'ensure_value', 'mbid_regexp']
