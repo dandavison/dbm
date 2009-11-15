@@ -499,32 +499,27 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={},
-                    download_after_scan='Ask'):
+    def libraryScan(self, root=None, download_after_scan='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
         # for ideas on doing that.
         if not self.okToContinue(): return
-        rescan = path is not None
-        if dbm.root is not None:
-            if rescan or QMessageBox.question(self,
-                                              "%s - Keep existing artist metadata?" % __progname__,
-                                              "Downloading artist metadata (similar artists, tags, biographies) " + \
-                                                  "can take some time. " +\
-                                                  "Do you want to re-use the metadata from the current library?",
-                                              QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
-                biographies = dbm.root.biographies
-                similar_artists = dbm.root.similar_artists
-                tags_by_artist = dbm.root.tags_by_artist
-            
-        if path is None:
+        if root is not None:
+            path = root.path
+            biographies = root.biographies
+            similar_artists = root.similar_artists
+            tags_by_artist = root.tags_by_artist
+        else:
             path = QFileDialog.getExistingDirectory(
                 self, "%s - Choose a music library to scan" % __progname__,
                 settings.path_to_rockbox or QDir.homePath())
             if path.isEmpty(): return
             path = processPath(path)
-
+            biographies = {}
+            similar_artists = {}
+            tags_by_artist = {}
+ 
         if download_after_scan == 'Ask':
             download_after_scan = QMessageBox.question(
                 self,
