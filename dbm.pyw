@@ -497,7 +497,8 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={}, download_after_scan='Ask'):
+    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={},
+                    download_after_scan='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
@@ -1603,7 +1604,7 @@ class BiographiesFetcher(NewThread):
     def run(self):
         linkfiles = {}
         self.log('') ; self.log('\tCollecting last.fm user listening data')
-        self.log('') ; self.log('')
+        self.log('') ;
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
