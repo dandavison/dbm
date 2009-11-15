@@ -530,6 +530,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
 
         if download_after_scan:
+            self.check_network_connection()
             if not self.setSettings():
                 return False
             if not self.ensure_output_dir_exists(): return
@@ -705,10 +706,20 @@ class MainWindow(QMainWindow):
                 return False
         return True
 
+    def check_network_connection(self):
+        remotes = [dict(hostname='www.stats.ox.ac.uk', url='/~davison/software/dbm/download.php'),
+                   dict(hostname='www.last.fm', url='/')]
+        try:
+            for resp in (ded.read_url(**remote) for remote in remotes):
+                return True
+        except Exception, e:
+            self.warn('Warning: network connection check failed: %s' % e)
+        
     def createLinksPlaylistsBiographies(self):
         if dbm.root is None:
             self.libraryScan(download_after = 'Yes')
         else:
+            self.check_network_connection()
             if self.setSettings():
                 self.setLastfmSimilarArtists()
         return True
