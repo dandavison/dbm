@@ -526,10 +526,7 @@ class MainWindow(QMainWindow):
                 "%s - Proceed to downloads after scan?" % __progname__,
                 "In addition to scanning the library, downloading the necessary data " +\
                     "from last.fm may take some time. Do you want the downloads to " +\
-                    "start automatically as soon as the scan is finished? " + \
-                    "If you select Yes, then " +\
-                    "all links, playlists and biographies will be created when the downloads " +\
-                    "are complete.",
+                    "start automatically as soon as the scan is finished?",
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
 
         if download_after_scan:
