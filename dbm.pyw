@@ -414,9 +414,11 @@ class MainWindow(QMainWindow):
     def error(self, message, level=3):
         colour = settings.errorcol if level > 2 else settings.warncol
         self.log(message, colour=colour)
+        self.log('')
     
     def warn(self, message):
         self.error(message, level=1)
+        self.log('')
 
     def okToContinue(self):
         threads = [getattr(self, thread[0]) for thread in self.threads]
@@ -1648,7 +1650,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setOrganizationName(__progname__)
     app.setApplicationName(__progname__)
-
+    app.setOrganizationDomain(__author__)
+    app.setWindowIcon(QIcon(":/tool.png"))
     if len(sys.argv) > 1 and sys.argv[1] == '-e':
         __log_to_file__ = False
 
