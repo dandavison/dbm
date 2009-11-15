@@ -185,7 +185,7 @@ class Node(object):
             gotit = False
             album = settings.network.get_album(*ar)
             try:
-                url = album.get_image_url() # it's unicode
+                url = album.get_cover_image() # it's unicode
             except Exception, e:
                 error('Error obtaining album art URL for %s: %s' % (unicode(ar), e))
             if url:
