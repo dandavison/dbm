@@ -1343,7 +1343,7 @@ class NewThread(QThread):
         self.settings = settings
         self.dbm = dbm
         dbm.log = self.log
-        dbm.logi = self.log
+        dbm.logi = self.logi
         dbm.error = self.error
         dbm.warn = self.warn
 
