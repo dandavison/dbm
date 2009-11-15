@@ -723,7 +723,6 @@ class MainWindow(QMainWindow):
         self.lastfmSimilarArtistSetter.start()
             
     def createLinks(self):
-        self.log('')
         self.log('Creating links', colour=settings.colour1)
 
         ded.mkdirp(settings.links_path)
@@ -750,7 +749,6 @@ class MainWindow(QMainWindow):
         self.linksCreator.start()
 
     def generatePlaylists(self):
-        self.log('')
         self.log('Generating playlists', colour=settings.colour1)
 
         ded.mkdirp(settings.playlists_path)
@@ -783,7 +781,6 @@ class MainWindow(QMainWindow):
     # (Make sure 'QThread' is registered using qRegisterMetaType().)
             
     def fetchBiographies(self):
-        self.log('')
         self.log('Updating artist biographies', colour=settings.colour1)
 
         ded.mkdirp(settings.links_path)
@@ -810,7 +807,7 @@ class MainWindow(QMainWindow):
         # rgpwpyqt/chap19/pageindexer.pyw
         settings.savefile = None
         self.log('')
-        self.log("Done" if completed else "Stopped")
+        self.logi("Done" if completed else "Stopped")
         self.updateStatus()
         self.dirty = True
         if completed:
@@ -859,7 +856,6 @@ class MainWindow(QMainWindow):
         # rgpwpyqt/chap19/pageindexer.pyw
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
-        self.log('')
         self.dirty = True
         self.lastfmSimilarArtistSetter.wait()
         self.createLinks()
@@ -1420,8 +1416,8 @@ class LibraryScanner(NewThread):
         
     def run(self):
         self.logc('Scanning library at %s' % self.path)
-        self.dbm.root = dbm.Root(self.path, None)
         self.log('')
+        self.dbm.root = dbm.Root(self.path, None)
         self.dbm.root.biographies = self.biographies
         self.dbm.root.similar_artists = self.similar_artists
         self.dbm.root.tags_by_artist = self.tags_by_artist
@@ -1600,7 +1596,7 @@ class BiographiesFetcher(NewThread):
 
     def run(self):
         linkfiles = {}
-        self.log('') ; self.log('\tCollecting last.fm user listening data')
+        self.log('\tCollecting last.fm user listening data')
         self.log('') ;
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
@@ -1619,15 +1615,15 @@ class BiographiesFetcher(NewThread):
             names=linkfiles.keys(),
             filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
-        self.log('') ; self.log('\tArtist biographies')
+        self.log('\tArtist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
         self.dbm.root.write_present_artist_biographies(f)
 
-        self.log('') ; self.log('\tRecommended artists biographies')
+        self.log('\tRecommended artists biographies')
         self.dbm.root.write_similar_but_absent_biographies(
             self.dirs['lastfm_recommended'])
 
-        self.log('') ; self.log('\tUpdating biographies on disk')
+        self.log('\tUpdating biographies on disk')
         self.dbm.root.update_biographies_on_disk()
 
         self.finishUp()
