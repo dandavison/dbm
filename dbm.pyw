@@ -1312,7 +1312,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
 
 class NewThread(QThread):
-    """class code descended from class Walker
+    """Class code descended from class Walker
     rgpwpyqt/chap19/walker.py. This is a base class for action to be
     carried out in a new execution thread. This class cannot actually
     run anything, as it lacks a run() method; the subclasses implement
