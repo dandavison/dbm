@@ -440,7 +440,10 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == nok:
                 log('\tSingle artist playlists: \t[%d / %d]' % (i, nok))
-            write_playlist(generate_playlist([artist]), path)
+            try:
+                write_playlist(generate_playlist([artist]), path)
+            except Exception, e:
+                error('Failed to write single artist playlist for %s: %s' % (artist.name, e))
 
     def write_all_artists_playlist(self, direc, chunk_size=1000):
         self.gather_subtree_tracks(self)
@@ -456,7 +459,10 @@ class Root(Node):
             path = os.path.join(direc, ('0' if plist < 10 else '') + str(plist) + '.m3u')
             if os.path.exists(path): continue
             tracks = self.subtree_tracks[chunk_start:chunk_end]
-            write_playlist(tracks, filepath)
+            try:
+                write_playlist(tracks, path)
+            except Exception, e:
+                error('Failed to write all artists playlist (chunk %d): %s' % (plist, e))
 
     def write_lastfm_similar_and_present_linkfiles(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
@@ -471,8 +477,9 @@ class Root(Node):
                 log('\tLast.fm similar artists link files: \t[%d / %d]' % (i, nok))
             try:
                 write_linkfile(artist.lastfm_similar_and_present_artists(), path)
-            except:
-                error('Failed to create last.fm similar link file for artist %s' % artist.name)
+            except Exception, e:
+                error('Failed to create last.fm similar link file for artist %s: %s' % (
+                        artist.name, e))
 
     def write_lastfm_tag_linkfiles(self, direc):
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
@@ -487,8 +494,8 @@ class Root(Node):
                 log('\tLast.fm tag link files: \t[%d / %d]' % (i, n))
             try:
                 write_linkfile(tag.artists, path)
-            except:
-                error('Failed to create link file for tag %s' % tag.name)
+            except Exception, e:
+                error('Failed to create link file for tag %s: %s' % (tag.name, e))
 
     def write_lastfm_tag_playlists(self, direc):
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
@@ -523,7 +530,10 @@ class Root(Node):
 
     def write_present_artist_biographies(self, filepath):
         artists = [a for a in self.artists.values() if a.is_present()]
-        write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
+        try:
+            write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
+        except Exception, e:
+            error('Failed to write present artists biographies linkfile: %s' % e)
             
     def write_similar_but_absent_biographies(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
@@ -536,11 +546,14 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == 1 or i == n:
                 logi('\tSimilar but absent biography links : \t%d / %d' % (i, n))
-            write_biographies_linkfile(
-                a.lastfm_similar_but_absent_artists(settings.num_simartist_biographies),
-                path,
-                metadata=dict(Similar_to=a.name, Present='No'))
-        
+            try:
+                write_biographies_linkfile(
+                    a.lastfm_similar_but_absent_artists(settings.num_simartist_biographies),
+                    path,
+                    metadata=dict(Similar_to=a.name, Present='No'))
+            except Exception, e:
+                error('Failed to write similar but absent biographies linkfile for ' + \
+                          '%s: %s' % (a.name, e))
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
@@ -554,7 +567,10 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == nok:
                 log('Musicspace similar artists link files: \t%d / %d' % (i, nok))
-            write_linkfile(artist.musicspace_similar_artists(), path)
+            try:
+                write_linkfile(artist.musicspace_similar_artists(), path)
+            except Exception, e:
+                error('Failed to write musicspace similar linkfile for %s: %s' % (artist.name, e))
 
     def write_a_to_z_linkfiles(self, direc):
         """Create alphabetical directory of music folders. For each
@@ -570,9 +586,8 @@ class Root(Node):
             artists = [a for a in self.artists.values() if a.name[0].upper() == c]
             try:
                 write_linkfile(sorted(artists), path)
-                               
-            except:
-                error('Failed to create linkfile for index letter %s' % c)
+            except Exception, e:
+                error('Failed to create linkfile for index letter %s: %s' % (c, e))
 
     def present_artists(self):
         """Return a filtered version of self.artists, containing only
@@ -820,8 +835,8 @@ class Artist(object):
         artists = filter(lambda(a): a.tracks, artists)
         try:
             return [random.sample(artist.tracks, 1)[0] for artist in artists]
-        except:
-            log('Error creating musicspace playlist for %s' % self.name)
+        except Exception, e:
+            log('Error creating musicspace playlist for %s: %s' % (self.name, e))
             return []
 
     def musicspace_similar_artists_nodes(self):

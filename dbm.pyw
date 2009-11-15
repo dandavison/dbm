@@ -1557,10 +1557,18 @@ class LinksCreator(NewThread):
             user = self.dbm.root.lastfm_users[name]
             d = os.path.join(self.dirs['lastfm_users'], name)
             ded.mkdirp(d)
-            self.dbm.write_linkfile(user.listened_and_present_artists(),
+            try:
+                self.dbm.write_linkfile(user.listened_and_present_artists(),
                                     os.path.join(d, 'Listened.link'))
-            self.dbm.write_linkfile(user.unlistened_but_present_artists(),
-                                    os.path.join(d, 'Unlistened.link'))
+            except Exception, e:
+                self.error('Failed to write listened-and-present linkfile for user %s: %s' % (
+                        user.name, e))
+            try:
+                self.dbm.write_linkfile(user.unlistened_but_present_artists(),
+                                        os.path.join(d, 'Unlistened.link'))
+            except Exception, e:
+                self.error('Failed to write unlistened-but-present linkfile for user %s: %s' % (
+                        user.name, e))
 
         self.log('') ; self.log('\tMusic organised by artist tags')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
@@ -1578,8 +1586,11 @@ class LinksCreator(NewThread):
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('') ; self.log('\tAll Artist links')
-        self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
-                                os.path.join(self.settings.links_path, 'All Artists.link'))
+        try:
+            self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
+                                    os.path.join(self.settings.links_path, 'All Artists.link'))
+        except Exception, e:
+            self.error('Failed to write all artists linkfile: %s' % e)
 
         self.finishUp()
 
