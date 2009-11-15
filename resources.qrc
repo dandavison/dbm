@@ -17,6 +17,7 @@
 <file alias="home.png">images/home.png</file>
 <file alias="icon.png">images/icon.png</file>
 <file alias="Python_reticulatus.png">images/Python_reticulatus.png</file>
+<file alias="tool.png">images/tool.png</file>
 <file alias="abort.png">images/x_3.png</file>
 <file alias="rockbox.png">images/rockbox.png</file>
 <file alias="last.fm.png">images/last.fm.png</file>

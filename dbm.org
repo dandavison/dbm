@@ -2,11 +2,15 @@
 * move linkfile chunking to higher level?
   and check whether filenames exist?
 * x Choose name
+ - thirdeye
+ - lateralus
+
+  
+
  - musipedia
  - musipede
  - zuneti
  - musifer
- - lateralus
 
  - rbiter, rbitr8, rbitrate, rbitrary, arbiter
  - rblink rblinkz rblinks

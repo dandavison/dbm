@@ -43,7 +43,7 @@ import optparse, logging
 import pylast.pylast as pylast
 import track
 from dedpy.ded import *
-__version__ = '0.9.45'
+__version__ = '0.9.50'
 __progname__ = 'dbm'
 __root_path__ = None
 
@@ -183,13 +183,11 @@ class Node(object):
 
             url = None
             gotit = False
-            album = pylast.Album(ar[0], ar[1], **settings.lastfm)
+            album = settings.network.get_album(*ar)
             try:
-                url = album.get_image_url() # it's unicode
-            except pylast.ServiceException, e:
+                url = album.get_cover_image() # it's unicode
+            except Exception, e:
                 error('Error obtaining album art URL for %s: %s' % (unicode(ar), e))
-            except:
-                error('Error obtaining album art URL for %s' % unicode(ar))
             if url:
                 try:
                     urllib.urlretrieve(url, target)
@@ -388,7 +386,7 @@ class Root(Node):
     def create_lastfm_user(self, name):
         log('')
         try:
-            user = LastFmUser(name, settings.lastfm)
+            user = LastFmUser(name)
             user.get_artist_counts()
         except:
             error('Failed to find last.fm user %s' % name, level=2)
@@ -442,7 +440,10 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == nok:
                 log('\tSingle artist playlists: \t[%d / %d]' % (i, nok))
-            write_playlist(generate_playlist([artist]), path)
+            try:
+                write_playlist(generate_playlist([artist]), path)
+            except Exception, e:
+                error('Failed to write single artist playlist for %s: %s' % (artist.name, e))
 
     def write_all_artists_playlist(self, direc, chunk_size=1000):
         self.gather_subtree_tracks(self)
@@ -458,7 +459,10 @@ class Root(Node):
             path = os.path.join(direc, ('0' if plist < 10 else '') + str(plist) + '.m3u')
             if os.path.exists(path): continue
             tracks = self.subtree_tracks[chunk_start:chunk_end]
-            write_playlist(tracks, filepath)
+            try:
+                write_playlist(tracks, path)
+            except Exception, e:
+                error('Failed to write all artists playlist (chunk %d): %s' % (plist, e))
 
     def write_lastfm_similar_and_present_linkfiles(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
@@ -473,8 +477,9 @@ class Root(Node):
                 log('\tLast.fm similar artists link files: \t[%d / %d]' % (i, nok))
             try:
                 write_linkfile(artist.lastfm_similar_and_present_artists(), path)
-            except:
-                error('Failed to create last.fm similar link file for artist %s' % artist.name)
+            except Exception, e:
+                error('Failed to create last.fm similar link file for artist %s: %s' % (
+                        artist.name, e))
 
     def write_lastfm_tag_linkfiles(self, direc):
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
@@ -489,8 +494,8 @@ class Root(Node):
                 log('\tLast.fm tag link files: \t[%d / %d]' % (i, n))
             try:
                 write_linkfile(tag.artists, path)
-            except:
-                error('Failed to create link file for tag %s' % tag.name)
+            except Exception, e:
+                error('Failed to create link file for tag %s: %s' % (tag.name, e))
 
     def write_lastfm_tag_playlists(self, direc):
         ok = lambda(tag): len(tag.artists) >= settings.minTagArtists
@@ -525,7 +530,10 @@ class Root(Node):
 
     def write_present_artist_biographies(self, filepath):
         artists = [a for a in self.artists.values() if a.is_present()]
-        write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
+        try:
+            write_biographies_linkfile(artists, filepath, dict(In_library='Yes'))
+        except Exception, e:
+            error('Failed to write present artists biographies linkfile: %s' % e)
             
     def write_similar_but_absent_biographies(self, direc):
         ok = lambda(a): len(a.tracks) >= settings.minArtistTracks
@@ -538,11 +546,14 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == 1 or i == n:
                 logi('\tSimilar but absent biography links : \t%d / %d' % (i, n))
-            write_biographies_linkfile(
-                a.lastfm_similar_but_absent_artists(settings.num_simartist_biographies),
-                path,
-                metadata=dict(Similar_to=a.name, Present='No'))
-        
+            try:
+                write_biographies_linkfile(
+                    a.lastfm_similar_but_absent_artists(settings.num_simartist_biographies),
+                    path,
+                    metadata=dict(Similar_to=a.name, Present='No'))
+            except Exception, e:
+                error('Failed to write similar but absent biographies linkfile for ' + \
+                          '%s: %s' % (a.name, e))
     def write_musicspace_similar_artists_linkfiles(self, direc):
         def ok(a):
             return hasattr(a, 'artists_weights') and \
@@ -556,7 +567,10 @@ class Root(Node):
             if os.path.exists(path): continue
             if i % 10 == 0 or i == nok:
                 log('Musicspace similar artists link files: \t%d / %d' % (i, nok))
-            write_linkfile(artist.musicspace_similar_artists(), path)
+            try:
+                write_linkfile(artist.musicspace_similar_artists(), path)
+            except Exception, e:
+                error('Failed to write musicspace similar linkfile for %s: %s' % (artist.name, e))
 
     def write_a_to_z_linkfiles(self, direc):
         """Create alphabetical directory of music folders. For each
@@ -572,9 +586,8 @@ class Root(Node):
             artists = [a for a in self.artists.values() if a.name[0].upper() == c]
             try:
                 write_linkfile(sorted(artists), path)
-                               
-            except:
-                error('Failed to create linkfile for index letter %s' % c)
+            except Exception, e:
+                error('Failed to create linkfile for index letter %s: %s' % (c, e))
 
     def present_artists(self):
         """Return a filtered version of self.artists, containing only
@@ -722,7 +735,7 @@ class Artist(object):
                 if not self.lastfm_name:
                     self.set_lastfm_name()
                 name = self.lastfm_name or self.name
-                self.pylast = pylast.Artist(name, **settings.lastfm)
+                self.pylast = settings.network.get_artist(name)
                 
                 self.biography.biography = self.pylast.get_bio_content() \
                     or 'No biography available'
@@ -734,9 +747,7 @@ class Artist(object):
                     # for artists in the library, in order that the
                     # .dbm file stays a reasonable size.
                     try:
-                        error('self.query_lastfm_similar(): %s' % self.name)
                         self.similar_artists = self.query_lastfm_similar()
-                        error('done query')
                     except Exception, e:
                         error('query error: %s' % e)
                     self.tags = self.pylast.get_top_tags()
@@ -750,7 +761,6 @@ class Artist(object):
                     logi(msg_prefix + self.biography_download_message(name, True))
                 waiting = False
                 
-            # except pylast.ServiceException:
             except Exception, e:
                 self.biography.biography = 'No biography available'
                 name = self.lastfm_name or self.name
@@ -799,9 +809,9 @@ class Artist(object):
         if settings.mbid_regexp.match(self.id):
             try:
                 self.lastfm_name = \
-                    pylast.get_artist_by_mbid(self.id, **settings.lastfm).get_name()
-            except pylast.ServiceException:
-                error('Last.fm error for artist %s' % (self.name or self.id))
+                    pylast.get_artist_by_mbid(self.id, settings.network).get_name()
+            except Exception, e:
+                error('Last.fm error for artist %s: %s' % (self.name or self.id, e))
         else:
             self.lastfm_name = self.name
 
@@ -811,7 +821,7 @@ class Artist(object):
         a bit convoluted to do this with the pylast public API."""
 
         params = {'artist': self.lastfm_name or self.name}
-        doc = pylast._Request("artist.getSimilar", params, **settings.lastfm).execute(True)
+        doc = pylast._Request(settings.network, "artist.getSimilar", params).execute(True)
         simids = pylast._extract_all(doc, 'mbid')
         simnames = pylast._extract_all(doc, 'name')
         retval = zip(simids, simnames)
@@ -825,8 +835,8 @@ class Artist(object):
         artists = filter(lambda(a): a.tracks, artists)
         try:
             return [random.sample(artist.tracks, 1)[0] for artist in artists]
-        except:
-            log('Error creating musicspace playlist for %s' % self.name)
+        except Exception, e:
+            log('Error creating musicspace playlist for %s: %s' % (self.name, e))
             return []
 
     def musicspace_similar_artists_nodes(self):
@@ -1030,8 +1040,8 @@ class Tag(object):
         return cmp(self.name, other.name)
 
 class LastFmUser(pylast.User):
-    def __init__(self, name, lastfm_auth_info):
-        pylast.User.__init__(self, name, **lastfm_auth_info)
+    def __init__(self, name):
+        pylast.User.__init__(self, name, settings.network)
         self.artist_counts = {}
 
     def get_weekly_artist_charts_as_dict(self, from_date = None, to_date = None):
@@ -1052,7 +1062,7 @@ class LastFmUser(pylast.User):
             for node in doc.getElementsByTagName("artist"):
                 mbids.append(pylast._extract(node, "mbid"))
                 names.append(pylast._extract(node, "name"))
-                counts.append(int(pylast._extract(node, "playcount")))
+                counts.append(pylast._number(pylast._extract(node, "playcount")))
             return dict(zip(zip(mbids, names), counts))
 
     def get_artist_counts(self):
@@ -1086,9 +1096,7 @@ class LastFmUser(pylast.User):
 class Settings(object):
     various_artists_mbid = '89ad4ac3-39f7-470e-963a-56509c546377'
     lastfm = dict(api_key = 'a271d46d61c8e0960c50bec237c9941d',
-                  api_secret = '680457c03625980f61e88c319c218d53',
-#                  session_key = 'b9815e428303086842b14822296e5cff')
-                  session_key = '')
+                  api_secret = '680457c03625980f61e88c319c218d53')
     mbid_regexp = re.compile('[0-9a-fA-F]'*8 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
                                  '[0-9a-fA-F]'*4 + '-' + \
@@ -1100,7 +1108,7 @@ class Settings(object):
             attributes = [a for a in dir(options) if a[0] != '_']
             for attr in attributes:
                 setattr(self, attr, getattr(options, attr))
-
+        self.network = pylast.get_lastfm_network(**self.lastfm)
     def show(self):
         public = filter(lambda(x): x[0] != '_', dir(self))
         noshow = ['read_file', 'read_module', 'show', 'ensure_value', 'mbid_regexp']
@@ -1170,9 +1178,9 @@ def dbm_split_into_chunks(objects, filepath):
         warn('Splitting large linkfile %s into %d chunks' % (filepath, len(chunks)))
     filepath = filepath.rsplit('.', 1)
     chunk_labels = ['-%d' % (i+1) for i in range(len(chunks))]
-    chunk_labels[0] = ''
+    if len(chunk_labels) > 0: chunk_labels[0] = ''
     filepaths = [filepath[0] + label + '.' + filepath[1] for label in chunk_labels]
-    return objects, filepaths
+    return chunks, filepaths
         
 def artist_nodes(artists):
     return flatten([sorted(list(artist.subtrees)) for artist in artists])

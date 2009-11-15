@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
 
         # Actions -- actions
         createLinksPlaylistsBiographiesAction = self.createAction(
-            "Create links, playlists and biographies",
+            "Download data and create links, playlists & biographies",
             self.createLinksPlaylistsBiographies,
             None, 'playlists', "Download metadata and create all links, playlists and biographies")
         setSimilarArtistsAction = self.createAction(
@@ -414,9 +414,11 @@ class MainWindow(QMainWindow):
     def error(self, message, level=3):
         colour = settings.errorcol if level > 2 else settings.warncol
         self.log(message, colour=colour)
+        self.log('')
     
     def warn(self, message):
         self.error(message, level=1)
+        self.log('')
 
     def okToContinue(self):
         threads = [getattr(self, thread[0]) for thread in self.threads]
@@ -497,44 +499,38 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-    def libraryScan(self, path=None, biographies={}, similar_artists={}, tags_by_artist={}, download_after_scan='Ask'):
+    def libraryScan(self, root=None, download_after_scan='Ask'):
         # descended from Form.setPath() in rgpwpyqt/chap019/pageindexer.pyw
         # Ultimately one might want a separate library scan dialog,
         # with its own scan log. Maybe. See the Form.setPath() code
         # for ideas on doing that.
         if not self.okToContinue(): return
-        rescan = path is not None
-        if dbm.root is not None:
-            if rescan or QMessageBox.question(self,
-                                              "%s - Keep existing artist metadata?" % __progname__,
-                                              "Downloading artist metadata (similar artists, tags, biographies) " + \
-                                                  "can take some time. " +\
-                                                  "Do you want to re-use the metadata from the current library?",
-                                              QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
-                biographies = dbm.root.biographies
-                similar_artists = dbm.root.similar_artists
-                tags_by_artist = dbm.root.tags_by_artist
-            
-        if path is None:
+        if root is not None:
+            path = root.path
+            biographies = root.biographies
+            similar_artists = root.similar_artists
+            tags_by_artist = root.tags_by_artist
+        else:
             path = QFileDialog.getExistingDirectory(
                 self, "%s - Choose a music library to scan" % __progname__,
                 settings.path_to_rockbox or QDir.homePath())
             if path.isEmpty(): return
             path = processPath(path)
-
+            biographies = {}
+            similar_artists = {}
+            tags_by_artist = {}
+ 
         if download_after_scan == 'Ask':
             download_after_scan = QMessageBox.question(
                 self,
                 "%s - Proceed to downloads after scan?" % __progname__,
                 "In addition to scanning the library, downloading the necessary data " +\
                     "from last.fm may take some time. Do you want the downloads to " +\
-                    "start automatically as soon as the scan is finished? " + \
-                    "If you select Yes, then " +\
-                    "all links, playlists and biographies will be created when the downloads " +\
-                    "are complete.",
+                    "start automatically as soon as the scan is finished?",
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
 
         if download_after_scan:
+            self.check_network_connection()
             if not self.setSettings():
                 return False
             if not self.ensure_output_dir_exists(): return
@@ -710,10 +706,20 @@ class MainWindow(QMainWindow):
                 return False
         return True
 
+    def check_network_connection(self):
+        remotes = [dict(hostname='www.stats.ox.ac.uk', url='/~davison/software/dbm/download.php'),
+                   dict(hostname='www.last.fm', url='/')]
+        try:
+            for resp in (ded.read_url(**remote) for remote in remotes):
+                return True
+        except Exception, e:
+            self.warn('Warning: network connection check failed: %s' % e)
+        
     def createLinksPlaylistsBiographies(self):
         if dbm.root is None:
             self.libraryScan(download_after = 'Yes')
         else:
+            self.check_network_connection()
             if self.setSettings():
                 self.setLastfmSimilarArtists()
         return True
@@ -725,7 +731,6 @@ class MainWindow(QMainWindow):
         self.lastfmSimilarArtistSetter.start()
             
     def createLinks(self):
-        self.log('')
         self.log('Creating links', colour=settings.colour1)
 
         ded.mkdirp(settings.links_path)
@@ -752,7 +757,6 @@ class MainWindow(QMainWindow):
         self.linksCreator.start()
 
     def generatePlaylists(self):
-        self.log('')
         self.log('Generating playlists', colour=settings.colour1)
 
         ded.mkdirp(settings.playlists_path)
@@ -785,7 +789,6 @@ class MainWindow(QMainWindow):
     # (Make sure 'QThread' is registered using qRegisterMetaType().)
             
     def fetchBiographies(self):
-        self.log('')
         self.log('Updating artist biographies', colour=settings.colour1)
 
         ded.mkdirp(settings.links_path)
@@ -812,7 +815,7 @@ class MainWindow(QMainWindow):
         # rgpwpyqt/chap19/pageindexer.pyw
         settings.savefile = None
         self.log('')
-        self.log("Done" if completed else "Stopped")
+        self.logi("Done" if completed else "Stopped")
         self.updateStatus()
         self.dirty = True
         if completed:
@@ -861,7 +864,6 @@ class MainWindow(QMainWindow):
         # rgpwpyqt/chap19/pageindexer.pyw
         self.log("Done" if completed else "Stopped")
         self.updateStatus()
-        self.log('')
         self.dirty = True
         self.lastfmSimilarArtistSetter.wait()
         self.createLinks()
@@ -1321,7 +1323,7 @@ class SettingsDlg(QDialog, ui_settings_dlg.Ui_Dialog):
 
 
 class NewThread(QThread):
-    """class code descended from class Walker
+    """Class code descended from class Walker
     rgpwpyqt/chap19/walker.py. This is a base class for action to be
     carried out in a new execution thread. This class cannot actually
     run anything, as it lacks a run() method; the subclasses implement
@@ -1343,7 +1345,7 @@ class NewThread(QThread):
         self.settings = settings
         self.dbm = dbm
         dbm.log = self.log
-        dbm.logi = self.log
+        dbm.logi = self.logi
         dbm.error = self.error
         dbm.warn = self.warn
 
@@ -1422,8 +1424,8 @@ class LibraryScanner(NewThread):
         
     def run(self):
         self.logc('Scanning library at %s' % self.path)
-        self.dbm.root = dbm.Root(self.path, None)
         self.log('')
+        self.dbm.root = dbm.Root(self.path, None)
         self.dbm.root.biographies = self.biographies
         self.dbm.root.similar_artists = self.similar_artists
         self.dbm.root.tags_by_artist = self.tags_by_artist
@@ -1557,10 +1559,18 @@ class LinksCreator(NewThread):
             user = self.dbm.root.lastfm_users[name]
             d = os.path.join(self.dirs['lastfm_users'], name)
             ded.mkdirp(d)
-            self.dbm.write_linkfile(user.listened_and_present_artists(),
+            try:
+                self.dbm.write_linkfile(user.listened_and_present_artists(),
                                     os.path.join(d, 'Listened.link'))
-            self.dbm.write_linkfile(user.unlistened_but_present_artists(),
-                                    os.path.join(d, 'Unlistened.link'))
+            except Exception, e:
+                self.error('Failed to write listened-and-present linkfile for user %s: %s' % (
+                        user.name, e))
+            try:
+                self.dbm.write_linkfile(user.unlistened_but_present_artists(),
+                                        os.path.join(d, 'Unlistened.link'))
+            except Exception, e:
+                self.error('Failed to write unlistened-but-present linkfile for user %s: %s' % (
+                        user.name, e))
 
         self.log('') ; self.log('\tMusic organised by artist tags')
         self.dbm.root.write_lastfm_tag_linkfiles(self.dirs['tags'])
@@ -1578,8 +1588,11 @@ class LinksCreator(NewThread):
         self.dbm.root.write_a_to_z_linkfiles(self.dirs['AtoZ'])
 
         self.log('') ; self.log('\tAll Artist links')
-        self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
-                                os.path.join(self.settings.links_path, 'All Artists.link'))
+        try:
+            self.dbm.write_linkfile(sorted(dbm.root.artists.values()),
+                                    os.path.join(self.settings.links_path, 'All Artists.link'))
+        except Exception, e:
+            self.error('Failed to write all artists linkfile: %s' % e)
 
         self.finishUp()
 
@@ -1591,8 +1604,8 @@ class BiographiesFetcher(NewThread):
 
     def run(self):
         linkfiles = {}
-        self.log('') ; self.log('\tCollecting last.fm user listening data')
-        self.log('') ; self.log('')
+        self.log('\tCollecting last.fm user listening data')
+        self.log('') ;
         for name in settings.lastfm_user_names:
             if not self.dbm.root.lastfm_users.has_key(name) and \
                     not self.dbm.root.create_lastfm_user(name):
@@ -1610,15 +1623,15 @@ class BiographiesFetcher(NewThread):
             names=linkfiles.keys(),
             filepath=os.path.join(settings.biographies_dir, 'Last.fm Users Absent Artists.link'))
 
-        self.log('') ; self.log('\tArtist biographies')
+        self.log('\tArtist biographies')
         f = os.path.join(settings.biographies_dir, 'Artists in Library.link')
         self.dbm.root.write_present_artist_biographies(f)
 
-        self.log('') ; self.log('\tRecommended artists biographies')
+        self.log('\tRecommended artists biographies')
         self.dbm.root.write_similar_but_absent_biographies(
             self.dirs['lastfm_recommended'])
 
-        self.log('') ; self.log('\tUpdating biographies on disk')
+        self.log('\tUpdating biographies on disk')
         self.dbm.root.update_biographies_on_disk()
 
         self.finishUp()
@@ -1636,7 +1649,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setOrganizationName(__progname__)
     app.setApplicationName(__progname__)
-
+    app.setOrganizationDomain(__author__)
+    app.setWindowIcon(QIcon(":/tool.png"))
     if len(sys.argv) > 1 and sys.argv[1] == '-e':
         __log_to_file__ = False
 
