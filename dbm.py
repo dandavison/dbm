@@ -732,9 +732,7 @@ class Artist(object):
                     # for artists in the library, in order that the
                     # .dbm file stays a reasonable size.
                     try:
-                        error('self.query_lastfm_similar(): %s' % self.name)
                         self.similar_artists = self.query_lastfm_similar()
-                        error('done query')
                     except Exception, e:
                         error('query error: %s' % e)
                     self.tags = self.pylast.get_top_tags()
