@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
 
         # Actions -- actions
         createLinksPlaylistsBiographiesAction = self.createAction(
-            "Create links, playlists and biographies",
+            "Download data and create links, playlists & biographies",
             self.createLinksPlaylistsBiographies,
             None, 'playlists', "Download metadata and create all links, playlists and biographies")
         setSimilarArtistsAction = self.createAction(
