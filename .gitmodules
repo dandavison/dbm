@@ -1,9 +1,0 @@
-[submodule "dedpy"]
-	path = dedpy
-	url =  git://github.com/dandavison/dedpy.git
-[submodule "cmdline"]
-	path = cmdline
-	url = git://github.com/dandavison/cmdline.git
-[submodule "pylast"]
-	path = pylast
-	url = git://github.com/dandavison/pylast.git
