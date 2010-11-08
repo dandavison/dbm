@@ -750,7 +750,7 @@ class Artist(object):
                         self.similar_artists = self.query_lastfm_similar()
                     except Exception, e:
                         error('query error: %s' % e)
-                    self.tags = self.pylast.get_top_tags()
+                    self.tags = [t.item for t in self.pylast.get_top_tags()]
                     for t in self.tags:
                         t.name = canonicalise_tag_name(t.name)
                     root.similar_artists[self.id] = self.similar_artists
