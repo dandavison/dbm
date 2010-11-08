@@ -707,8 +707,7 @@ class MainWindow(QMainWindow):
         return True
 
     def check_network_connection(self):
-        remotes = [dict(hostname='www.stats.ox.ac.uk', url='/~davison/software/dbm/download.php'),
-                   dict(hostname='www.last.fm', url='/')]
+        remotes = [dict(hostname='www.last.fm', url='/')]
         try:
             for resp in (ded.read_url(**remote) for remote in remotes):
                 return True
